@@ -1,7 +1,36 @@
-import React from "react";
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import InputFormStyles from './InputForm.css'
 
-const inputForm = () => {
-  return <div>inputForm</div>;
-};
+interface InputFormProps {
+  label: string
+  id: string
+  type: string
+  placeholder: string
+  disabled?: boolean
+}
 
-export default inputForm;
+const InputForm = ({
+  label,
+  id,
+  type,
+  placeholder,
+  disabled = false,
+}: InputFormProps) => {
+  return (
+    <div className={InputFormStyles.container}>
+      <Label htmlFor={id} className={InputFormStyles.label}>
+        {label}
+      </Label>
+      <Input
+        type={type}
+        id={id}
+        placeholder={placeholder}
+        disabled={disabled}
+        className={`${InputFormStyles.input} ${InputFormStyles.placeholder}`}
+      />
+    </div>
+  )
+}
+
+export default InputForm
