@@ -28,7 +28,7 @@ export function TextareaWithText({
         placeholder={label}
         value={text}
         onChange={handleChange}
-        className="placeholder:text-gray-400"
+        className="placeholder:text-gray-400 border border-gray-300"
       />
       <p className="text-sm text-muted-foreground text-right font-normal leading-5">
         <span className="text-black">{text.length}</span>

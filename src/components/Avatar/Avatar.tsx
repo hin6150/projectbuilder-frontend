@@ -1,7 +1,38 @@
-import React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
-const Avatar = () => {
-  return <div>Avatar</div>;
-};
+interface AvatarProps {
+  imageUrl?: string
+  name: string
+}
+export function ProfileAvatar({ imageUrl, name }: AvatarProps) {
+  const getFallBackText = (name: string) => {
+    // 한글 이름인지 판별하는 정규식
+    const isKorean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/
 
-export default Avatar;
+    if (isKorean.test(name)) {
+      // 한글 이름일 경우
+      const nameLength = name.length
+      if (nameLength >= 3) {
+        return name.slice(-2)
+      }
+      return name
+    } else {
+      // 영어 이름일 경우
+      const initials = name
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase())
+        .join('')
+      return initials
+    }
+  }
+
+  return (
+    <Avatar>
+      {imageUrl ? (
+        <AvatarImage src={imageUrl} alt="Avatar Image" />
+      ) : (
+        <AvatarFallback>{getFallBackText(name)}</AvatarFallback>
+      )}
+    </Avatar>
+  )
+}
