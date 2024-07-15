@@ -96,7 +96,7 @@ const config = {
             fontWeight: '400',
           },
         ],
-        subtitle: [
+        subtle: [
           '0.875rem',
           {
             lineHeight: '1.25rem',
