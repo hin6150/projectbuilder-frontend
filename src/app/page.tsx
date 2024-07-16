@@ -1,7 +1,6 @@
 'use client'
 
 import { useUserInfoQuery } from '@/api'
-import Link from 'next/link'
 
 export default function Home() {
   const { data } = useUserInfoQuery()

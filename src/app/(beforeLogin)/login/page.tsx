@@ -6,8 +6,8 @@ import React from 'react'
 
 const page = () => {
   return (
-    <Link href="/auth">
-      <div>?</div>
+    <Link href="/auth/token?access=AccessToken&refresh=RefreshToken">
+      <div>로그인 하기</div>
     </Link>
   )
 }

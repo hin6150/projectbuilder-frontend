@@ -6,11 +6,9 @@ import { UserInfoResponse } from './model'
 
 export const userService = {
   async userInfo(client: QueryClient) {
-    return (
-      APIBuilder.get('/UserInfo')
-        //   .withCredentials(client)
-        .build()
-        .call<UserInfoResponse>()
-    )
+    return APIBuilder.get('/UserInfo')
+      .withCredentials(client)
+      .build()
+      .call<UserInfoResponse>()
   },
 }
