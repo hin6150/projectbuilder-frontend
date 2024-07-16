@@ -8,7 +8,8 @@ export const metadata: Metadata = {
 }
 
 import { cn } from '@/lib/utils'
-
+import { MSWComponent } from '@/api/MSWComponent'
+import ReactQueryProvider from '@/providers/ReactQueryProvider'
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={cn('min-h-screen bg-background antialiased')}>
-        {children}
+        <MSWComponent>
+          <ReactQueryProvider>{children}</ReactQueryProvider>
+        </MSWComponent>
       </body>
     </html>
   )
