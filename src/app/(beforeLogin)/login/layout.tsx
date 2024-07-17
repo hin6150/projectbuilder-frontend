@@ -1,7 +1,11 @@
-import React from "react";
+import Login from './page'
 
 const layout = () => {
-  return <div>layout</div>;
-};
+  return (
+    <div>
+      <Login />
+    </div>
+  )
+}
 
-export default layout;
+export default layout
