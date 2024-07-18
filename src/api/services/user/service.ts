@@ -2,7 +2,7 @@ import { QueryClient } from '@tanstack/react-query'
 
 import { APIBuilder } from '../../lib/fetcher'
 
-import { UserInfoResponse } from './model'
+import { DefaultResponse, UserInfoDTO, UserInfoResponse } from './model'
 
 export const userService = {
   async userInfo(client: QueryClient) {
@@ -10,5 +10,11 @@ export const userService = {
       .withCredentials(client)
       .build()
       .call<UserInfoResponse>()
+  },
+  async userEdit(client: QueryClient, dto: UserInfoDTO) {
+    return APIBuilder.post('/UserInfo')
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
 }

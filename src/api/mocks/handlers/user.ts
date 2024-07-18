@@ -1,10 +1,9 @@
 import { http, HttpResponse } from 'msw'
 
-import { API_URL } from '../config'
 import { UserStatus } from '@/api/services/user/model'
 
 export const userHandlers = [
-  http.get(`${API_URL}/UserInfo`, () => {
+  http.get(`${process.env.NEXT_PUBLIC_API_URL}/UserInfo`, () => {
     return HttpResponse.json({
       code: 'SUCCESS',
       result: {

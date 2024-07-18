@@ -22,3 +22,14 @@ export interface UserInfoResponse {
     MBTI: string
   }
 }
+
+export interface UserInfoDTO {
+  name: string
+  phone: string
+  requiredTermsAgree: boolean
+  marketingEmailOptIn: boolean
+}
+
+export interface DefaultResponse {
+  code: string
+}

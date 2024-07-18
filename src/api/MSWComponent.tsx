@@ -2,11 +2,23 @@
 
 import { useEffect, useState } from 'react'
 
+export const initMsw = async () => {
+  if (
+    process.env.NEXT_RUNTIME !== 'nodejs' &&
+    process.env.NEXT_PUBLIC_MSW === 'enable'
+  ) {
+    const { worker } = await import('./mocks/worker/browser')
+    await worker.start({
+      onUnhandledRequest: 'bypass',
+    })
+  }
+}
+
 export const MSWComponent = ({ children }: { children: React.ReactNode }) => {
   const [mswReady, setMswReady] = useState(false)
+
   useEffect(() => {
     const init = async () => {
-      const { initMsw } = await import('./index')
       await initMsw()
       setMswReady(true)
     }
