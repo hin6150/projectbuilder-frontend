@@ -13,3 +13,6 @@ export {
   useUserInfoMutation,
 } from './services/user/quries'
 export { userService } from './services/user/service'
+
+//Project
+export { ProjectInviteState } from './services/project/model'
