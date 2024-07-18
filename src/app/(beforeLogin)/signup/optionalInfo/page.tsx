@@ -1,6 +1,5 @@
 'use client'
 import * as React from 'react'
-
 import { useForm } from 'react-hook-form'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -15,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
 import { cn } from '@/lib/utils'
 import {
   Command,
@@ -37,25 +35,25 @@ interface Entry {
 }
 
 const mbtiOptions = [
-  { value: 'ISTJ', label: 'ISTJ' },
-  { value: 'ISFJ', label: 'ISFJ' },
-  { value: 'INFJ', label: 'INFJ' },
-  { value: 'INTJ', label: 'INTJ' },
-  { value: 'ISTP', label: 'ISTP' },
-  { value: 'ISFP', label: 'ISFP' },
-  { value: 'INFP', label: 'INFP' },
-  { value: 'INTP', label: 'INTP' },
-  { value: 'ESTP', label: 'ESTP' },
-  { value: 'ESFP', label: 'ESFP' },
-  { value: 'ENFP', label: 'ENFP' },
-  { value: 'ENTP', label: 'ENTP' },
-  { value: 'ESTJ', label: 'ESTJ' },
-  { value: 'ESFJ', label: 'ESFJ' },
-  { value: 'ENFJ', label: 'ENFJ' },
-  { value: 'ENTJ', label: 'ENTJ' },
-]
+  'ISTJ',
+  'ISFJ',
+  'INFJ',
+  'INTJ',
+  'ISTP',
+  'ISFP',
+  'INFP',
+  'INTP',
+  'ESTP',
+  'ESFP',
+  'ENFP',
+  'ENTP',
+  'ESTJ',
+  'ESFJ',
+  'ENFJ',
+  'ENTJ',
+].map((value) => ({ value, label: value }))
 
-const optionalInfo: React.FC = () => {
+const page: React.FC = () => {
   const form = useForm()
   const [addTool, setAddTool] = React.useState<string>('')
   const [email, setEmail] = React.useState<string>('')
@@ -64,6 +62,7 @@ const optionalInfo: React.FC = () => {
   const [stackArray, setStackArray] = React.useState<string[]>([])
   const [mbtiOpen, setMbtiOpen] = React.useState<boolean>(false)
   const [value, setValue] = React.useState<string>('')
+  const [region, setRegion] = React.useState<string>('')
 
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
@@ -73,6 +72,7 @@ const optionalInfo: React.FC = () => {
       setEmail('')
     }
   }
+
   const handleRemove = (index: number) => {
     setEntries(entries.filter((_, i) => i !== index))
   }
@@ -88,7 +88,9 @@ const optionalInfo: React.FC = () => {
     }
   }
 
-  async function onSubmit() {}
+  const onSubmit = async () => {
+    // handle form submission
+  }
 
   return (
     <div className="flex w-full py-[310px] justify-center items-center font-pretendard">
@@ -104,20 +106,17 @@ const optionalInfo: React.FC = () => {
           </div>
           <div className="flex flex-col items-start gap-[16px] self-stretch">
             <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-              <FormLabel htmlFor="region">거주지역</FormLabel>
-              <div className="flex items-start gap-[8px] self-stretch">
-                <Input placeholder="거주지역" name="region" />
-                <Button
-                  type="submit"
-                  className="bg-blue-200 hover:bg-blue-100 text-blue-600"
-                >
-                  검색하기
-                </Button>
-              </div>
+              <FormLabel className="text-[16px]">거주지역</FormLabel>
+              <Input
+                placeholder="거주지역"
+                name="region"
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+              />
             </FormItem>
 
             <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-              <FormLabel>기타 정보</FormLabel>
+              <FormLabel className="text-[16px]">기타 정보</FormLabel>
               <div className="inline-flex items-start gap-[10px]">
                 <Select value={addTool} onValueChange={setAddTool}>
                   <SelectTrigger className="w-[200px]">
@@ -176,7 +175,9 @@ const optionalInfo: React.FC = () => {
             </FormItem>
 
             <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-              <FormLabel>기술 스택(쉼표로 구분)</FormLabel>
+              <FormLabel className="text-[16px]">
+                기술 스택(쉼표로 구분)
+              </FormLabel>
               <Input
                 placeholder="기술스택"
                 value={techStack}
@@ -185,7 +186,7 @@ const optionalInfo: React.FC = () => {
             </FormItem>
 
             <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-              <FormLabel>MBTI</FormLabel>
+              <FormLabel className="text-[16px]">MBTI</FormLabel>
               <Popover open={mbtiOpen} onOpenChange={setMbtiOpen}>
                 <PopoverTrigger asChild>
                   <Button
@@ -239,7 +240,7 @@ const optionalInfo: React.FC = () => {
               </Popover>
             </FormItem>
 
-            <div className="flex justify-end itmes-center gap-[8px] self-stretch">
+            <div className="flex justify-end items-center gap-[8px] self-stretch">
               <Button className="bg-white hover:bg-gray-100 text-gray-400">
                 건너뛰기
               </Button>
@@ -257,4 +258,4 @@ const optionalInfo: React.FC = () => {
   )
 }
 
-export default optionalInfo
+export default page
