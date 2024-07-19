@@ -3,7 +3,7 @@ import * as React from 'react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { boolean, z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -33,6 +33,13 @@ const formSchema = z.object({
       message: '올바른 전화번호를 입력해주세요.',
     },
   ),
+  use: z.boolean().refine((value) => value === true, {
+    message: '이 항목을 체크해야 합니다.',
+  }),
+  privacy: z.boolean().refine((value) => value === true, {
+    message: '이 항목을 체크해야 합니다.',
+  }),
+  mail: z.boolean().optional(),
 })
 
 const formatPhoneNumber = (value: string) => {
@@ -52,8 +59,11 @@ const JoinForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: '',
-      email: '',
+      email: 'hin6150@gmail.com',
       phonenumber: '',
+      use: false,
+      privacy: false,
+      mail: false,
     },
   })
 
@@ -86,6 +96,15 @@ const JoinForm = () => {
   //     return newCheckedItems
   //   })
   // }
+
+  const isAllChecked =
+    form.watch('use') && form.watch('privacy') && form.watch('mail')
+
+  const onCheckAll = (chekced: boolean) => {
+    form.setValue('use', chekced, { shouldValidate: true })
+    form.setValue('privacy', chekced, { shouldValidate: true })
+    form.setValue('mail', chekced, { shouldValidate: true })
+  }
 
   // const isSubmitDisabled = !checkedItems.use && !checkedItems.privacy
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -168,9 +187,9 @@ const JoinForm = () => {
             <div className="flex items-start gap-[8px]">
               <Checkbox
                 id="all"
-                // checked={checkedItems.all}
-                // onCheckedChange={(checked) => handleAllCheck}
-                className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
+                checked={isAllChecked}
+                onCheckedChange={onCheckAll}
+                // className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
               />
               <label
                 htmlFor="all"
@@ -181,50 +200,91 @@ const JoinForm = () => {
             </div>
             <div className="h-[1px] self-stretch bg-gray-200" />
             <div className="flex flex-col items-start gap-[16px] self-stretch">
-              <div className="flex items-start gap-[8px]">
-                <Checkbox
-                  id="use"
-                  // checked={checkedItems.use}
-                  // onChange={() => handleCheck}
-                  className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
-                />
-                <label
-                  htmlFor="use"
-                  className="text-gray-500 text-[14px] font-medium- leading-[14px]"
-                >
-                  <span className="text-blue-500 underline">이용약관</span> 동의
-                  (필수)
-                </label>
-              </div>
-              <div className="flex items-start gap-[8px]">
-                <Checkbox
-                  id="privacy"
-                  // checked={checkedItems.privacy}
-                  // onChange={() => handleCheck}
-                  className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
-                />
-                <label
-                  htmlFor="privacy"
-                  className="text-gray-500 text-[14px] font-medium- leading-[14px]"
-                >
-                  <span className="text-blue-500 underline">개인정보 수집</span>{' '}
-                  이용 동의 (필수)
-                </label>
-              </div>
-              <div className="flex items-start gap-[8px]">
-                <Checkbox
-                  id="mail"
-                  // checked={checkedItems.mail}
-                  // onChange={() => handleCheck}
-                  className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
-                />
-                <label
-                  htmlFor="mail"
-                  className="text-gray-500 text-[14px] font-medium- leading-[14px]"
-                >
-                  마케팅 메일 수신 동의 (선택)
-                </label>
-              </div>
+              <FormField
+                control={form.control}
+                name="use"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel />
+                    <FormControl>
+                      <div className="flex items-start gap-[8px]">
+                        <Checkbox
+                          id="use"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          // className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
+                        />
+                        <label
+                          htmlFor="use"
+                          className="text-gray-500 text-[14px] font-medium leading-[14px]"
+                        >
+                          <span className="text-blue-500 underline">
+                            이용약관
+                          </span>{' '}
+                          동의 (필수)
+                        </label>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="privacy"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel />
+                    <FormControl>
+                      <div className="flex items-start gap-[8px]">
+                        <Checkbox
+                          id="privacy"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          // className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
+                        />
+                        <label
+                          htmlFor="privacy"
+                          className="text-gray-500 text-[14px] font-medium- leading-[14px]"
+                        >
+                          <span className="text-blue-500 underline">
+                            개인정보 수집
+                          </span>{' '}
+                          이용 동의 (필수)
+                        </label>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="mail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel />
+                    <FormControl>
+                      <div className="flex items-start gap-[8px]">
+                        <Checkbox
+                          id="mail"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          // className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
+                        />
+                        <label
+                          htmlFor="mail"
+                          className="text-gray-500 text-[14px] font-medium- leading-[14px]"
+                        >
+                          마케팅 메일 수신 동의 (선택)
+                        </label>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </div>
           <Button
