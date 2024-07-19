@@ -1,6 +1,6 @@
 'use client'
 import * as React from 'react'
-import { useForm } from 'react-hook-form'
+import { SubmitHandler, useForm } from 'react-hook-form'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
@@ -28,10 +28,13 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { CommandList } from 'cmdk'
+import { useRouter } from 'next/navigation'
 
-interface Entry {
-  tool: string
-  email: string
+interface FormData {
+  region: string
+  entries: { tool: string; email: string }[]
+  techStack: string
+  mbti: string
 }
 
 const mbtiOptions = [
@@ -54,12 +57,22 @@ const mbtiOptions = [
 ].map((value) => ({ value, label: value }))
 
 const page: React.FC = () => {
-  const form = useForm()
+  const form = useForm<FormData>({
+    defaultValues: {
+      region: '',
+      entries: [],
+      techStack: '',
+      mbti: '',
+    },
+  })
+
+  const router = useRouter()
   const [addTool, setAddTool] = React.useState<string>('')
   const [email, setEmail] = React.useState<string>('')
-  const [entries, setEntries] = React.useState<Entry[]>([])
+  const [entries, setEntries] = React.useState<
+    { tool: string; email: string }[]
+  >([])
   const [techStack, setTechStack] = React.useState<string>('')
-  const [stackArray, setStackArray] = React.useState<string[]>([])
   const [mbtiOpen, setMbtiOpen] = React.useState<boolean>(false)
   const [value, setValue] = React.useState<string>('')
   const [region, setRegion] = React.useState<string>('')
@@ -77,19 +90,37 @@ const page: React.FC = () => {
     setEntries(entries.filter((_, i) => i !== index))
   }
 
-  const handleAddTechStack = () => {
-    if (techStack.trim() !== '') {
-      const newStackArray = [
-        ...stackArray,
-        ...techStack.split(',').map((stack) => stack.trim()),
-      ]
-      setStackArray(newStackArray)
-      setTechStack('')
-    }
-  }
+  React.useEffect(() => {
+    form.setValue('entries', entries)
+  }, [entries, form])
 
-  const onSubmit = async () => {
-    // handle form submission
+  React.useEffect(() => {
+    form.setValue('mbti', value)
+  }, [value, form])
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    const techStackArray = techStack.split(',').map((stack) => stack.trim())
+
+    try {
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          techStack: techStackArray.join(','),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('데이터 저장 실패')
+      }
+
+      router.push('/workspace')
+    } catch (error) {
+      console.error('Error:', error)
+    }
   }
 
   return (
@@ -241,13 +272,13 @@ const page: React.FC = () => {
             </FormItem>
 
             <div className="flex justify-end items-center gap-[8px] self-stretch">
-              <Button className="bg-white hover:bg-gray-100 text-gray-400">
+              <Button
+                onClick={() => router.push('/workspace')}
+                className="bg-white hover:bg-gray-100 text-gray-400"
+              >
                 건너뛰기
               </Button>
-              <Button
-                onClick={handleAddTechStack}
-                className="bg-blue-600 hover:bg-blue-500"
-              >
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-500">
                 입력하기
               </Button>
             </div>

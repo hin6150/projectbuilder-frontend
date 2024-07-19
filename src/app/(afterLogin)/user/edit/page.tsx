@@ -1,7 +1,7 @@
 'use client'
 import * as React from 'react'
 
-import { useForm } from 'react-hook-form'
+import { SubmitErrorHandler, useForm } from 'react-hook-form'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
@@ -31,10 +31,13 @@ import {
 } from '@/components/ui/popover'
 import { CommandList } from 'cmdk'
 import { ProfileAvatar } from '@/components/Avatar/Avatar'
+import { useRouter } from 'next/navigation'
 
-interface Entry {
-  tool: string
-  email: string
+interface FormData {
+  region: string
+  entries: { tool: string; email: string }[]
+  techStack: string
+  mbti: string
 }
 
 const mbtiOptions = [
@@ -58,9 +61,12 @@ const mbtiOptions = [
 
 const profileEdit: React.FC = () => {
   const form = useForm()
+  const router = useRouter()
   const [addTool, setAddTool] = React.useState<string>('')
   const [email, setEmail] = React.useState<string>('')
-  const [entries, setEntries] = React.useState<Entry[]>([])
+  const [entries, setEntries] = React.useState<
+    { tool: string; email: string }[]
+  >([])
   const [techStack, setTechStack] = React.useState<string>('')
   const [stackArray, setStackArray] = React.useState<string[]>([])
   const [mbtiOpen, setMbtiOpen] = React.useState<boolean>(false)
@@ -78,25 +84,45 @@ const profileEdit: React.FC = () => {
     setEntries(entries.filter((_, i) => i !== index))
   }
 
-  const handleAddTechStack = () => {
-    if (techStack.trim() !== '') {
-      const newStackArray = [
-        ...stackArray,
-        ...techStack.split(',').map((stack) => stack.trim()),
-      ]
-      setStackArray(newStackArray)
-      setTechStack('')
+  React.useEffect(() => {
+    form.setValue('entries', entries)
+  }, [entries, form])
+
+  React.useEffect(() => {
+    form.setValue('mbti', value)
+  }, [value, form])
+
+  const onSubmit: SubmitErrorHandler<FormData> = async (data) => {
+    const techStackArray = techStack.split(',').map((stack) => stack.trim())
+
+    try {
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          techStack: techStackArray.join(','),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('데이터 저장 실패')
+      }
+
+      router.push('/workspace')
+    } catch (error) {
+      console.error('Error:', error)
     }
   }
 
-  async function onSubmit() {}
-
   return (
-    <div className="flex w-full h-full px-[824px] py-[370px] items-center gap-[10px] font-pretendard">
+    <div className="flex w-full h-full px-[735px] py-[90px] justify-center items-center gap-[10px] font-pretendard">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-[380px] flex-col items-start gap-[24px] absolute left-770 top-120"
+          className="flex w-[380px] flex-col items-start gap-[24px] "
         >
           <div className="flex flex-col justify-center items-center gap-[8px] self-stretch">
             <p className="text-[20px] text-center font-semibold leading-[28px] tracking-[-0.1px]">
@@ -111,7 +137,21 @@ const profileEdit: React.FC = () => {
               </div>
             </FormItem>
             <FormItem className="flex justify-center items-center gap-[10px] self-stretch">
-              <ProfileAvatar imageUrl="" name="서우" />
+              <div className="relatvie">
+                <Image
+                  src="/camera.png"
+                  alt="카메라"
+                  width={16}
+                  height={16}
+                  className="absolute right-700"
+                />
+                <ProfileAvatar
+                  imageUrl=""
+                  name="서우"
+                  width="70px"
+                  height="70px"
+                />
+              </div>
               <div className="flex w-[300px] flex-col items-start gap-[6px]">
                 <FormLabel>이름</FormLabel>
                 <Input placeholder="dd" />
@@ -175,7 +215,14 @@ const profileEdit: React.FC = () => {
                 ))}
               </div>
             </FormItem>
-
+            <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+              <FormLabel>전화번호</FormLabel>
+              <Input placeholder="전화번호" />
+            </FormItem>
+            <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+              <FormLabel>거주지역</FormLabel>
+              <Input placeholder="거주지역" />
+            </FormItem>
             <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
               <FormLabel>기술 스택(쉼표로 구분)</FormLabel>
               <Input
@@ -241,14 +288,14 @@ const profileEdit: React.FC = () => {
             </FormItem>
 
             <div className="flex justify-end itmes-center gap-[8px] self-stretch">
-              <Button className="bg-white hover:bg-gray-100 text-gray-400">
-                건너뛰기
-              </Button>
               <Button
-                onClick={handleAddTechStack}
-                className="bg-blue-600 hover:bg-blue-500"
+                onClick={() => router.push('/workspace')}
+                className="bg-white hover:bg-gray-100 text-gray-400"
               >
-                입력하기
+                취소하기
+              </Button>
+              <Button type="submit" className="bg-blue-600 hover:bg-blue-500">
+                수정하기
               </Button>
             </div>
           </div>

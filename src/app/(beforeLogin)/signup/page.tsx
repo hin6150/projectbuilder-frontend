@@ -23,7 +23,7 @@ const formSchema = z.object({
   username: z.string().min(2, {
     message: '이름은 2글자 이상이어야 합니다.',
   }),
-  email: z.string().email(''),
+  email: z.string(),
   phonenumber: z.string().refine(
     (value) => {
       const phoneNumber = value.replace(/-/g, '')
@@ -88,21 +88,28 @@ const JoinForm = () => {
   // }
 
   // const isSubmitDisabled = !checkedItems.use && !checkedItems.privacy
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
-  }
+
   const router = useRouter()
-  const signupSubmit = async () => {
-    const result = await form.trigger(['username', 'phonenumber'])
-    if (!result) return
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      })
 
-    const usernameState = form.getFieldState('username')
-    const phonenumberState = form.getFieldState('phonenumber')
+      if (!response.ok) {
+        throw new Error('Failed to sign up')
+      }
 
-    if (!usernameState.invalid && !phonenumberState.invalid) {
+      const data = await response.json()
+      console.log('데이터 저장 성공', data)
+
       router.push('/signup/optionalInfo')
-    } else {
-      form.handleSubmit(onSubmit)()
+    } catch (error) {
+      console.error('데이터 저장 실패', error)
     }
   }
 
@@ -126,7 +133,11 @@ const JoinForm = () => {
                 <FormItem className="flex flex-col items-start gap-[6px] self-stretch opacity-50">
                   <FormLabel className="text-[16px]">이메일</FormLabel>
                   <FormControl>
-                    <Input placeholder="" disabled={true} {...field} />
+                    <Input
+                      placeholder=""
+                      disabled={true}
+                      value="sara0409@naver.com"
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -230,7 +241,6 @@ const JoinForm = () => {
           <Button
             type="submit"
             // disabled={isSubmitDisabled}
-            onClick={() => signupSubmit}
             className="flex w-full px-[16px] py-[8px] justify-center items-center gap-[18px] bg-blue-600 hover:bg-blue-500"
           >
             <p className="text-[14px] font-normal leading-[24px]">회원가입</p>
