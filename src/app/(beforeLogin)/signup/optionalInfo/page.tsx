@@ -1,7 +1,7 @@
 'use client'
 import * as React from 'react'
+import { Check, ChevronsUpDown, Mail, X } from 'lucide-react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { Check, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { Form, FormControl, FormItem, FormLabel } from '@/components/ui/form'
@@ -180,26 +180,28 @@ const page: React.FC = () => {
                     key={index}
                     className="flex h-[32px] px-[8px] py-[6px] items-center gap-[8px] self-stretch"
                   >
-                    <Image
+                    <Mail size={16} />
+                    {/* <Image
                       src="/mail.png"
                       alt="메일 이미지"
                       width={17}
                       height={17}
-                    />
+                    /> */}
                     <span className="flex-1 w-[269px] text-slate-900 text-[14px] font-normal leading-[20px]">
                       {entry.email}
                     </span>
                     <span className="w-[39px] text-slate-500 text-[12px] font-medium leading-[20px]">
                       {entry.tool}
                     </span>
-                    <Image
+                    <X size={16} onClick={() => handleRemove(index)} />
+                    {/* <Image
                       src="/secondary.png"
                       alt="X"
                       width={16}
                       height={16}
                       className="cursor-pointer"
                       onClick={() => handleRemove(index)}
-                    />
+                    /> */}
                   </div>
                 ))}
               </div>
