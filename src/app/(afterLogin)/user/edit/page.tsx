@@ -118,7 +118,7 @@ const profileEdit: React.FC = () => {
   }
 
   return (
-    <div className="flex w-full h-full px-[735px] py-[90px] justify-center items-center gap-[10px] font-pretendard">
+    <div className="flex w-screen px-[12rem] py-[6rem] justify-center items-center gap-[10px] font-pretendard">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

@@ -124,7 +124,7 @@ const page: React.FC = () => {
   }
 
   return (
-    <div className="flex w-full py-[310px] justify-center items-center font-pretendard">
+    <div className="flex w-screen py-[12rem] justify-center items-center font-pretendard">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

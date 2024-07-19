@@ -133,7 +133,7 @@ const JoinForm = () => {
   }
 
   return (
-    <div className="flex w-full h-full px-[770px] py-[279px] justify-center items-start gap-[10px] font-pretendard">
+    <div className="flex w-screen h-screen px-[48rem] py-[10rem] justify-center items-start gap-[10px] font-pretendard">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

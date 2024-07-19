@@ -4,11 +4,12 @@ import loginStyles from './page.css'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { Icon } from '@/components/Icon'
+import { useRouter } from 'next/navigation'
 
 const Login = () => {
   const router = useRouter()
   return (
-    <div className="flex w-full h-full px-[636px] py-[332px] flex-col items-center gap-[48px]">
+    <div className="flex w-screen h-screen px-[39.75rem] py-[20.75rem] flex-col items-center gap-[3rem]">
       <div className="flex w-[627px] flex-col items-center gap-[20px]">
         <p className={loginStyles.title}>일정 조율부터, 프로젝트 관리까지.</p>
         <p className={loginStyles.title}>지금 시작하세요!</p>
