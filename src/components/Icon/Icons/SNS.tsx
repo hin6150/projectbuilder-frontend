@@ -73,3 +73,84 @@ export const snsIcons = {
     </span>
   ),
 }
+
+export const otherIcons = {
+  mail: (
+    <span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+      >
+        <path
+          d="M13.333 2.66675H2.66634C1.92996 2.66675 1.33301 3.2637 1.33301 4.00008V12.0001C1.33301 12.7365 1.92996 13.3334 2.66634 13.3334H13.333C14.0694 13.3334 14.6663 12.7365 14.6663 12.0001V4.00008C14.6663 3.2637 14.0694 2.66675 13.333 2.66675Z"
+          stroke="#334155"
+          stroke-width="1.33333"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M14.6663 4.66675L8.68634 8.46675C8.48052 8.5957 8.24255 8.66409 7.99967 8.66409C7.7568 8.66409 7.51883 8.5957 7.31301 8.46675L1.33301 4.66675"
+          stroke="#334155"
+          stroke-width="1.33333"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </span>
+  ),
+  cancel: (
+    <span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+      >
+        <path
+          d="M12 4L4 12"
+          stroke="#374151"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M4 4L12 12"
+          stroke="#374151"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </span>
+  ),
+  camera: (
+    <span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+      >
+        <path
+          d="M9.66732 2.66667H6.33398L4.66732 4.66667H2.66732C2.3137 4.66667 1.97456 4.80715 1.72451 5.0572C1.47446 5.30724 1.33398 5.64638 1.33398 6.00001V12C1.33398 12.3536 1.47446 12.6928 1.72451 12.9428C1.97456 13.1929 2.3137 13.3333 2.66732 13.3333H13.334C13.6876 13.3333 14.0267 13.1929 14.2768 12.9428C14.5268 12.6928 14.6673 12.3536 14.6673 12V6.00001C14.6673 5.64638 14.5268 5.30724 14.2768 5.0572C14.0267 4.80715 13.6876 4.66667 13.334 4.66667H11.334L9.66732 2.66667Z"
+          stroke="#374151"
+          stroke-width="1.33333"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M8 10.6667C9.10457 10.6667 10 9.77124 10 8.66667C10 7.5621 9.10457 6.66667 8 6.66667C6.89543 6.66667 6 7.5621 6 8.66667C6 9.77124 6.89543 10.6667 8 10.6667Z"
+          stroke="#374151"
+          stroke-width="1.33333"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </span>
+  ),
+}

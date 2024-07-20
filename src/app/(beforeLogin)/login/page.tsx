@@ -1,33 +1,57 @@
+// 'use client'
+
+// import { useUserInfoQuery } from '@/api'
+// import Link from 'next/link'
+// import React from 'react'
+
+// const page = () => {
+//   return (
+//     <Link href="/auth/token?access=AccessToken&refresh=RefreshToken">
+//       <div>로그인 하기</div>
+//     </Link>
+//   )
+// }
+
+// export default page
+
 'use client'
 import * as React from 'react'
-import loginStyles from './page.css'
 import { Button } from '@/components/ui/button'
-import Image from 'next/image'
 import { Icon } from '@/components/Icon'
 import { useRouter } from 'next/navigation'
 
 const Login = () => {
   const router = useRouter()
   return (
-    <div className="flex w-screen h-screen px-[39.75rem] py-[20.75rem] flex-col items-center gap-[3rem]">
+    <div className="flex h-screen w-screen flex-col items-center justify-center gap-[3rem]">
       <div className="flex w-[627px] flex-col items-center gap-[20px]">
-        <p className={loginStyles.title}>일정 조율부터, 프로젝트 관리까지.</p>
-        <p className={loginStyles.title}>지금 시작하세요!</p>
+        <p className="font-pretendard text-4xl font-extrabold leading-none tracking-tighter text-black">
+          일정 조율부터, 프로젝트 관리까지.
+        </p>
+        <p className="font-pretendard text-4xl font-extrabold leading-none tracking-tighter text-black">
+          지금 시작하세요!
+        </p>
       </div>
-      <div className="flex w-[380px] flex-col items:start gap-[20px]">
-        <Button className="gap-[8px] bg-slate-900 hover:bg-slate-800">
+      <div className="items:start flex w-[380px] flex-col gap-[20px]">
+        <Button
+          onClick={() => router.push('/auth/token')}
+          className="gap-[8px] bg-slate-900 hover:bg-slate-800"
+        >
           <Icon name="github" />
-          {/* <Image src="/github.png" alt="github 로고" width={18} height={18} /> */}
           <p className="text-white">깃허브로 시작하기</p>
         </Button>
-        <Button className="gap-[8px] bg-yellow-300 hover:bg-yellow-200">
+        <Button
+          onClick={() => router.push('/auth/token')}
+          className="gap-[8px] bg-yellow-300 hover:bg-yellow-200"
+        >
           <Icon name="kakao" />
-          {/* <Image src="/kakao.png" alt="kakao 로고" width={24} height={24} /> */}
           <p className="text-black">카카오로 시작하기</p>
         </Button>
-        <Button className="gap-[8px] bg-white hover:bg-slate-50 border border-gray-300">
+        <Button
+          onClick={() => router.push('/auth/token')}
+          className="gap-[8px] border border-gray-300 bg-white hover:bg-slate-50"
+        >
           <Icon name="google" />
-          {/* <Image src="/google.png" alt="google 로고" width={18} height={18} /> */}
           <p className="w-[104px] text-black">구글로 시작하기</p>
         </Button>
       </div>

@@ -4,8 +4,7 @@ import * as React from 'react'
 import { SubmitErrorHandler, useForm } from 'react-hook-form'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import Image from 'next/image'
-import { Form, FormControl, FormItem, FormLabel } from '@/components/ui/form'
+import { Form, FormItem, FormLabel } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -32,6 +31,7 @@ import {
 import { CommandList } from 'cmdk'
 import { ProfileAvatar } from '@/components/Avatar/Avatar'
 import { useRouter } from 'next/navigation'
+import { Icon } from '@/components/Icon'
 
 interface FormData {
   region: string
@@ -64,68 +64,110 @@ const profileEdit: React.FC = () => {
   const router = useRouter()
   const [addTool, setAddTool] = React.useState<string>('')
   const [email, setEmail] = React.useState<string>('')
+  const [name, setName] = React.useState<string>('')
+  const [phone, setPhone] = React.useState<string>('')
+  const [address, setAddress] = React.useState<string>('')
+  const [toolEmail, setToolEmail] = React.useState<string>('')
   const [entries, setEntries] = React.useState<
     { tool: string; email: string }[]
   >([])
   const [techStack, setTechStack] = React.useState<string>('')
-  const [stackArray, setStackArray] = React.useState<string[]>([])
   const [mbtiOpen, setMbtiOpen] = React.useState<boolean>(false)
   const [value, setValue] = React.useState<string>('')
+  const [imageUrl, setImageUrl] = React.useState<string>(
+    'https://avatars.githubusercontent.com/u/145416041?v=4',
+  )
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const icon = imageUrl ? 'cancel' : 'camera'
 
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
-    if (addTool && email) {
-      setEntries([...entries, { tool: addTool, email }])
+    if (addTool && toolEmail) {
+      setEntries([...entries, { tool: addTool, email: toolEmail }])
       setAddTool('')
-      setEmail('')
+      setToolEmail('')
     }
   }
   const handleRemove = (index: number) => {
     setEntries(entries.filter((_, i) => i !== index))
   }
 
-  React.useEffect(() => {
-    form.setValue('entries', entries)
-  }, [entries, form])
-
-  React.useEffect(() => {
-    form.setValue('mbti', value)
-  }, [value, form])
-
-  const onSubmit: SubmitErrorHandler<FormData> = async (data) => {
-    const techStackArray = techStack.split(',').map((stack) => stack.trim())
-
-    try {
-      const response = await fetch('/api/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...data,
-          techStack: techStackArray.join(','),
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('데이터 저장 실패')
-      }
-
-      router.push('/workspace')
-    } catch (error) {
-      console.error('Error:', error)
+  const handleIconClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
     }
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImageUrl(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  React.useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/UserInfo`,
+        )
+        const data = await response.json()
+
+        setEmail(data.result.email)
+        setName(data.result.name)
+        setPhone(data.result.phone)
+        setAddress(data.result.address)
+        setEntries(
+          Object.entries(data.result.tool).map(([tool, email]) => ({
+            tool,
+            email: email as string,
+          })),
+        )
+        setTechStack(data.result.stack.join(', '))
+        setValue(data.result.MBTI)
+      } catch (error) {
+        console.error('Error fetching user info:', error)
+      }
+    }
+
+    fetchUserInfo()
+  }, [])
+
+  const onSubmit: SubmitErrorHandler<FormData> = async (data) => {
+    // const techStackArray = techStack.split(',').map((stack) => stack.trim())
+    // try {
+    //   const response = await fetch('/api/submit', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       ...data,
+    //       techStack: techStackArray.join(','),
+    //     }),
+    //   })
+    //   if (!response.ok) {
+    //     throw new Error('데이터 저장 실패')
+    //   }
+    //   router.push('/workspace')
+    // } catch (error) {
+    //   console.error('Error:', error)
+    // }
+  }
+
   return (
-    <div className="flex w-screen px-[12rem] py-[6rem] justify-center items-center gap-[10px] font-pretendard">
+    <div className="flex h-screen w-screen items-center justify-center font-pretendard">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-[380px] flex-col items-start gap-[24px] "
+          className="flex w-[380px] flex-col items-start gap-[24px]"
         >
-          <div className="flex flex-col justify-center items-center gap-[8px] self-stretch">
-            <p className="text-[20px] text-center font-semibold leading-[28px] tracking-[-0.1px]">
+          <div className="flex flex-col items-center justify-center gap-[8px] self-stretch">
+            <p className="text-center text-[20px] font-semibold leading-[28px] tracking-[-0.1px]">
               프로필 정보
             </p>
           </div>
@@ -133,28 +175,37 @@ const profileEdit: React.FC = () => {
             <FormItem className="flex flex-col items-start gap-[6px] self-stretch opacity-50">
               <FormLabel>로그인 계정</FormLabel>
               <div className="flex items-start gap-[8px] self-stretch">
-                <Input placeholder="dd" disabled={true} />
+                <Input value={email} disabled={true} />
               </div>
             </FormItem>
-            <FormItem className="flex justify-center items-center gap-[10px] self-stretch">
-              <div className="relatvie">
-                <Image
-                  src="/camera.png"
-                  alt="카메라"
-                  width={16}
-                  height={16}
-                  className="absolute right-700"
-                />
+            <FormItem className="flex items-center justify-center gap-[10px] self-stretch">
+              <div className="relative">
                 <ProfileAvatar
-                  imageUrl=""
-                  name="서우"
+                  imageUrl={imageUrl}
+                  name={name}
                   width="70px"
                   height="70px"
                 />
+                <Icon
+                  name={icon}
+                  className="absolute right-0 top-0 cursor-pointer"
+                  onClick={() => handleIconClick}
+                />
               </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+                accept="image/*"
+              />
               <div className="flex w-[300px] flex-col items-start gap-[6px]">
                 <FormLabel>이름</FormLabel>
-                <Input placeholder="dd" />
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="dd"
+                />
               </div>
             </FormItem>
             <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
@@ -175,12 +226,13 @@ const profileEdit: React.FC = () => {
 
                 <Input
                   placeholder="계정 이메일"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={toolEmail}
+                  onChange={(e) => setToolEmail(e.target.value)}
                 />
                 <Button
                   onClick={handleAdd}
-                  className="bg-blue-200 hover:bg-blue-100 text-blue-600"
+                  disabled={!addTool || !toolEmail}
+                  className="bg-blue-200 text-blue-600 hover:bg-blue-100"
                 >
                   추가
                 </Button>
@@ -189,39 +241,35 @@ const profileEdit: React.FC = () => {
                 {entries.map((entry, index) => (
                   <div
                     key={index}
-                    className="flex h-[32px] px-[8px] py-[6px] items-center gap-[8px] self-stretch"
+                    className="flex h-[32px] items-center gap-[8px] self-stretch px-[8px] py-[6px]"
                   >
-                    <Image
-                      src="/mail.png"
-                      alt="메일 이미지"
-                      width={17}
-                      height={17}
-                    />
-                    <span className="flex-1 w-[269px] text-slate-900 text-[14px] font-normal leading-[20px]">
+                    <Icon name="mail" />
+                    <span className="w-[269px] flex-1 text-[14px] font-normal leading-[20px] text-slate-900">
                       {entry.email}
                     </span>
-                    <span className="w-[39px] text-slate-500 text-[12px] font-medium leading-[20px]">
+                    <span className="w-[39px] text-[12px] font-medium leading-[20px] text-slate-500">
                       {entry.tool}
                     </span>
-                    <Image
-                      src="/secondary.png"
-                      alt="X"
-                      width={16}
-                      height={16}
-                      className="cursor-pointer"
-                      onClick={() => handleRemove(index)}
-                    />
+                    <Icon name="cancel" onClick={() => handleRemove(index)} />
                   </div>
                 ))}
               </div>
             </FormItem>
             <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
               <FormLabel>전화번호</FormLabel>
-              <Input placeholder="전화번호" />
+              <Input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="전화번호"
+              />
             </FormItem>
             <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
               <FormLabel>거주지역</FormLabel>
-              <Input placeholder="거주지역" />
+              <Input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="거주지역"
+              />
             </FormItem>
             <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
               <FormLabel>기술 스택(쉼표로 구분)</FormLabel>
@@ -240,7 +288,7 @@ const profileEdit: React.FC = () => {
                     variant="outline"
                     role="combobox"
                     aria-expanded={mbtiOpen}
-                    className="w-full justify-between"
+                    className="w-full justify-between border-slate-300"
                   >
                     {value
                       ? mbtiOptions.find(
@@ -250,7 +298,7 @@ const profileEdit: React.FC = () => {
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[380px] max-h-[200px] overflow-y-auto">
+                <PopoverContent className="max-h-[200px] w-[380px] overflow-y-auto">
                   <Command>
                     <CommandInput placeholder="MBTI" />
                     <CommandList>
@@ -287,10 +335,10 @@ const profileEdit: React.FC = () => {
               </Popover>
             </FormItem>
 
-            <div className="flex justify-end itmes-center gap-[8px] self-stretch">
+            <div className="itmes-center flex justify-end gap-[8px] self-stretch">
               <Button
                 onClick={() => router.push('/workspace')}
-                className="bg-white hover:bg-gray-100 text-gray-400"
+                className="bg-white text-gray-400 hover:bg-gray-100"
               >
                 취소하기
               </Button>
