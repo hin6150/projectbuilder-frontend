@@ -17,9 +17,11 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { useRouter } from 'next/navigation'
+import { baseFetcher, Fetcher } from '@/api/lib/fetcher'
+import { UserInfoDTO } from '@/api/services/user/model'
 
 const formSchema = z.object({
-  username: z.string().min(2, {
+  name: z.string().min(2, {
     message: '이름은 2글자 이상이어야 합니다.',
   }),
   email: z.string(),
@@ -57,7 +59,7 @@ const JoinForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
+      name: '',
       email: 'hin6150@gmail.com',
       phonenumber: '',
       use: false,
@@ -77,23 +79,31 @@ const JoinForm = () => {
 
   const router = useRouter()
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // try {
-    //   const response = await fetch('/api/USERINFO', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(values),
-    //   })
-    //   if (!response.ok) {
-    //     throw new Error('Failed to sign up')
-    //   }
-    //   const data = await response.json()
-    //   console.log('데이터 저장 성공', data)
-    //   router.push('/signup/optionalInfo')
-    // } catch (error) {
-    //   console.error('데이터 저장 실패', error)
-    // }
+    const userDTO: UserInfoDTO = {
+      name: values.name,
+      phone: values.phonenumber,
+      requiredTermsAgree: values.use && values.privacy,
+      marketingEmailOptIn: !!values.mail,
+    }
+
+    try {
+      const response = await fetch('/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userDTO),
+      })
+
+      if (response.ok) {
+        console.log('Success:', userDTO)
+        router.push('/workspace')
+      } else {
+        console.error('Failed to submit form')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+    }
   }
 
   return (
@@ -116,19 +126,31 @@ const JoinForm = () => {
                 <FormItem className="flex flex-col items-start gap-[6px] self-stretch opacity-50">
                   <FormLabel className="text-[16px]">이메일</FormLabel>
                   <FormControl>
-                    <Input placeholder="" disabled={true} />
+                    <Input
+                      placeholder=""
+                      disabled={true}
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
                   </FormControl>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
                   <FormLabel className="text-[16px]">이름</FormLabel>
                   <FormControl>
-                    <Input placeholder="이름" {...field} />
+                    <Input
+                      placeholder="이름"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => {
+                        field.onChange(e.target.value)
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -160,7 +182,6 @@ const JoinForm = () => {
                 id="all"
                 checked={isAllChecked}
                 onCheckedChange={onCheckAll}
-                // className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
               />
               <label
                 htmlFor="all"

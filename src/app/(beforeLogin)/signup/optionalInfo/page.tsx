@@ -29,9 +29,10 @@ import {
 } from '@/components/ui/popover'
 import { CommandList } from 'cmdk'
 import { useRouter } from 'next/navigation'
+import { UserInfoResponse } from '@/api'
 
 interface FormData {
-  region: string
+  address: string
   entries: { tool: string; email: string }[]
   techStack: string
   mbti: string
@@ -59,7 +60,7 @@ const mbtiOptions = [
 const page: React.FC = () => {
   const form = useForm<FormData>({
     defaultValues: {
-      region: '',
+      address: '',
       entries: [],
       techStack: '',
       mbti: '',
@@ -75,7 +76,7 @@ const page: React.FC = () => {
   const [techStack, setTechStack] = React.useState<string>('')
   const [mbtiOpen, setMbtiOpen] = React.useState<boolean>(false)
   const [value, setValue] = React.useState<string>('')
-  const [region, setRegion] = React.useState<string>('')
+  const [address, setAddress] = React.useState<string>('')
 
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
@@ -90,48 +91,45 @@ const page: React.FC = () => {
     setEntries(entries.filter((_, i) => i !== index))
   }
 
-  React.useEffect(() => {
-    form.setValue('entries', entries)
-  }, [entries, form])
-
-  React.useEffect(() => {
-    form.setValue('mbti', value)
-  }, [value, form])
-
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    const techStackArray = techStack.split(',').map((stack) => stack.trim())
+    const userInfo: UserInfoResponse = {
+      tool: Object.fromEntries(
+        entries.map((entry) => [entry.tool, entry.email]),
+      ),
+      address: address,
+      stack: techStack.split(',').map((stack) => stack.trim()),
+      MBTI: value,
+    }
 
     try {
-      const response = await fetch('/api/submit', {
+      const response = await fetch('/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...data,
-          techStack: techStackArray.join(','),
-        }),
+        body: JSON.stringify(userInfo),
       })
 
-      if (!response.ok) {
-        throw new Error('데이터 저장 실패')
+      if (response.ok) {
+        console.log('Success:', userInfo)
+        router.push('/workspace')
+      } else {
+        console.error('Failed to submit form')
       }
-
-      router.push('/workspace')
     } catch (error) {
       console.error('Error:', error)
     }
   }
 
   return (
-    <div className="flex w-screen py-[12rem] justify-center items-center font-pretendard">
+    <div className="flex w-screen items-center justify-center py-[12rem] font-pretendard">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-[380px] flex-col items-start gap-[24px] flex-shrink-0"
+          className="flex w-[380px] flex-shrink-0 flex-col items-start gap-[24px]"
         >
-          <div className="flex flex-col justify-center items-center gap-[8px] self-stretch">
-            <p className="text-[20px] text-center font-semibold leading-[28px] tracking-[-0.1px]">
+          <div className="flex flex-col items-center justify-center gap-[8px] self-stretch">
+            <p className="text-center text-[20px] font-semibold leading-[28px] tracking-[-0.1px]">
               선택 정보
             </p>
           </div>
@@ -140,9 +138,8 @@ const page: React.FC = () => {
               <FormLabel className="text-[16px]">거주지역</FormLabel>
               <Input
                 placeholder="거주지역"
-                name="region"
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
               />
             </FormItem>
 
@@ -169,7 +166,8 @@ const page: React.FC = () => {
                 />
                 <Button
                   onClick={handleAdd}
-                  className="bg-blue-200 hover:bg-blue-100 text-blue-600"
+                  disabled={!addTool || !email}
+                  className="bg-blue-200 text-blue-600 hover:bg-blue-100"
                 >
                   추가
                 </Button>
@@ -178,7 +176,7 @@ const page: React.FC = () => {
                 {entries.map((entry, index) => (
                   <div
                     key={index}
-                    className="flex h-[32px] px-[8px] py-[6px] items-center gap-[8px] self-stretch"
+                    className="flex h-[32px] items-center gap-[8px] self-stretch px-[8px] py-[6px]"
                   >
                     <Mail size={16} />
                     {/* <Image
@@ -187,10 +185,10 @@ const page: React.FC = () => {
                       width={17}
                       height={17}
                     /> */}
-                    <span className="flex-1 w-[269px] text-slate-900 text-[14px] font-normal leading-[20px]">
+                    <span className="w-[269px] flex-1 text-[14px] font-normal leading-[20px] text-slate-900">
                       {entry.email}
                     </span>
-                    <span className="w-[39px] text-slate-500 text-[12px] font-medium leading-[20px]">
+                    <span className="w-[39px] text-[12px] font-medium leading-[20px] text-slate-500">
                       {entry.tool}
                     </span>
                     <X size={16} onClick={() => handleRemove(index)} />
@@ -236,7 +234,7 @@ const page: React.FC = () => {
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[380px] max-h-[200px] overflow-y-auto">
+                <PopoverContent className="max-h-[200px] w-[380px] overflow-y-auto">
                   <Command>
                     <CommandInput placeholder="MBTI" />
                     <CommandList>
@@ -273,10 +271,10 @@ const page: React.FC = () => {
               </Popover>
             </FormItem>
 
-            <div className="flex justify-end items-center gap-[8px] self-stretch">
+            <div className="flex items-center justify-end gap-[8px] self-stretch">
               <Button
                 onClick={() => router.push('/workspace')}
-                className="bg-white hover:bg-gray-100 text-gray-400"
+                className="bg-white text-gray-400 hover:bg-gray-100"
               >
                 건너뛰기
               </Button>

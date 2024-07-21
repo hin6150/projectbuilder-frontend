@@ -1,7 +1,7 @@
 'use client'
 import * as React from 'react'
 
-import { SubmitErrorHandler, useForm } from 'react-hook-form'
+import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Form, FormItem, FormLabel } from '@/components/ui/form'
@@ -32,35 +32,38 @@ import { CommandList } from 'cmdk'
 import { ProfileAvatar } from '@/components/Avatar/Avatar'
 import { useRouter } from 'next/navigation'
 import { Icon } from '@/components/Icon'
-
+import { UserInfoResponse } from '@/api'
 interface FormData {
-  region: string
+  id: string
+  name: string
+  phone: string
+  address: string
   entries: { tool: string; email: string }[]
   techStack: string
   mbti: string
 }
 
 const mbtiOptions = [
-  { value: 'ISTJ', label: 'ISTJ' },
-  { value: 'ISFJ', label: 'ISFJ' },
-  { value: 'INFJ', label: 'INFJ' },
-  { value: 'INTJ', label: 'INTJ' },
-  { value: 'ISTP', label: 'ISTP' },
-  { value: 'ISFP', label: 'ISFP' },
-  { value: 'INFP', label: 'INFP' },
-  { value: 'INTP', label: 'INTP' },
-  { value: 'ESTP', label: 'ESTP' },
-  { value: 'ESFP', label: 'ESFP' },
-  { value: 'ENFP', label: 'ENFP' },
-  { value: 'ENTP', label: 'ENTP' },
-  { value: 'ESTJ', label: 'ESTJ' },
-  { value: 'ESFJ', label: 'ESFJ' },
-  { value: 'ENFJ', label: 'ENFJ' },
-  { value: 'ENTJ', label: 'ENTJ' },
-]
+  'ISTJ',
+  'ISFJ',
+  'INFJ',
+  'INTJ',
+  'ISTP',
+  'ISFP',
+  'INFP',
+  'INTP',
+  'ESTP',
+  'ESFP',
+  'ENFP',
+  'ENTP',
+  'ESTJ',
+  'ESFJ',
+  'ENFJ',
+  'ENTJ',
+].map((value) => ({ value, label: value }))
 
 const profileEdit: React.FC = () => {
-  const form = useForm()
+  const form = useForm<FormData>()
   const router = useRouter()
   const [addTool, setAddTool] = React.useState<string>('')
   const [email, setEmail] = React.useState<string>('')
@@ -115,7 +118,7 @@ const profileEdit: React.FC = () => {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/UserInfo`,
         )
-        const data = await response.json()
+        const data: UserInfoResponse = await response.json()
 
         setEmail(data.result.email)
         setName(data.result.name)
@@ -137,26 +140,36 @@ const profileEdit: React.FC = () => {
     fetchUserInfo()
   }, [])
 
-  const onSubmit: SubmitErrorHandler<FormData> = async (data) => {
-    // const techStackArray = techStack.split(',').map((stack) => stack.trim())
-    // try {
-    //   const response = await fetch('/api/submit', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       ...data,
-    //       techStack: techStackArray.join(','),
-    //     }),
-    //   })
-    //   if (!response.ok) {
-    //     throw new Error('데이터 저장 실패')
-    //   }
-    //   router.push('/workspace')
-    // } catch (error) {
-    //   console.error('Error:', error)
-    // }
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    const userInfo: UserInfoResponse = {
+      name: name,
+      tool: Object.fromEntries(
+        entries.map((entry) => [entry.tool, entry.email]),
+      ),
+      phone: phone,
+      address: address,
+      stack: techStack.split(',').map((stack) => stack.trim()),
+      MBTI: value,
+    }
+
+    try {
+      const response = await fetch('/user/edit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userInfo),
+      })
+
+      if (response.ok) {
+        console.log('Success:', userInfo)
+        router.push('/workspace')
+      } else {
+        console.error('Failed to submit form')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+    }
   }
 
   return (
@@ -204,7 +217,7 @@ const profileEdit: React.FC = () => {
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="dd"
+                  placeholder="이름"
                 />
               </div>
             </FormItem>
