@@ -98,7 +98,10 @@ const page: React.FC = () => {
         entries.map((entry) => [entry.tool, entry.email]),
       ),
       address: address,
-      stack: techStack.split(',').map((stack) => stack.trim()),
+      stack: techStack
+        .split(',')
+        .map((stack) => stack.trim())
+        .filter((techStack) => techStack !== ''),
       MBTI: value,
     }
 
@@ -166,7 +169,9 @@ const page: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                 />
                 <Button
-                  onClick={handleAdd}
+                  onClick={() => {
+                    handleAdd
+                  }}
                   disabled={!addTool || !email}
                   className="bg-blue-200 text-blue-600 hover:bg-blue-100"
                 >
@@ -180,7 +185,6 @@ const page: React.FC = () => {
                     className="flex h-[32px] items-center gap-[8px] self-stretch px-[8px] py-[6px]"
                   >
                     <Icon name="mail" />
-
                     <span className="w-[269px] flex-1 text-[14px] font-normal leading-[20px] text-slate-900">
                       {entry.email}
                     </span>
