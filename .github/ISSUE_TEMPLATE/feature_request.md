@@ -1,8 +1,8 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: ''
-labels: ''
+title: "[FEAT]"
+labels: "\U0001F9D1‍\U0001F4BB Feature"
 assignees: ''
 
 ---
