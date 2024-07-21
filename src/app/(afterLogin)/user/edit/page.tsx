@@ -154,7 +154,7 @@ const profileEdit: React.FC = () => {
 
     try {
       const response = await fetch('/user/edit', {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
