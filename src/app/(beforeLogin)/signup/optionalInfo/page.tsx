@@ -30,6 +30,7 @@ import {
 import { CommandList } from 'cmdk'
 import { useRouter } from 'next/navigation'
 import { UserInfoResponse } from '@/api'
+import { Icon } from '@/components/Icon'
 
 interface FormData {
   address: string
@@ -178,28 +179,19 @@ const page: React.FC = () => {
                     key={index}
                     className="flex h-[32px] items-center gap-[8px] self-stretch px-[8px] py-[6px]"
                   >
-                    <Mail size={16} />
-                    {/* <Image
-                      src="/mail.png"
-                      alt="메일 이미지"
-                      width={17}
-                      height={17}
-                    /> */}
+                    <Icon name="mail" />
+
                     <span className="w-[269px] flex-1 text-[14px] font-normal leading-[20px] text-slate-900">
                       {entry.email}
                     </span>
                     <span className="w-[39px] text-[12px] font-medium leading-[20px] text-slate-500">
                       {entry.tool}
                     </span>
-                    <X size={16} onClick={() => handleRemove(index)} />
-                    {/* <Image
-                      src="/secondary.png"
-                      alt="X"
-                      width={16}
-                      height={16}
-                      className="cursor-pointer"
+                    <Icon
+                      name="cancel"
                       onClick={() => handleRemove(index)}
-                    /> */}
+                      className="cursor-pointer"
+                    />
                   </div>
                 ))}
               </div>
@@ -224,7 +216,7 @@ const page: React.FC = () => {
                     variant="outline"
                     role="combobox"
                     aria-expanded={mbtiOpen}
-                    className="w-full justify-between"
+                    className="w-full justify-between border-slate-300"
                   >
                     {value
                       ? mbtiOptions.find(

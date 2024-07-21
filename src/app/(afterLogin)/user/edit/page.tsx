@@ -263,7 +263,11 @@ const profileEdit: React.FC = () => {
                     <span className="w-[39px] text-[12px] font-medium leading-[20px] text-slate-500">
                       {entry.tool}
                     </span>
-                    <Icon name="cancel" onClick={() => handleRemove(index)} />
+                    <Icon
+                      name="cancel"
+                      onClick={() => handleRemove(index)}
+                      className="cursor-pointer"
+                    />
                   </div>
                 ))}
               </div>
