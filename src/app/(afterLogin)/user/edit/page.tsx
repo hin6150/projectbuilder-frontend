@@ -42,6 +42,8 @@ import { Icon } from '@/components/Icon'
 import { UserInfoResponse } from '@/api'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Avatar } from '@/components/ui/avatar'
+import { AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
 
 const mbtiOptions = [
   'ISTJ',
@@ -101,7 +103,9 @@ const profileEdit: React.FC = () => {
     'https://avatars.githubusercontent.com/u/145416041?v=4',
   )
   const fileInputRef = React.useRef<HTMLInputElement>(null)
-  const icon = imageUrl ? 'cancel' : 'camera'
+  const [icon, setIcon] = React.useState<'camera' | 'cancel'>(() =>
+    imageUrl ? 'cancel' : 'camera',
+  )
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -147,22 +151,28 @@ const profileEdit: React.FC = () => {
       })
     }
   }
+
   const handleRemove = (index: number) => {
     setEntries(entries.filter((_, i) => i !== index))
   }
 
   const handleIconClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click()
+    if (icon == 'camera') {
+      if (fileInputRef.current) {
+        fileInputRef.current.click()
+      }
+    } else if (icon == 'cancel') {
+      setImageUrl('')
+      setIcon('camera')
     }
   }
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       const reader = new FileReader()
       reader.onloadend = () => {
         setImageUrl(reader.result as string)
+        setIcon('cancel')
       }
       reader.readAsDataURL(file)
     }
@@ -266,25 +276,23 @@ const profileEdit: React.FC = () => {
                   <div className="relative">
                     <ProfileAvatar
                       imageUrl={imageUrl}
-                      name={name}
+                      name={field.value}
                       width="70px"
                       height="70px"
                     />
                     <Icon
                       name={icon}
                       className="absolute right-0 top-0 cursor-pointer"
-                      onClick={() => handleIconClick}
+                      onClick={handleIconClick}
                     />
                   </div>
-                  {/* <input
+                  <input
                     type="file"
                     ref={fileInputRef}
                     style={{ display: 'none' }}
-                    onChange={() => 
-                      handleFileChange
-                    }
+                    onChange={handleFileChange}
                     accept="image/*"
-                  /> */}
+                  />
                   <FormItem className="flex w-[300px] flex-col items-start gap-[6px]">
                     <FormLabel>이름</FormLabel>
                     <FormControl>
