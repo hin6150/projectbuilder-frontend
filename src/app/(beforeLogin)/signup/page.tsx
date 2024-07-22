@@ -97,7 +97,7 @@ const JoinForm = () => {
 
       if (response.ok) {
         console.log('Success:', userDTO)
-        router.push('/workspace')
+        router.push('/signup/optionalInfo')
       } else {
         console.error('Failed to submit form')
       }
@@ -127,7 +127,7 @@ const JoinForm = () => {
                   <FormLabel className="text-[16px]">이메일</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder=""
+                      placeholder="이메일"
                       disabled={true}
                       value={field.value}
                       onChange={(e) => field.onChange(e.target.value)}
@@ -204,7 +204,6 @@ const JoinForm = () => {
                           id="use"
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          // className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
                         />
                         <label
                           htmlFor="use"
@@ -233,7 +232,6 @@ const JoinForm = () => {
                           id="privacy"
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          // className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
                         />
                         <label
                           htmlFor="privacy"
@@ -263,7 +261,6 @@ const JoinForm = () => {
                           id="mail"
                           checked={field.value}
                           onCheckedChange={field.onChange}
-                          // className="w-[14px] h-[14px] rounded-[2px] border border-gray-200"
                         />
                         <label
                           htmlFor="mail"
@@ -281,7 +278,6 @@ const JoinForm = () => {
           </div>
           <Button
             type="submit"
-            // disabled={isSubmitDisabled}
             className="flex w-full items-center justify-center gap-[18px] bg-blue-600 px-[16px] py-[8px] hover:bg-blue-500"
           >
             <p className="text-[14px] font-normal leading-[24px]">회원가입</p>

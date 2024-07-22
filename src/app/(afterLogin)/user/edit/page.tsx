@@ -1,7 +1,7 @@
 'use client'
 import * as React from 'react'
 
-import { SubmitErrorHandler, SubmitHandler, useForm } from 'react-hook-form'
+import { SubmitHandler, useForm } from 'react-hook-form'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -42,7 +42,6 @@ import { Icon } from '@/components/Icon'
 import { UserInfoResponse } from '@/api'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { getRandomValues } from 'crypto'
 
 const mbtiOptions = [
   'ISTJ',
@@ -480,6 +479,7 @@ const profileEdit: React.FC = () => {
             />
             <div className="itmes-center flex justify-end gap-[8px] self-stretch">
               <Button
+                type="button"
                 onClick={() => router.push('/workspace')}
                 className="bg-white text-gray-400 hover:bg-gray-100"
               >
