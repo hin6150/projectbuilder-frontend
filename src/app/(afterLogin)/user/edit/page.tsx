@@ -83,7 +83,7 @@ const formSchema = z.object({
   entries: z.array(
     z.object({
       tool: z.string(),
-      email: z.string(),
+      email: z.string().email({ message: '유효한 이메일을 입력하세요.' }),
     }),
   ),
 })
@@ -131,10 +131,21 @@ const profileEdit: React.FC = () => {
 
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
-    if (addTool && toolEmail) {
+    const entrySchema = z.object({
+      tool: z.string().nonempty({ message: '협업 툴을 선택하세요.' }),
+      email: z.string().email({ message: '유효한 이메일을 입력하세요.' }),
+    })
+
+    const result = entrySchema.safeParse({ tool: addTool, email: toolEmail })
+
+    if (result.success) {
       setEntries([...entries, { tool: addTool, email: toolEmail }])
       setAddTool('')
       setToolEmail('')
+    } else {
+      result.error.errors.forEach((error) => {
+        alert(error.message)
+      })
     }
   }
   const handleRemove = (index: number) => {
@@ -186,7 +197,9 @@ const profileEdit: React.FC = () => {
     fetchUserInfo()
   }, [])
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (
+    values,
+  ) => {
     const userInfo: UserInfoResponse = {
       name: values.name,
       tool: Object.fromEntries(
@@ -320,6 +333,7 @@ const profileEdit: React.FC = () => {
                         }}
                       />
                     </FormControl>
+                    <FormMessage />
                     <Button
                       onClick={handleAdd}
                       disabled={!addTool || !toolEmail}
