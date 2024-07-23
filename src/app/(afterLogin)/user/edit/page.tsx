@@ -36,7 +36,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { CommandList } from 'cmdk'
-import { ProfileAvatar } from '@/components/Avatar/Avatar'
 import { useRouter } from 'next/navigation'
 import { Icon } from '@/components/Icon'
 import { UserInfoResponse } from '@/api'
@@ -87,6 +86,7 @@ const formSchema = z.object({
       email: z.string().email({ message: '유효한 이메일을 입력하세요.' }),
     }),
   ),
+  imageUrl: z.string().optional(),
 })
 
 const profileEdit: React.FC = () => {
@@ -99,9 +99,7 @@ const profileEdit: React.FC = () => {
   >([])
   const [mbtiOpen, setMbtiOpen] = React.useState<boolean>(false)
   const [value, setValue] = React.useState<string>('')
-  const [imageUrl, setImageUrl] = React.useState<string>(
-    'https://avatars.githubusercontent.com/u/145416041?v=4',
-  )
+  const [imageUrl, setImageUrl] = React.useState<string>('')
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [icon, setIcon] = React.useState<'camera' | 'cancel'>(() =>
     imageUrl ? 'cancel' : 'camera',
@@ -117,6 +115,7 @@ const profileEdit: React.FC = () => {
       stack: '',
       MBTI: '',
       entries: [],
+      imageUrl: '',
     },
   })
 
@@ -178,6 +177,24 @@ const profileEdit: React.FC = () => {
     }
   }
 
+  const getInitials = (name: string) => {
+    const isKorean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/
+
+    if (isKorean.test(name)) {
+      const nameLength = name.length
+      if (nameLength >= 3) {
+        return name.slice(-2)
+      }
+      return name
+    } else {
+      const initials = name
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase())
+        .join('')
+      return initials
+    }
+  }
+
   React.useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -198,6 +215,8 @@ const profileEdit: React.FC = () => {
         )
         form.setValue('stack', data.result.stack.join(', '))
         form.setValue('MBTI', data.result.MBTI)
+        setImageUrl(data.result.imageUrl || '')
+        setIcon(data.result.imageUrl ? 'cancel' : 'camera')
       } catch (error) {
         console.error('Error fetching user info:', error)
       }
@@ -221,6 +240,7 @@ const profileEdit: React.FC = () => {
         .map((stack) => stack.trim())
         .filter((stack) => stack !== ''),
       MBTI: values.MBTI,
+      imageUrl: imageUrl,
     }
 
     try {
@@ -274,12 +294,16 @@ const profileEdit: React.FC = () => {
               render={({ field }) => (
                 <FormItem className="flex items-center justify-center gap-[10px] self-stretch">
                   <div className="relative">
-                    <ProfileAvatar
-                      imageUrl={imageUrl}
-                      name={field.value}
-                      width="70px"
-                      height="70px"
-                    />
+                    <Avatar className="h-[70px] w-[70px] items-center justify-center overflow-hidden bg-slate-100">
+                      <AvatarImage
+                        src={imageUrl ?? ''}
+                        alt="프로필 이미지"
+                        className="h-full w-full object-cover"
+                      />
+                      <AvatarFallback>
+                        {imageUrl ? '' : getInitials(form.getValues('name'))}
+                      </AvatarFallback>
+                    </Avatar>
                     <Icon
                       name={icon}
                       className="absolute right-0 top-0 cursor-pointer"
