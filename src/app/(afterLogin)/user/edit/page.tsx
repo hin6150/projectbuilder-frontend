@@ -281,7 +281,7 @@ const profileEdit: React.FC = () => {
               name="email"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start gap-[6px] self-stretch opacity-50">
-                  <FormLabel>로그인 계정</FormLabel>
+                  <FormLabel className="text-[16px]">로그인 계정</FormLabel>
                   <FormControl className="flex items-start gap-[8px] self-stretch">
                     <Input value={field.value} disabled={true} />
                   </FormControl>
@@ -294,7 +294,7 @@ const profileEdit: React.FC = () => {
               render={({ field }) => (
                 <FormItem className="flex items-center justify-center gap-[10px] self-stretch">
                   <div className="relative">
-                    <Avatar className="h-[70px] w-[70px] items-center justify-center overflow-hidden bg-slate-100">
+                    <Avatar className="h-[90px] w-[90px] items-center justify-center overflow-hidden bg-slate-100">
                       <AvatarImage
                         src={imageUrl ?? ''}
                         alt="프로필 이미지"
@@ -306,7 +306,7 @@ const profileEdit: React.FC = () => {
                     </Avatar>
                     <Icon
                       name={icon}
-                      className="absolute right-0 top-0 cursor-pointer"
+                      className="absolute right-1 top-1 cursor-pointer"
                       onClick={handleIconClick}
                     />
                   </div>
@@ -318,7 +318,7 @@ const profileEdit: React.FC = () => {
                     accept="image/*"
                   />
                   <FormItem className="flex w-[300px] flex-col items-start gap-[6px]">
-                    <FormLabel>이름</FormLabel>
+                    <FormLabel className="text-[16px]">이름</FormLabel>
                     <FormControl>
                       <Input
                         value={field.value}
@@ -336,7 +336,7 @@ const profileEdit: React.FC = () => {
               name="entries"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-                  <FormLabel>기타 정보</FormLabel>
+                  <FormLabel className="text-[16px]">기타 정보</FormLabel>
                   <div className="inline-flex items-start gap-[10px]">
                     <FormControl>
                       <Select
@@ -402,7 +402,7 @@ const profileEdit: React.FC = () => {
               name="phonenumber"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-                  <FormLabel>전화번호</FormLabel>
+                  <FormLabel className="text-[16px]">전화번호</FormLabel>
                   <FormControl>
                     <Input
                       value={formatPhoneNumber(field.value)}
@@ -421,7 +421,7 @@ const profileEdit: React.FC = () => {
               name="address"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-                  <FormLabel>거주지역</FormLabel>
+                  <FormLabel className="text-[16px]">거주지역</FormLabel>
                   <FormControl>
                     <Input
                       value={field.value}
@@ -454,7 +454,7 @@ const profileEdit: React.FC = () => {
               name="MBTI"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-                  <FormLabel>MBTI</FormLabel>
+                  <FormLabel className="text-[16px]">MBTI</FormLabel>
                   <Popover open={mbtiOpen} onOpenChange={setMbtiOpen}>
                     <PopoverTrigger asChild>
                       <Button
