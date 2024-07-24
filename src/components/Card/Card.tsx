@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import cardStyles from './Card.css'
 import Modal from '../Modal/Modal'
+import Option from '../Option/Option'
 
 interface CardProps {
   title: string
@@ -18,10 +19,13 @@ const Card: React.FC<CardProps> = ({
   endDate: initialEndDate,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isOptionOpen, setIsOptionOpen] = useState(false)
   const [title, setTitle] = useState(initialTitle)
   const [description, setDescription] = useState(initialDescription)
   const [startDate, setStartDate] = useState(initialStartDate)
   const [endDate, setEndDate] = useState(initialEndDate)
+
+  const optionRef = useRef<HTMLDivElement>(null)
 
   const handleOpenModal = () => {
     setIsModalOpen(true)
@@ -29,6 +33,10 @@ const Card: React.FC<CardProps> = ({
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
+  }
+
+  const handleOpenOption = () => {
+    setIsOptionOpen(!isOptionOpen)
   }
 
   const handleSave = (
@@ -43,6 +51,43 @@ const Card: React.FC<CardProps> = ({
     setEndDate(newEndDate)
     handleCloseModal()
   }
+
+  const handleInvite = () => {
+    // Add your invite logic here
+    setIsOptionOpen(false)
+  }
+
+  const handleEdit = () => {
+    // Add your edit logic here
+    setIsOptionOpen(false)
+    handleOpenModal()
+  }
+
+  const handleDelete = () => {
+    // Add your delete logic here
+    setIsOptionOpen(false)
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        optionRef.current &&
+        !optionRef.current.contains(event.target as Node)
+      ) {
+        setIsOptionOpen(false)
+      }
+    }
+
+    if (isOptionOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOptionOpen])
 
   return (
     <>
@@ -61,15 +106,24 @@ const Card: React.FC<CardProps> = ({
             </div>
           ))}
         </div>
-        <div className="flex justify-between">
+        <div className="relative flex justify-between">
           <p className={cardStyles.dates}>
             {startDate} ~ {endDate}
           </p>
           <img
             src="/more-vertical.png"
             alt="options"
-            onClick={handleOpenModal}
+            onClick={handleOpenOption}
+            className="cursor-pointer"
           />
+          {isOptionOpen && (
+            <Option
+              onInvite={handleInvite}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              optionRef={optionRef}
+            />
+          )}
         </div>
       </div>
       {isModalOpen && (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import styles from './Modal.css'
+import Button from '../Button/ButtonForm'
 
 interface ModalProps {
   title: string
@@ -25,11 +26,17 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   const [title, setTitle] = useState(initialTitle)
   const [description, setDescription] = useState(initialDescription)
-  const [startDate, setStartDate] = useState(initialStartDate)
-  const [endDate, setEndDate] = useState(initialEndDate)
+  const [dateRange, setDateRange] = useState(
+    `${initialStartDate} ~ ${initialEndDate}`,
+  )
 
   const handleSave = () => {
+    const [startDate, endDate] = dateRange.split(' ~ ')
     onSave(title, description, startDate, endDate)
+  }
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateRange(e.target.value)
   }
 
   return (
@@ -49,14 +56,8 @@ const Modal: React.FC<ModalProps> = ({
           프로젝트 기간
           <input
             type="text"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className={styles.input}
-          />
-          <input
-            type="text"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            value={dateRange}
+            onChange={handleDateChange}
             className={styles.input}
           />
         </label>
@@ -71,12 +72,20 @@ const Modal: React.FC<ModalProps> = ({
           <div className={styles.charCount}>{description.length} / 100</div>
         </label>
         <div className={styles.buttonGroup}>
-          <button onClick={onClose} className={styles.cancelButton}>
+          <Button
+            variant="subtle"
+            onClick={onClose}
+            className="flex flex-1 items-center justify-center gap-2 p-2 px-4"
+          >
             취소
-          </button>
-          <button onClick={handleSave} className={styles.saveButton}>
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleSave}
+            className="flex flex-1 items-center justify-center gap-2 p-2 px-4"
+          >
             수정
-          </button>
+          </Button>
         </div>
       </div>
     </div>
