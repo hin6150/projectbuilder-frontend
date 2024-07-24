@@ -1,16 +1,15 @@
 'use client'
 import * as React from 'react'
-
+import { Check, ChevronsUpDown, Mail, X } from 'lucide-react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { Check, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
@@ -21,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
 import { cn } from '@/lib/utils'
 import {
   Command,
@@ -37,12 +35,10 @@ import {
 } from '@/components/ui/popover'
 import { CommandList } from 'cmdk'
 import { useRouter } from 'next/navigation'
-import { Icon } from '@/components/Icon'
 import { UserInfoResponse } from '@/api'
+import { Icon } from '@/components/Icon'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Avatar } from '@/components/ui/avatar'
-import { AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
 
 const mbtiOptions = [
   'ISTJ',
@@ -64,19 +60,6 @@ const mbtiOptions = [
 ].map((value) => ({ value, label: value }))
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: '이름은 2글자 이상이어야 합니다.',
-  }),
-  email: z.string().email({ message: '유효한 이메일을 입력하세요.' }),
-  phonenumber: z.string().refine(
-    (value) => {
-      const phoneNumber = value.replace(/-/g, '')
-      return /^01[0-9]\d{7,8}$/.test(phoneNumber)
-    },
-    {
-      message: '올바른 전화번호를 입력해주세요.',
-    },
-  ),
   address: z.string(),
   stack: z.string(),
   MBTI: z.string(),
@@ -86,50 +69,29 @@ const formSchema = z.object({
       email: z.string().email({ message: '유효한 이메일을 입력하세요.' }),
     }),
   ),
-  imageUrl: z.string().optional(),
 })
 
-const profileEdit: React.FC = () => {
-  const router = useRouter()
-  const [addTool, setAddTool] = React.useState<string>('')
-  const [name, setName] = React.useState<string>('')
-  const [toolEmail, setToolEmail] = React.useState<string>('')
-  const [entries, setEntries] = React.useState<
-    { tool: string; email: string }[]
-  >([])
-  const [mbtiOpen, setMbtiOpen] = React.useState<boolean>(false)
-  const [value, setValue] = React.useState<string>('')
-  const [imageUrl, setImageUrl] = React.useState<string>('')
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-  const [icon, setIcon] = React.useState<'camera' | 'cancel'>(() =>
-    imageUrl ? 'cancel' : 'camera',
-  )
-
+const page: React.FC = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      email: 'hin6150@gmail.com',
-      phonenumber: '',
       address: '',
+      entries: [],
       stack: '',
       MBTI: '',
-      entries: [],
-      imageUrl: '',
     },
   })
 
-  const formatPhoneNumber = (value: string) => {
-    if (!value) return value
-    const phoneNumber = value.replace(/[^\d]/g, '')
-    const phoneNumberLength = phoneNumber.length
-
-    if (phoneNumberLength < 4) return phoneNumber
-    if (phoneNumberLength < 8) {
-      return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3)}`
-    }
-    return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 7)}-${phoneNumber.slice(7, 11)}`
-  }
+  const router = useRouter()
+  const [addTool, setAddTool] = React.useState<string>('')
+  const [email, setEmail] = React.useState<string>('')
+  const [entries, setEntries] = React.useState<
+    { tool: string; email: string }[]
+  >([])
+  const [techStack, setTechStack] = React.useState<string>('')
+  const [mbtiOpen, setMbtiOpen] = React.useState<boolean>(false)
+  const [value, setValue] = React.useState<string>('')
+  const [address, setAddress] = React.useState<string>('')
 
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
@@ -138,12 +100,12 @@ const profileEdit: React.FC = () => {
       email: z.string().email({ message: '유효한 이메일을 입력하세요.' }),
     })
 
-    const result = entrySchema.safeParse({ tool: addTool, email: toolEmail })
+    const result = entrySchema.safeParse({ tool: addTool, email })
 
     if (result.success) {
-      setEntries([...entries, { tool: addTool, email: toolEmail }])
+      setEntries([...entries, { tool: addTool, email }])
       setAddTool('')
-      setToolEmail('')
+      setEmail('')
     } else {
       result.error.errors.forEach((error) => {
         alert(error.message)
@@ -155,97 +117,22 @@ const profileEdit: React.FC = () => {
     setEntries(entries.filter((_, i) => i !== index))
   }
 
-  const handleIconClick = () => {
-    if (icon == 'camera') {
-      if (fileInputRef.current) {
-        fileInputRef.current.click()
-      }
-    } else if (icon == 'cancel') {
-      setImageUrl('')
-      setIcon('camera')
-    }
-  }
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0]
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImageUrl(reader.result as string)
-        setIcon('cancel')
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const getInitials = (name: string) => {
-    const isKorean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/
-
-    if (isKorean.test(name)) {
-      const nameLength = name.length
-      if (nameLength >= 3) {
-        return name.slice(-2)
-      }
-      return name
-    } else {
-      const initials = name
-        .split(' ')
-        .map((word) => word.charAt(0).toUpperCase())
-        .join('')
-      return initials
-    }
-  }
-
-  React.useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/UserInfo`,
-        )
-        const data: UserInfoResponse = await response.json()
-
-        form.setValue('email', data.result.email)
-        form.setValue('name', data.result.name)
-        form.setValue('phonenumber', data.result.phone)
-        form.setValue('address', data.result.address)
-        setEntries(
-          Object.entries(data.result.tool).map(([tool, email]) => ({
-            tool,
-            email: email as string,
-          })),
-        )
-        form.setValue('stack', data.result.stack.join(', '))
-        form.setValue('MBTI', data.result.MBTI)
-        setImageUrl(data.result.imageUrl || '')
-        setIcon(data.result.imageUrl ? 'cancel' : 'camera')
-      } catch (error) {
-        console.error('Error fetching user info:', error)
-      }
-    }
-
-    fetchUserInfo()
-  }, [])
-
-  const onSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (
-    values,
-  ) => {
+  const onSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (data) => {
     const userInfo: UserInfoResponse = {
-      name: values.name,
       tool: Object.fromEntries(
         entries.map((entry) => [entry.tool, entry.email]),
       ),
-      phone: values.phonenumber,
-      address: values.address,
-      stack: values.stack
+      address: data.address,
+      stack: data.stack
         .split(',')
         .map((stack) => stack.trim())
         .filter((stack) => stack !== ''),
-      MBTI: values.MBTI,
-      imageUrl: imageUrl,
+      MBTI: value,
     }
 
     try {
-      const response = await fetch('/user/edit', {
-        method: 'PUT',
+      const response = await fetch('/signup/optionalInfo', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -264,70 +151,31 @@ const profileEdit: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center font-pretendard">
+    <div className="flex w-screen items-center justify-center py-[12rem] font-pretendard">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-[380px] flex-col items-start gap-[24px]"
+          className="flex w-[380px] flex-shrink-0 flex-col items-start gap-[24px]"
         >
           <div className="flex flex-col items-center justify-center gap-[8px] self-stretch">
             <p className="text-center text-[20px] font-semibold leading-[28px] tracking-[-0.1px]">
-              프로필 정보
+              선택 정보
             </p>
           </div>
           <div className="flex flex-col items-start gap-[16px] self-stretch">
             <FormField
               control={form.control}
-              name="email"
+              name="address"
               render={({ field }) => (
-                <FormItem className="flex flex-col items-start gap-[6px] self-stretch opacity-50">
-                  <FormLabel className="text-[16px]">로그인 계정</FormLabel>
-                  <FormControl className="flex items-start gap-[8px] self-stretch">
-                    <Input value={field.value} disabled={true} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem className="flex items-center justify-center gap-[10px] self-stretch">
-                  <div className="relative">
-                    <Avatar className="h-[90px] w-[90px] items-center justify-center overflow-hidden bg-slate-100">
-                      <AvatarImage
-                        src={imageUrl ?? ''}
-                        alt="프로필 이미지"
-                        className="h-full w-full object-cover"
-                      />
-                      <AvatarFallback>
-                        {imageUrl ? '' : getInitials(form.getValues('name'))}
-                      </AvatarFallback>
-                    </Avatar>
-                    <Icon
-                      name={icon}
-                      className="absolute right-1 top-1 cursor-pointer"
-                      onClick={handleIconClick}
+                <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+                  <FormLabel className="text-[16px]">거주지역</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="거주지역"
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
-                  </div>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    onChange={handleFileChange}
-                    accept="image/*"
-                  />
-                  <FormItem className="flex w-[300px] flex-col items-start gap-[6px]">
-                    <FormLabel className="text-[16px]">이름</FormLabel>
-                    <FormControl>
-                      <Input
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        placeholder="이름"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -339,10 +187,7 @@ const profileEdit: React.FC = () => {
                   <FormLabel className="text-[16px]">기타 정보</FormLabel>
                   <div className="inline-flex items-start gap-[10px]">
                     <FormControl>
-                      <Select
-                        value={addTool}
-                        onValueChange={(value: string) => setAddTool(value)}
-                      >
+                      <Select value={addTool} onValueChange={setAddTool}>
                         <SelectTrigger className="w-[200px]">
                           <SelectValue placeholder="협업 툴" />
                         </SelectTrigger>
@@ -358,16 +203,13 @@ const profileEdit: React.FC = () => {
                     <FormControl>
                       <Input
                         placeholder="계정 이메일"
-                        value={toolEmail}
-                        onChange={(e) => {
-                          setToolEmail(e.target.value)
-                        }}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </FormControl>
-                    <FormMessage />
                     <Button
                       onClick={handleAdd}
-                      disabled={!addTool || !toolEmail}
+                      disabled={!addTool || !email}
                       className="bg-blue-200 text-blue-600 hover:bg-blue-100"
                     >
                       추가
@@ -399,45 +241,12 @@ const profileEdit: React.FC = () => {
             />
             <FormField
               control={form.control}
-              name="phonenumber"
-              render={({ field }) => (
-                <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-                  <FormLabel className="text-[16px]">전화번호</FormLabel>
-                  <FormControl>
-                    <Input
-                      value={formatPhoneNumber(field.value)}
-                      onChange={(e) =>
-                        field.onChange(formatPhoneNumber(e.target.value))
-                      }
-                      placeholder="전화번호"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-                  <FormLabel className="text-[16px]">거주지역</FormLabel>
-                  <FormControl>
-                    <Input
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      placeholder="거주지역"
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="stack"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-                  <FormLabel>기술 스택(쉼표로 구분)</FormLabel>
+                  <FormLabel className="text-[16px]">
+                    기술 스택(쉼표로 구분)
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="기술스택"
@@ -445,7 +254,6 @@ const profileEdit: React.FC = () => {
                       onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -463,9 +271,9 @@ const profileEdit: React.FC = () => {
                         aria-expanded={mbtiOpen}
                         className="w-full justify-between border-slate-300"
                       >
-                        {field.value
+                        {value
                           ? mbtiOptions.find(
-                              (mbtiOption) => mbtiOption.value === field.value,
+                              (mbtiOption) => mbtiOption.value === value,
                             )?.label
                           : 'MBTI'}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -509,16 +317,16 @@ const profileEdit: React.FC = () => {
                 </FormItem>
               )}
             />
-            <div className="itmes-center flex justify-end gap-[8px] self-stretch">
+            <div className="flex items-center justify-end gap-[8px] self-stretch">
               <Button
                 type="button"
                 onClick={() => router.push('/workspace')}
                 className="bg-white text-gray-400 hover:bg-gray-100"
               >
-                취소하기
+                건너뛰기
               </Button>
               <Button type="submit" className="bg-blue-600 hover:bg-blue-500">
-                수정하기
+                입력하기
               </Button>
             </div>
           </div>
@@ -528,4 +336,4 @@ const profileEdit: React.FC = () => {
   )
 }
 
-export default profileEdit
+export default page
