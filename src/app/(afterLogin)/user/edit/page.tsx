@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Form, FormField, FormItem } from '@/components/ui/form'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
-import { UserInfoResponse } from '@/api'
-import { EditUserInfoDTO } from '@/api/services/user/model'
+import { useEditUserMutation, useUserInfoQuery } from '@/api'
+import { getInitials } from '@/components/Avatar/Avatar'
+import { Icon } from '@/components/Icon'
 import {
   AddressInfoForm,
   EmailInfoForm,
@@ -15,13 +16,10 @@ import {
   PhoneInfoForm,
   StackInfoForm,
   ToolInfoForm,
-} from '@/app/(beforeLogin)/signup/components/InputForm'
-import { getInitials } from '@/components/Avatar/Avatar'
-import { Icon } from '@/components/Icon'
-import { Avatar } from '@/components/ui/avatar'
+} from '@/components/InputForm'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { formSchemaUserEdit } from '@/hook/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 
@@ -37,11 +35,13 @@ const profileEdit: React.FC = () => {
     imageUrl ? 'cancel' : 'camera',
   )
 
+  const { data } = useUserInfoQuery()
+
   const form = useForm<z.infer<typeof formSchemaUserEdit>>({
     resolver: zodResolver(formSchemaUserEdit),
     defaultValues: {
       name: '',
-      email: 'hin6150@gmail.com',
+      email: '',
       phonenumber: '',
       address: '',
       stack: '',
@@ -50,6 +50,46 @@ const profileEdit: React.FC = () => {
       imageUrl: '',
     },
   })
+
+  const editUserMutation = useEditUserMutation(
+    {
+      name: form.watch('name'),
+      email: form.watch('email'),
+      phone: form.watch('phonenumber'),
+      address: form.watch('address'),
+      stack: form
+        .watch('stack')
+        .split(',')
+        .map((stack) => stack.trim())
+        .filter((stack) => stack !== ''),
+      MBTI: form.watch('MBTI'),
+      tool: Object.fromEntries(
+        entries.map((entry) => [entry.tool, entry.email]),
+      ),
+      imageUrl: imageUrl,
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          name: form.watch('name'),
+          email: form.watch('email'),
+          phone: form.watch('phonenumber'),
+          address: form.watch('address'),
+          stack: form
+            .watch('stack')
+            .split(',')
+            .map((stack) => stack.trim())
+            .filter((stack) => stack !== ''),
+          MBTI: form.watch('MBTI'),
+          tool: Object.fromEntries(
+            entries.map((entry) => [entry.tool, entry.email]),
+          ),
+          imageUrl: imageUrl,
+        }),
+          router.push('/')
+      },
+    },
+  )
 
   const handleIconClick = () => {
     if (icon == 'camera') {
@@ -74,71 +114,63 @@ const profileEdit: React.FC = () => {
   }
 
   React.useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/UserInfo`,
-        )
-        const data: UserInfoResponse = await response.json()
-
-        form.setValue('email', data.result.email)
-        form.setValue('name', data.result.name)
-        form.setValue('phonenumber', data.result.phone)
-        form.setValue('address', data.result.address)
-        setEntries(
-          Object.entries(data.result.tool).map(([tool, email]) => ({
-            tool,
-            email: email as string,
-          })),
-        )
-        form.setValue('stack', data.result.stack.join(', '))
-        form.setValue('MBTI', data.result.MBTI)
-        setImageUrl(data.result.imageUrl || '')
-        setIcon(data.result.imageUrl ? 'cancel' : 'camera')
-      } catch (error) {
-        console.error('Error fetching user info:', error)
-      }
+    if (data !== undefined) {
+      form.setValue('email', data.result.email)
+      form.setValue('name', data.result.name)
+      form.setValue('phonenumber', data.result.phone)
+      form.setValue('address', data.result.address)
+      setEntries(
+        Object.entries(data.result.tool).map(([tool, email]) => ({
+          tool,
+          email: email as string,
+        })),
+      )
+      form.setValue('stack', data.result.stack.join(', '))
+      form.setValue('MBTI', data.result.MBTI)
+      setImageUrl(data.result.imageUrl || '')
+      setIcon(data.result.imageUrl ? 'cancel' : 'camera')
     }
-
-    fetchUserInfo()
-  }, [])
+  }, [data])
 
   const onSubmit: SubmitHandler<z.infer<typeof formSchemaUserEdit>> = async (
     values,
   ) => {
-    const userInfo: EditUserInfoDTO = {
-      name: values.name,
-      tool: Object.fromEntries(
-        entries.map((entry) => [entry.tool, entry.email]),
-      ),
-      phone: values.phonenumber,
-      address: values.address,
-      stack: values.stack
-        .split(',')
-        .map((stack) => stack.trim())
-        .filter((stack) => stack !== ''),
-      MBTI: values.MBTI,
-      imageUrl: imageUrl,
-    }
+    editUserMutation.mutate()
+    // const userInfo: EditUserInfoDTO = {
+    //   name: values.name,
+    //   tool: Object.fromEntries(
+    //     entries.map((entry) => [entry.tool, entry.email]),
+    //   ),
+    //   phone: values.phonenumber,
+    //   address: values.address,
+    //   stack: values.stack
+    //     .split(',')
+    //     .map((stack) => stack.trim())
+    //     .filter((stack) => stack !== ''),
+    //   MBTI: values.MBTI,
+    //   imageUrl: imageUrl,
+    // }
+    // try {
+    //   const response = await fetch('/user/edit', {
+    //     method: 'PUT',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(userInfo),
+    //   })
+    //   if (response.ok) {
+    //     console.log('Success:', userInfo)
+    //     router.push('/workspace')
+    //   } else {
+    //     console.error('Failed to submit form')
+    //   }
+    // } catch (error) {
+    //   console.error('Error:', error)
+    // }
+  }
 
-    try {
-      const response = await fetch('/user/edit', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userInfo),
-      })
-
-      if (response.ok) {
-        console.log('Success:', userInfo)
-        router.push('/workspace')
-      } else {
-        console.error('Failed to submit form')
-      }
-    } catch (error) {
-      console.error('Error:', error)
-    }
+  if (data == null) {
+    return <div>DATA ERROR</div>
   }
 
   return (

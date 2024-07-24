@@ -38,17 +38,18 @@ export interface UserInfoResponse {
     tool: {}
     stack: string[]
     MBTI: string
+    imageUrl: string
   }
 }
 
-export interface UserInfoDTO {
+export interface UserSignUpDTO {
   name: string
   phone: string
   requiredTermsAgree: boolean
   marketingEmailOptIn: boolean
 }
 
-export interface UserAditonalInfoDTO {
+export interface UserOptionalInfoDTO {
   tool: {}
   address: string
   stack: string[]
@@ -57,8 +58,6 @@ export interface UserAditonalInfoDTO {
 
 export interface EditUserInfoDTO {
   email: string
-  status: UserStatus
-  onboardingCompleted: boolean
   name: string
   phone: string
   address: string

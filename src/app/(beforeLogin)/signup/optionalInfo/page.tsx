@@ -1,5 +1,11 @@
 'use client'
-import { UserAditonalInfoDTO } from '@/api/services/user/model'
+import { useUserOptionalMutation } from '@/api'
+import {
+  AddressInfoForm,
+  MBITInfoForm,
+  StackInfoForm,
+  ToolInfoForm,
+} from '@/components/InputForm'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { formSchemaOptionalInfo } from '@/hook/useVaild'
@@ -8,12 +14,6 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { z } from 'zod'
-import {
-  AddressInfoForm,
-  MBITInfoForm,
-  StackInfoForm,
-  ToolInfoForm,
-} from '../components/InputForm'
 
 const page: React.FC = () => {
   const form = useForm<z.infer<typeof formSchemaOptionalInfo>>({
@@ -32,39 +32,75 @@ const page: React.FC = () => {
   >([])
   const [value, setValue] = React.useState<string>('')
 
-  const onSubmit: SubmitHandler<
-    z.infer<typeof formSchemaOptionalInfo>
-  > = async (data) => {
-    const userInfo: UserAditonalInfoDTO = {
+  const useOptionalMutation = useUserOptionalMutation(
+    {
       tool: Object.fromEntries(
         entries.map((entry) => [entry.tool, entry.email]),
       ),
-      address: data.address,
-      stack: data.stack
+      address: form.watch('address'),
+      stack: form
+        .watch('stack')
         .split(',')
         .map((stack) => stack.trim())
         .filter((stack) => stack !== ''),
       MBTI: value,
-    }
-
-    try {
-      const response = await fetch('/signup/optionalInfo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userInfo),
-      })
-
-      if (response.ok) {
-        console.log('Success:', userInfo)
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          tool: Object.fromEntries(
+            entries.map((entry) => [entry.tool, entry.email]),
+          ),
+          address: form.watch('address'),
+          stack: form
+            .watch('stack')
+            .split(',')
+            .map((stack) => stack.trim())
+            .filter((stack) => stack !== ''),
+          MBTI: value,
+        })
         router.push('/workspace')
-      } else {
-        console.error('Failed to submit form')
-      }
-    } catch (error) {
-      console.error('Error:', error)
-    }
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
+
+  const onSubmit: SubmitHandler<
+    z.infer<typeof formSchemaOptionalInfo>
+  > = async (data) => {
+    console.log('Success:', {
+      tool: Object.fromEntries(
+        entries.map((entry) => [entry.tool, entry.email]),
+      ),
+      address: form.watch('address'),
+      stack: form
+        .watch('stack')
+        .split(',')
+        .map((stack) => stack.trim())
+        .filter((stack) => stack !== ''),
+      MBTI: value,
+    })
+    useOptionalMutation.mutate()
+    // try {
+    //   const response = await fetch('/signup/optionalInfo', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(userInfo),
+    //   })
+
+    //   if (response.ok) {
+    //     console.log('Success:', userInfo)
+    //     router.push('/workspace')
+    //   } else {
+    //     console.error('Failed to submit form')
+    //   }
+    // } catch (error) {
+    //   console.error('Error:', error)
+    // }
   }
 
   return (

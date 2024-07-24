@@ -4,7 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { UserInfoDTO } from '@/api/services/user/model'
+import { useUserSignUpMutation } from '@/api'
+import {
+  EmailInfoForm,
+  NameInfoForm,
+  PhoneInfoForm,
+} from '@/components/InputForm'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -16,13 +21,10 @@ import {
 } from '@/components/ui/form'
 import { formSchemaSignUp } from '@/hook/useVaild'
 import { useRouter } from 'next/navigation'
-import {
-  EmailInfoForm,
-  NameInfoForm,
-  PhoneInfoForm,
-} from './components/InputForm'
 
 const JoinForm = () => {
+  const router = useRouter()
+
   const form = useForm<z.infer<typeof formSchemaSignUp>>({
     resolver: zodResolver(formSchemaSignUp),
     defaultValues: {
@@ -43,34 +45,56 @@ const JoinForm = () => {
     form.setValue('privacy', chekced, { shouldValidate: true })
     form.setValue('mail', chekced, { shouldValidate: true })
   }
-
-  const router = useRouter()
-  const onSubmit = async (values: z.infer<typeof formSchemaSignUp>) => {
-    const userDTO: UserInfoDTO = {
-      name: values.name,
-      phone: values.phonenumber,
-      requiredTermsAgree: values.use && values.privacy,
-      marketingEmailOptIn: !!values.mail,
-    }
-
-    try {
-      const response = await fetch('/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userDTO),
-      })
-
-      if (response.ok) {
-        console.log('Success:', userDTO)
+  const userSignUpMutation = useUserSignUpMutation(
+    {
+      name: form.watch('name'),
+      phone: form.watch('phonenumber'),
+      requiredTermsAgree: form.watch('privacy') && form.watch('use'),
+      marketingEmailOptIn: !!form.watch('mail'),
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          name: form.watch('name'),
+          phone: form.watch('phonenumber'),
+          requiredTermsAgree: form.watch('privacy') && form.watch('use'),
+          marketingEmailOptIn: !!form.watch('mail'),
+        })
         router.push('/signup/optionalInfo')
-      } else {
-        console.error('Failed to submit form')
-      }
-    } catch (error) {
-      console.error('Error:', error)
-    }
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
+
+  const onSubmit = async (values: z.infer<typeof formSchemaSignUp>) => {
+    userSignUpMutation.mutate()
+    // const userDTO: UserSignUpDTO = {
+    //   name: values.name,
+    //   phone: values.phonenumber,
+    //   requiredTermsAgree: values.use && values.privacy,
+    //   marketingEmailOptIn: !!values.mail,
+    // }
+
+    // try {
+    //   const response = await fetch('/signup', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(userDTO),
+    //   })
+
+    //   if (response.ok) {
+    //     console.log('Success:', userDTO)
+    //     router.push('/signup/optionalInfo')
+    //   } else {
+    //     console.error('Failed to submit form')
+    //   }
+    // } catch (error) {
+    //   console.error('Error:', error)
+    // }
   }
 
   return (
