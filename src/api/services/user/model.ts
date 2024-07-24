@@ -4,6 +4,27 @@ export enum UserStatus {
   Withdrawn = 'WITHDRAWN',
 }
 
+export const mbtiOptions = [
+  'ISTJ',
+  'ISFJ',
+  'INFJ',
+  'INTJ',
+  'ISTP',
+  'ISFP',
+  'INFP',
+  'INTP',
+  'ESTP',
+  'ESFP',
+  'ENFP',
+  'ENTP',
+  'ESTJ',
+  'ESFJ',
+  'ENFJ',
+  'ENTJ',
+].map((value) => ({ value, label: value }))
+
+export const toolList = ['Github', 'Figma', 'Notion']
+
 export interface UserInfoResponse {
   code: string
   result: {
@@ -14,10 +35,7 @@ export interface UserInfoResponse {
     name: string
     phone: string
     address: string
-    tool: {
-      figma: string
-      notion: string
-    }
+    tool: {}
     stack: string[]
     MBTI: string
   }
@@ -28,6 +46,26 @@ export interface UserInfoDTO {
   phone: string
   requiredTermsAgree: boolean
   marketingEmailOptIn: boolean
+}
+
+export interface UserAditonalInfoDTO {
+  tool: {}
+  address: string
+  stack: string[]
+  MBTI: string
+}
+
+export interface EditUserInfoDTO {
+  email: string
+  status: UserStatus
+  onboardingCompleted: boolean
+  name: string
+  phone: string
+  address: string
+  tool: {}
+  stack: string[]
+  MBTI: string
+  imageUrl: string
 }
 
 export interface DefaultResponse {

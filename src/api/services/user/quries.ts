@@ -1,15 +1,14 @@
 'use client'
 
+import { CustomQueryOptions } from '@/api/type'
 import {
-  Query,
   QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { userService } from './service'
-import { CustomQueryOptions } from '@/api/type'
 import { DefaultResponse, UserInfoDTO, UserInfoResponse } from './model'
+import { userService } from './service'
 
 export const userOptions = {
   userInfo: (client: QueryClient) => ({
