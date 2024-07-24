@@ -23,6 +23,136 @@ const config = {
       fontFamily: {
         pretendard: ['Pretendard', 'sans-serif'],
       },
+      fontSize: {
+        h1: [
+          '3rem',
+          {
+            lineHeight: '3rem',
+            letterSpacing: '-0.012em',
+            fontWeight: '800',
+          },
+        ],
+        h2: [
+          '1.875rem',
+          {
+            lineHeight: '2.25rem',
+            letterSpacing: '-0.0075em',
+            fontWeight: '600',
+          },
+        ],
+        h3: [
+          '1.5rem',
+          {
+            lineHeight: '2rem',
+            letterSpacing: '-0.006em',
+            fontWeight: '600',
+          },
+        ],
+        h4: [
+          '1.25rem',
+          {
+            lineHeight: '1.75rem',
+            letterSpacing: '-0.005em',
+            fontWeight: '600',
+          },
+        ],
+        large: [
+          '1.125rem',
+          {
+            lineHeight: '1.75rem',
+            letterSpacing: '0em',
+            fontWeight: '600',
+          },
+        ],
+        lead: [
+          '1.25rem',
+          {
+            lineHeight: '1.75rem',
+            letterSpacing: '0em',
+            fontWeight: '400',
+          },
+        ],
+        p: [
+          '1rem',
+          {
+            lineHeight: '1.75rem',
+            letterSpacing: '0em',
+            fontWeight: '400',
+          },
+        ],
+        'p-ui': [
+          '1rem',
+          {
+            lineHeight: '1.5rem',
+            letterSpacing: '0em',
+            fontWeight: '400',
+          },
+        ],
+        body: [
+          '0.875rem',
+          {
+            lineHeight: '1.5rem',
+            letterSpacing: '0em',
+            fontWeight: '400',
+          },
+        ],
+        subtle: [
+          '0.875rem',
+          {
+            lineHeight: '1.25rem',
+            letterSpacing: '0em',
+            fontWeight: '400',
+          },
+        ],
+        small: [
+          '0.875rem',
+          {
+            lineHeight: '0.875rem',
+            letterSpacing: '0em',
+            fontWeight: '500',
+          },
+        ],
+        detail: [
+          '0.75rem',
+          {
+            lineHeight: '1.25rem',
+            letterSpacing: '0em',
+            fontWeight: '500',
+          },
+        ],
+        blockquote: [
+          '1rem',
+          {
+            lineHeight: '1.5rem',
+            letterSpacing: '0em',
+            fontWeight: '300',
+          },
+        ],
+        'inline-code': [
+          '0.875rem',
+          {
+            lineHeight: '1.25rem',
+            letterSpacing: '0em',
+            fontWeight: '700',
+          },
+        ],
+        'table-head': [
+          '1rem',
+          {
+            lineHeight: '1.5rem',
+            letterSpacing: '0em',
+            fontWeight: '700',
+          },
+        ],
+        'table-item': [
+          '1rem',
+          {
+            lineHeight: '1.5rem',
+            letterSpacing: '0em',
+            fontWeight: '400',
+          },
+        ],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

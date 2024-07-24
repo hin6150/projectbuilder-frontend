@@ -1,4 +1,5 @@
 'use client'
+
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/Icon'
@@ -18,21 +19,21 @@ const Login = () => {
       </div>
       <div className="items:start flex w-[380px] flex-col gap-[20px]">
         <Button
-          onClick={() => router.push('/auth/token')}
+          onClick={() => router.push('/auth/token?access=AccessToken&refresh=RefreshToken')}
           className="gap-[8px] bg-slate-900 hover:bg-slate-800"
         >
           <Icon name="github" />
           <p className="text-white">깃허브로 시작하기</p>
         </Button>
         <Button
-          onClick={() => router.push('/auth/token')}
+          onClick={() => router.push('/auth/token?access=AccessToken&refresh=RefreshToken')}
           className="gap-[8px] bg-yellow-300 hover:bg-yellow-200"
         >
           <Icon name="kakao" />
           <p className="text-black">카카오로 시작하기</p>
         </Button>
         <Button
-          onClick={() => router.push('/auth/token')}
+          onClick={() => router.push('/auth/token?access=AccessToken&refresh=RefreshToken')}
           className="gap-[8px] border border-gray-300 bg-white hover:bg-slate-50"
         >
           <Icon name="google" />
