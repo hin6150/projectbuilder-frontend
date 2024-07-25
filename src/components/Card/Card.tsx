@@ -99,8 +99,8 @@ const Card: React.FC<CardProps> = ({
   return (
     <>
       <div className={cardStyles.card}>
-        <h2 className="mb-2 text-2xl font-bold">{title}</h2>
-        <p className="mb-4 text-gray-700">{description}</p>
+        <h2 className="mb-2 text-h2">{title}</h2>
+        <p className="mb-4 text-p text-gray-700">{description}</p>
         <div className={cardStyles.members}>
           {visibleMembers.map((member, index) => (
             <div key={index} className={cardStyles.member}>
