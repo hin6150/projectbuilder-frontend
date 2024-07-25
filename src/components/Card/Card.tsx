@@ -1,9 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react'
-import cardStyles from './Card.css'
-import Modal from '../Modal/Modal'
-import Option from '../Option/Option'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  MoreVertical,
+  PencilIcon,
+  Trash2Icon,
+  UserPlusIcon,
+} from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ProfileAvatar } from '../Avatar/Avatar'
-import { MoreVertical } from 'lucide-react'
 
 interface CardProps {
   title: string
@@ -98,41 +106,63 @@ const Card: React.FC<CardProps> = ({
 
   return (
     <>
-      <div className={cardStyles.card}>
-        <h2 className="mb-2 text-h2">{title}</h2>
-        <p className="mb-4 text-p text-gray-700">{description}</p>
-        <div className={cardStyles.members}>
-          {visibleMembers.map((member, index) => (
-            <div key={index} className={cardStyles.member}>
-              <ProfileAvatar imageUrl={member.avatar} name={member.name} />
-            </div>
-          ))}
-          {remainingMemberCount > 0 && (
-            <div className={`${cardStyles.member} ${cardStyles.extraMembers}`}>
-              +{remainingMemberCount}
-            </div>
-          )}
-        </div>
-        <div className="relative flex justify-between">
-          <p className={cardStyles.dates}>
+      <div className="shadow-base flex w-[380px] flex-col gap-14 rounded-xl border-2 border-slate-200 p-6">
+        <div className="flex flex-col gap-4">
+          <p className="text-h3">{title}</p>
+          <p className="text-body">{description}</p>
+          <p className="text-inline-code text-gray-400">
             {startDate} ~ {endDate}
           </p>
-          <MoreVertical
-            name="more-vertical"
-            onClick={handleOpenOption}
-            className="cursor-pointer"
-          />
-          {isOptionOpen && (
-            <Option
-              onInvite={handleInvite}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              optionRef={optionRef}
-            />
-          )}
+        </div>
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-[6px]">
+            <div className="flex -space-x-3">
+              {visibleMembers.map((member, index) => (
+                <ProfileAvatar
+                  key={index}
+                  imageUrl={member.avatar}
+                  name={member.name}
+                />
+              ))}
+            </div>
+            {remainingMemberCount > 0 && (
+              <p className="text-small text-gray-400">
+                +{remainingMemberCount}
+              </p>
+            )}
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <MoreVertical
+                name="more-vertical"
+                onClick={handleOpenOption}
+                className="cursor-pointer text-slate-500"
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[184px]">
+              <DropdownMenuItem>
+                <div className="flex items-center gap-2 p-2">
+                  <UserPlusIcon size={16} />
+                  <p className="text-subtle font-medium">팀원 초대</p>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <div className="flex items-center gap-2 p-2">
+                  <PencilIcon size={16} />
+                  <p className="text-subtle font-medium">프로젝트 수정</p>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <div className="flex items-center gap-2 p-2">
+                  <Trash2Icon size={16} />
+                  <p className="text-subtle font-medium">프로젝트 삭제</p>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <Modal
           title={title}
           description={description}
@@ -141,7 +171,7 @@ const Card: React.FC<CardProps> = ({
           onClose={handleCloseModal}
           onSave={handleSave}
         />
-      )}
+      )} */}
     </>
   )
 }
