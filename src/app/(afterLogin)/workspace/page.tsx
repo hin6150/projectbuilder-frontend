@@ -1,9 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import Card from '@/components/Card/Card'
-import Header from '@/components/Header/Header'
-import Button from '@/components/Button/ButtonForm'
+import { Button } from '@/components/ui/button'
 
 export default function Home() {
   const project = {
@@ -18,17 +16,17 @@ export default function Home() {
       { name: '재연', avatar: '/avatar1.png' },
       { name: '재연', avatar: '/avatar1.png' },
     ],
-    startDate: '2024.07.11',
-    endDate: '2024.07.11',
+    startDate: '2024.07.01 (월)',
+    endDate: '2024.07.11 (일)',
   }
 
   return (
-    <main>
-      <Header />
-      <div className="m-5 flex justify-end">
-        <Button variant="primary">+ 생성하기</Button>
+    <main className="mt-5">
+      <div className="mb-[30px] flex justify-end">
+        <Button className="w-[180px]">+ 프로젝트 생성</Button>
       </div>
-      <div className="container mx-auto flex justify-center gap-10 p-4">
+      <div className="flex flex-wrap gap-5">
+        <Card {...project} />
         <Card {...project} />
         <Card {...project} />
         <Card {...project} />
