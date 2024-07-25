@@ -49,6 +49,7 @@ const Card: React.FC<CardProps> = ({
               {visibleMembers.map((member, index) => (
                 <ProfileAvatar
                   key={index}
+                  size="32"
                   imageUrl={member.avatar}
                   name={member.name}
                 />
