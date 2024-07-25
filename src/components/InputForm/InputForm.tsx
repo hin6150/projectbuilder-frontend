@@ -41,8 +41,12 @@ import { getInitials } from '@/components/Avatar/Avatar'
 import { Icon } from '@/components/Icon'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { formatPhoneNumber } from '@/hooks/useVaild'
+import { format } from 'date-fns'
+import { DateRange } from 'react-day-picker'
 import { UseFormReturn } from 'react-hook-form'
+import { Calendar } from '../ui/calendar'
 import { Checkbox } from '../ui/checkbox'
+import { Textarea } from '../ui/textarea'
 
 interface entry {
   tool: string
@@ -349,7 +353,7 @@ export const AvatarInfoForm = ({
             accept="image/*"
           />
           <div className="w-full">
-            <DefaultForm form={form} name="name" label="이름" />
+            <DefaultInputForm form={form} name="name" label="이름" />
           </div>
         </FormItem>
       )}
@@ -357,7 +361,7 @@ export const AvatarInfoForm = ({
   )
 }
 
-export const DefaultForm = ({
+export const DefaultInputForm = ({
   form,
   name,
   label,
@@ -371,6 +375,92 @@ export const DefaultForm = ({
         <FormLabel className="text-p">{label}</FormLabel>
         <FormControl className="flex items-start gap-[8px] self-stretch">
           <Input placeholder={label} {...rest} {...field} />
+        </FormControl>
+      </FormItem>
+    )}
+  />
+)
+
+export const DatePickerInfoForm = ({
+  form,
+  name,
+  label,
+  ...rest
+}: defaultFormType) => {
+  const [date, setDate] = React.useState<DateRange | undefined>()
+
+  const formatDate = (date: Date) => {
+    return format(date, 'yyyy.MM.dd')
+  }
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+          <FormLabel className="text-p">{label}</FormLabel>
+          <FormControl className="flex items-start gap-[8px] self-stretch">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Input
+                  {...rest}
+                  {...field}
+                  value={
+                    field.value?.from
+                      ? field.value.to
+                        ? `${formatDate(field.value.from)} ~ ${formatDate(field.value.to)}`
+                        : formatDate(field.value.from).toString()
+                      : ''
+                  }
+                  readOnly
+                />
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  // disabled={(date) => date <= new Date()}
+                  selected={field.value}
+                  onSelect={field.onChange}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
+
+export const TextAreaForm = ({
+  form,
+  name,
+  label,
+  ...rest
+}: defaultFormType) => (
+  <FormField
+    control={form.control}
+    name={name}
+    render={({ field }) => (
+      <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+        <FormLabel className="text-p">{label}</FormLabel>
+        <FormControl className="flex items-start gap-[8px] self-stretch">
+          <div className="grid w-full gap-2">
+            <Textarea
+              placeholder={label}
+              {...rest}
+              {...field}
+              className="resize-none border border-gray-300 placeholder:text-gray-400"
+            />
+            <p className="text-right text-subtle">
+              <span className="text-black">
+                {field.value ? field.value.length : 0}
+              </span>
+              <span className="text-gray-400"> / 100</span>
+            </p>
+          </div>
         </FormControl>
       </FormItem>
     )}

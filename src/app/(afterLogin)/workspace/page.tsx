@@ -4,6 +4,7 @@ import Card from '@/components/Card/Card'
 import { ProjectCreateModal } from '@/components/Modal/ProjectModal'
 import { Button } from '@/components/ui/button'
 import { useModal } from '@/hooks/useModal'
+import { PlusIcon } from 'lucide-react'
 
 export default function Home() {
   const project = {
@@ -31,7 +32,10 @@ export default function Home() {
     <main className="mt-5">
       <div className="mb-[30px] flex justify-end">
         <Button className="w-[180px]" onClick={handleClick}>
-          + 프로젝트 생성
+          <div className="flex items-center justify-center gap-2">
+            <PlusIcon size={16} />
+            <p className="text-body">프로젝트 생성</p>
+          </div>
         </Button>
       </div>
       <div className="flex flex-wrap gap-5">

@@ -1,7 +1,10 @@
 'use client'
 import { useUserOptionalMutation } from '@/api'
-import { MBITInfoForm, ToolInfoForm } from '@/components/InputForm'
-import { DefaultForm } from '@/components/InputForm/InputForm'
+import {
+  DefaultInputForm,
+  MBITInfoForm,
+  ToolInfoForm,
+} from '@/components/InputForm'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { formSchemaOptionalInfo } from '@/hooks/useVaild'
@@ -92,13 +95,13 @@ const page: React.FC = () => {
             <p className="text-center text-h4">선택 정보</p>
           </div>
           <div className="flex flex-col items-start gap-[16px] self-stretch">
-            <DefaultForm form={form} name="address" label="거주지역" />
+            <DefaultInputForm form={form} name="address" label="거주지역" />
             <ToolInfoForm
               form={form}
               entries={entries}
               setEntries={setEntries}
             />
-            <DefaultForm
+            <DefaultInputForm
               form={form}
               name="stack"
               label="기술스택(쉼포로 구분)"

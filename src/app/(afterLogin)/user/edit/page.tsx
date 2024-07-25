@@ -8,11 +8,12 @@ import { useForm } from 'react-hook-form'
 import { useEditUserMutation, useUserInfoQuery } from '@/api'
 
 import {
+  AvatarInfoForm,
+  DefaultInputForm,
   MBITInfoForm,
   PhoneInfoForm,
   ToolInfoForm,
 } from '@/components/InputForm'
-import { AvatarInfoForm, DefaultForm } from '@/components/InputForm/InputForm'
 import { formSchemaUserEdit } from '@/hooks/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
@@ -115,7 +116,7 @@ const profileEdit: React.FC = () => {
             <p className="text-center text-h4">프로필 정보</p>
           </div>
           <div className="flex flex-col items-start gap-[16px] self-stretch">
-            <DefaultForm
+            <DefaultInputForm
               form={form}
               name="email"
               label="로그인 정보"
@@ -132,8 +133,8 @@ const profileEdit: React.FC = () => {
               setEntries={setEntries}
             />
             <PhoneInfoForm form={form} />
-            <DefaultForm form={form} name="address" label="거주지역" />
-            <DefaultForm
+            <DefaultInputForm form={form} name="address" label="거주지역" />
+            <DefaultInputForm
               form={form}
               name="stack"
               label="기술스택(쉼포로 구분)"

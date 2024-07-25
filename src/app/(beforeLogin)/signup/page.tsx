@@ -5,8 +5,11 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { useUserSignUpMutation } from '@/api'
-import { PhoneInfoForm } from '@/components/InputForm'
-import { CheckBoxForm, DefaultForm } from '@/components/InputForm/InputForm'
+import {
+  CheckBoxForm,
+  DefaultInputForm,
+  PhoneInfoForm,
+} from '@/components/InputForm'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Form } from '@/components/ui/form'
@@ -76,13 +79,13 @@ const JoinForm = () => {
           </div>
 
           <div className="flex flex-col items-start gap-[10px] self-stretch">
-            <DefaultForm
+            <DefaultInputForm
               form={form}
               name="email"
               label="로그인 정보"
               disabled={true}
             />
-            <DefaultForm form={form} name="name" label="이름" />
+            <DefaultInputForm form={form} name="name" label="이름" />
             <PhoneInfoForm form={form} />
           </div>
 
