@@ -108,10 +108,11 @@ export function Monthly() {
   return (
     <div className="flex h-[932px] w-[864px] flex-shrink-0 flex-col items-start gap-[10px] p-4">
       <CalendarHeader
+        view="month"
         month={month}
         year={year}
-        onPrevMonth={handlePrevMonth}
-        onNextMonth={handleNextMonth}
+        onPrev={handlePrevMonth}
+        onNext={handleNextMonth}
         onToday={handleToday}
       />
       <div className="flex items-center justify-between self-stretch">

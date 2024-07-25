@@ -4,19 +4,26 @@ import { Button } from '../ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Icon } from '../Icon'
 
+type ViewType = 'month' | 'week' | 'day'
 interface CalendarHeaderProps {
-  month: number
-  year: number
-  onPrevMonth: () => void
-  onNextMonth: () => void
+  view: ViewType
+  month?: number
+  year?: number
+  week?: number
+  day?: number
+  onPrev: () => void
+  onNext: () => void
   onToday: () => void
 }
 
 export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
+  view,
   month,
   year,
-  onPrevMonth,
-  onNextMonth,
+  week,
+  day,
+  onPrev,
+  onNext,
   onToday,
 }) => {
   return (
@@ -26,7 +33,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           {year}년 {month}월
         </p>
         <Button
-          onClick={onPrevMonth}
+          onClick={onPrev}
           variant="outline"
           size="icon"
           className="h-8 w-8"
@@ -34,7 +41,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <Button
-          onClick={onNextMonth}
+          onClick={onNext}
           variant="outline"
           size="icon"
           className="h-8 w-8"
