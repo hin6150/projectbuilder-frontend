@@ -1,96 +1,36 @@
-import React, { useState } from 'react'
-import Button from '../Button/ButtonForm'
+import { useModal } from '@/hooks/useModal'
+import { createPortal } from 'react-dom'
 
-interface ModalProps {
-  title: string
-  description: string
-  startDate: string
-  endDate: string
-  onClose: () => void
-  onSave: (
-    title: string,
-    description: string,
-    startDate: string,
-    endDate: string,
-  ) => void
-}
+const ModalMain = ({ children }: { children: React.ReactNode }) => {
+  const { open, toggleModal, closing } = useModal()
 
-const Modal: React.FC<ModalProps> = ({
-  title: initialTitle,
-  description: initialDescription,
-  startDate: initialStartDate,
-  endDate: initialEndDate,
-  onClose,
-  onSave,
-}) => {
-  const [title, setTitle] = useState(initialTitle)
-  const [description, setDescription] = useState(initialDescription)
-  const [dateRange, setDateRange] = useState(
-    `${initialStartDate} ~ ${initialEndDate}`,
-  )
-
-  const handleSave = () => {
-    const [startDate, endDate] = dateRange.split(' ~ ')
-    onSave(title, description, startDate, endDate)
+  if (!open) {
+    return null
   }
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDateRange(e.target.value)
+  const modalPortal = document.querySelector('#modal') as HTMLDivElement
+
+  const clickBackdrop = () => {
+    toggleModal()
   }
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-80 rounded-lg bg-white p-6 shadow-lg">
-        <h2 className="mb-4 text-2xl font-bold">프로젝트 수정</h2>
-        <label className="mb-4 block">
-          프로젝트 이름
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2"
-          />
-        </label>
-        <label className="mb-4 block">
-          프로젝트 기간
-          <input
-            type="text"
-            value={dateRange}
-            onChange={handleDateChange}
-            className="w-full rounded border border-gray-300 px-3 py-2"
-          />
-        </label>
-        <label className="mb-4 block">
-          프로젝트 개요
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="h-24 w-full resize-none rounded border border-gray-300 px-3 py-2"
-            maxLength={100}
-          />
-          <div className="text-right text-sm text-gray-600">
-            {description.length} / 100
-          </div>
-        </label>
-        <div className="flex w-full justify-between">
-          <Button
-            variant="subtle"
-            onClick={onClose}
-            className="flex flex-1 items-center justify-center gap-2 p-2 px-4"
-          >
-            취소
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleSave}
-            className="flex flex-1 items-center justify-center gap-2 p-2 px-4"
-          >
-            수정
-          </Button>
-        </div>
+  return createPortal(
+    <div
+      id="modal-backdrop"
+      className={`${closing ? 'animate-fade-out' : 'animate-fade-in'} fixed left-0 top-0 z-50 flex h-screen w-screen items-center justify-center bg-black/50`}
+      onClick={clickBackdrop}
+    >
+      <div
+        className={`${closing ? 'animate-disappear-bottom' : 'animate-appear-up'} flex h-fit w-fit min-w-[410px] flex-col items-center justify-center gap-6 rounded-lg bg-white p-8`}
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
+      >
+        {children}
       </div>
-    </div>
+    </div>,
+    modalPortal,
   )
 }
 
-export default Modal
+export const Modal = Object.assign(ModalMain, {})

@@ -1,7 +1,9 @@
 'use client'
 
 import Card from '@/components/Card/Card'
+import { ProjectCreateModal } from '@/components/Modal/ProjectModal'
 import { Button } from '@/components/ui/button'
+import { useModal } from '@/hooks/useModal'
 
 export default function Home() {
   const project = {
@@ -19,11 +21,18 @@ export default function Home() {
     startDate: '2024.07.01 (월)',
     endDate: '2024.07.11 (일)',
   }
+  const { open, toggleModal } = useModal()
+
+  const handleClick = () => {
+    toggleModal()
+  }
 
   return (
     <main className="mt-5">
       <div className="mb-[30px] flex justify-end">
-        <Button className="w-[180px]">+ 프로젝트 생성</Button>
+        <Button className="w-[180px]" onClick={handleClick}>
+          + 프로젝트 생성
+        </Button>
       </div>
       <div className="flex flex-wrap gap-5">
         <Card {...project} />
@@ -31,6 +40,7 @@ export default function Home() {
         <Card {...project} />
         <Card {...project} />
       </div>
+      {open && <ProjectCreateModal />}
     </main>
   )
 }

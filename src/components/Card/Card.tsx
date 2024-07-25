@@ -10,7 +10,7 @@ import {
   Trash2Icon,
   UserPlusIcon,
 } from 'lucide-react'
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import { ProfileAvatar } from '../Avatar/Avatar'
 
 interface CardProps {
@@ -24,83 +24,12 @@ interface CardProps {
 const MAX_VISIBLE_MEMBERS = 5
 
 const Card: React.FC<CardProps> = ({
-  title: initialTitle,
-  description: initialDescription,
+  title,
+  description,
   members,
-  startDate: initialStartDate,
-  endDate: initialEndDate,
+  startDate,
+  endDate,
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isOptionOpen, setIsOptionOpen] = useState(false)
-  const [title, setTitle] = useState(initialTitle)
-  const [description, setDescription] = useState(initialDescription)
-  const [startDate, setStartDate] = useState(initialStartDate)
-  const [endDate, setEndDate] = useState(initialEndDate)
-
-  const optionRef = useRef<HTMLDivElement>(null)
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
-
-  const handleOpenOption = () => {
-    setIsOptionOpen(!isOptionOpen)
-  }
-
-  const handleSave = (
-    newTitle: string,
-    newDescription: string,
-    newStartDate: string,
-    newEndDate: string,
-  ) => {
-    setTitle(newTitle)
-    setDescription(newDescription)
-    setStartDate(newStartDate)
-    setEndDate(newEndDate)
-    handleCloseModal()
-  }
-
-  const handleInvite = () => {
-    // Add your invite logic here
-    setIsOptionOpen(false)
-  }
-
-  const handleEdit = () => {
-    // Add your edit logic here
-    setIsOptionOpen(false)
-    handleOpenModal()
-  }
-
-  const handleDelete = () => {
-    // Add your delete logic here
-    setIsOptionOpen(false)
-  }
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        optionRef.current &&
-        !optionRef.current.contains(event.target as Node)
-      ) {
-        setIsOptionOpen(false)
-      }
-    }
-
-    if (isOptionOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOptionOpen])
-
   const visibleMembers = members.slice(0, MAX_VISIBLE_MEMBERS)
   const remainingMemberCount = members.length - MAX_VISIBLE_MEMBERS
 
@@ -135,7 +64,6 @@ const Card: React.FC<CardProps> = ({
             <DropdownMenuTrigger>
               <MoreVertical
                 name="more-vertical"
-                onClick={handleOpenOption}
                 className="cursor-pointer text-slate-500"
               />
             </DropdownMenuTrigger>
@@ -162,16 +90,6 @@ const Card: React.FC<CardProps> = ({
           </DropdownMenu>
         </div>
       </div>
-      {/* {isModalOpen && (
-        <Modal
-          title={title}
-          description={description}
-          startDate={startDate}
-          endDate={endDate}
-          onClose={handleCloseModal}
-          onSave={handleSave}
-        />
-      )} */}
     </>
   )
 }
