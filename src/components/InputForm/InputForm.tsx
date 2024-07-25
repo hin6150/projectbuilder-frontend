@@ -41,8 +41,7 @@ import { getInitials } from '@/components/Avatar/Avatar'
 import { Icon } from '@/components/Icon'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { formatPhoneNumber } from '@/hooks/useVaild'
-import { format } from 'date-fns'
-import { DateRange } from 'react-day-picker'
+import { format, getDay } from 'date-fns'
 import { UseFormReturn } from 'react-hook-form'
 import { Calendar } from '../ui/calendar'
 import { Checkbox } from '../ui/checkbox'
@@ -387,10 +386,9 @@ export const DatePickerInfoForm = ({
   label,
   ...rest
 }: defaultFormType) => {
-  const [date, setDate] = React.useState<DateRange | undefined>()
-
   const formatDate = (date: Date) => {
-    return format(date, 'yyyy.MM.dd')
+    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
+    return `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
   }
 
   return (

@@ -4,6 +4,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useModal } from '@/hooks/useModal'
+import { ModalTypes } from '@/hooks/useModal/useModal'
 import {
   MoreVertical,
   PencilIcon,
@@ -33,65 +35,80 @@ const Card: React.FC<CardProps> = ({
   const visibleMembers = members.slice(0, MAX_VISIBLE_MEMBERS)
   const remainingMemberCount = members.length - MAX_VISIBLE_MEMBERS
 
+  const { setModal, toggleModal } = useModal()
+
   return (
-    <>
-      <div className="shadow-base flex w-[380px] flex-col gap-14 rounded-xl border-2 border-slate-200 p-6">
-        <div className="flex flex-col gap-4">
-          <p className="text-h3">{title}</p>
-          <p className="text-body">{description}</p>
-          <p className="text-inline-code text-gray-400">
-            {startDate} ~ {endDate}
-          </p>
-        </div>
-        <div className="relative flex items-center justify-between">
-          <div className="flex items-center gap-[6px]">
-            <div className="flex -space-x-3">
-              {visibleMembers.map((member, index) => (
-                <ProfileAvatar
-                  key={index}
-                  size="32"
-                  imageUrl={member.avatar}
-                  name={member.name}
-                />
-              ))}
-            </div>
-            {remainingMemberCount > 0 && (
-              <p className="text-small text-gray-400">
-                +{remainingMemberCount}
-              </p>
-            )}
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <MoreVertical
-                name="more-vertical"
-                className="cursor-pointer text-slate-500"
-              />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[184px]">
-              <DropdownMenuItem>
-                <div className="flex items-center gap-2 p-2">
-                  <UserPlusIcon size={16} />
-                  <p className="text-subtle font-medium">팀원 초대</p>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <div className="flex items-center gap-2 p-2">
-                  <PencilIcon size={16} />
-                  <p className="text-subtle font-medium">프로젝트 수정</p>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <div className="flex items-center gap-2 p-2">
-                  <Trash2Icon size={16} />
-                  <p className="text-subtle font-medium">프로젝트 삭제</p>
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+    <div className="flex w-[380px] flex-col gap-14 rounded-xl border-2 border-slate-200 p-6 shadow-base">
+      <div className="flex flex-col gap-4">
+        <p className="text-h3">{title}</p>
+        <p className="text-body">{description}</p>
+        <p className="text-inline-code text-gray-400">
+          {startDate} ~ {endDate}
+        </p>
       </div>
-    </>
+
+      <div className="relative flex items-center justify-between">
+        <div className="flex items-center gap-[6px]">
+          <div className="flex -space-x-3">
+            {visibleMembers.map((member, index) => (
+              <ProfileAvatar
+                key={index}
+                size="32"
+                imageUrl={member.avatar}
+                name={member.name}
+              />
+            ))}
+          </div>
+          {remainingMemberCount > 0 && (
+            <p className="text-small text-gray-400">+{remainingMemberCount}</p>
+          )}
+        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <MoreVertical
+              name="more-vertical"
+              className="cursor-pointer text-slate-500"
+            />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[184px]">
+            <DropdownMenuItem
+              onClick={() => {
+                setModal(ModalTypes.INVITE)
+                toggleModal()
+              }}
+            >
+              <div className="flex items-center gap-2 p-2">
+                <UserPlusIcon size={16} />
+                <p className="text-subtle font-medium">팀원 초대</p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setModal(ModalTypes.EDIT)
+                toggleModal()
+              }}
+            >
+              <div className="flex items-center gap-2 p-2">
+                <PencilIcon size={16} />
+                <p className="text-subtle font-medium">프로젝트 수정</p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setModal(ModalTypes.DELETE)
+                toggleModal()
+              }}
+            >
+              <div className="flex items-center gap-2 p-2">
+                <Trash2Icon size={16} />
+                <p className="text-subtle font-medium">프로젝트 삭제</p>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
   )
 }
 

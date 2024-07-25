@@ -78,7 +78,7 @@ const profileEdit: React.FC = () => {
           ),
           imageUrl: imageUrl,
         }),
-          router.push('/')
+          router.push('/workspace')
       },
     },
   )

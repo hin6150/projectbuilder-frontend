@@ -1,9 +1,15 @@
 'use client'
 
 import Card from '@/components/Card/Card'
-import { ProjectCreateModal } from '@/components/Modal/ProjectModal'
+import {
+  ProjectCreateModal,
+  ProjectDeleteModal,
+  ProjectEditeModal,
+  ProjectInviteModal,
+} from '@/components/Modal/ProjectModal'
 import { Button } from '@/components/ui/button'
 import { useModal } from '@/hooks/useModal'
+import { ModalTypes } from '@/hooks/useModal/useModal'
 import { PlusIcon } from 'lucide-react'
 
 export default function Home() {
@@ -22,9 +28,10 @@ export default function Home() {
     startDate: '2024.07.01 (월)',
     endDate: '2024.07.11 (일)',
   }
-  const { open, toggleModal } = useModal()
+  const { open, toggleModal, setModal, type } = useModal()
 
   const handleClick = () => {
+    setModal(ModalTypes.CREATE)
     toggleModal()
   }
 
@@ -38,13 +45,18 @@ export default function Home() {
           </div>
         </Button>
       </div>
+
       <div className="flex flex-wrap gap-5">
         <Card {...project} />
         <Card {...project} />
         <Card {...project} />
         <Card {...project} />
       </div>
-      {open && <ProjectCreateModal />}
+
+      {open && type == ModalTypes.CREATE && <ProjectCreateModal />}
+      {open && type == ModalTypes.EDIT && <ProjectEditeModal />}
+      {open && type == ModalTypes.DELETE && <ProjectDeleteModal />}
+      {open && type == ModalTypes.INVITE && <ProjectInviteModal />}
     </main>
   )
 }
