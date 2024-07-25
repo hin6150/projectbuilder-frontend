@@ -11,8 +11,12 @@ export default function Home() {
     description: '설명이 들어 가야겠죠',
     members: [
       { name: '재연', avatar: '/avatar1.png' },
-      { name: '서우', avatar: '/avatar2.png' },
+      { name: '서우', avatar: '/avatar1.png' },
       { name: '홍기', avatar: '/avatar1.png' },
+      { name: '재연', avatar: '/avatar1.png' },
+      { name: '재연', avatar: '/avatar1.png' },
+      { name: '재연', avatar: '/avatar1.png' },
+      { name: '재연', avatar: '/avatar1.png' },
     ],
     startDate: '2024.07.11',
     endDate: '2024.07.11',
@@ -24,7 +28,9 @@ export default function Home() {
       <div className="m-5 flex justify-end">
         <Button variant="primary">+ 생성하기</Button>
       </div>
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto flex justify-center gap-10 p-4">
+        <Card {...project} />
+        <Card {...project} />
         <Card {...project} />
       </div>
     </main>

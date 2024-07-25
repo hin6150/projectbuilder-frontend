@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import cardStyles from './Card.css'
 import Modal from '../Modal/Modal'
 import Option from '../Option/Option'
+import { ProfileAvatar } from '../Avatar/Avatar'
+import { MoreVertical } from 'lucide-react'
 
 interface CardProps {
   title: string
@@ -10,6 +12,8 @@ interface CardProps {
   startDate: string
   endDate: string
 }
+
+const MAX_VISIBLE_MEMBERS = 5
 
 const Card: React.FC<CardProps> = ({
   title: initialTitle,
@@ -89,30 +93,32 @@ const Card: React.FC<CardProps> = ({
     }
   }, [isOptionOpen])
 
+  const visibleMembers = members.slice(0, MAX_VISIBLE_MEMBERS)
+  const remainingMemberCount = members.length - MAX_VISIBLE_MEMBERS
+
   return (
     <>
       <div className={cardStyles.card}>
-        <h2 className={cardStyles.title}>{title}</h2>
-        <p className={cardStyles.description}>{description}</p>
+        <h2 className="mb-2 text-2xl font-bold">{title}</h2>
+        <p className="mb-4 text-gray-700">{description}</p>
         <div className={cardStyles.members}>
-          {members.map((member, index) => (
+          {visibleMembers.map((member, index) => (
             <div key={index} className={cardStyles.member}>
-              <img
-                src={member.avatar}
-                alt={member.name}
-                className={cardStyles.avatar}
-              />
-              <span className={cardStyles.initials}>{member.name}</span>
+              <ProfileAvatar imageUrl={member.avatar} name={member.name} />
             </div>
           ))}
+          {remainingMemberCount > 0 && (
+            <div className={`${cardStyles.member} ${cardStyles.extraMembers}`}>
+              +{remainingMemberCount}
+            </div>
+          )}
         </div>
         <div className="relative flex justify-between">
           <p className={cardStyles.dates}>
             {startDate} ~ {endDate}
           </p>
-          <img
-            src="/more-vertical.png"
-            alt="options"
+          <MoreVertical
+            name="more-vertical"
             onClick={handleOpenOption}
             className="cursor-pointer"
           />

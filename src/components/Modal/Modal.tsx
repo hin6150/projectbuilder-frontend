@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import styles from './Modal.css'
 import Button from '../Button/ButtonForm'
 
 interface ModalProps {
@@ -40,38 +39,40 @@ const Modal: React.FC<ModalProps> = ({
   }
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <h2 className={styles.modalTitle}>프로젝트 수정</h2>
-        <label className={styles.label}>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="w-80 rounded-lg bg-white p-6 shadow-lg">
+        <h2 className="mb-4 text-2xl font-bold">프로젝트 수정</h2>
+        <label className="mb-4 block">
           프로젝트 이름
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className={styles.input}
+            className="w-full rounded border border-gray-300 px-3 py-2"
           />
         </label>
-        <label className={styles.label}>
+        <label className="mb-4 block">
           프로젝트 기간
           <input
             type="text"
             value={dateRange}
             onChange={handleDateChange}
-            className={styles.input}
+            className="w-full rounded border border-gray-300 px-3 py-2"
           />
         </label>
-        <label className={styles.label}>
+        <label className="mb-4 block">
           프로젝트 개요
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className={styles.textarea}
+            className="h-24 w-full resize-none rounded border border-gray-300 px-3 py-2"
             maxLength={100}
           />
-          <div className={styles.charCount}>{description.length} / 100</div>
+          <div className="text-right text-sm text-gray-600">
+            {description.length} / 100
+          </div>
         </label>
-        <div className={styles.buttonGroup}>
+        <div className="flex w-full justify-between">
           <Button
             variant="subtle"
             onClick={onClose}

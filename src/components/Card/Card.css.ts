@@ -1,12 +1,9 @@
 const cardStyles = {
   card: 'bg-white shadow-lg rounded-lg p-6',
-  title: 'text-2xl font-bold mb-2',
-  description: 'text-gray-700 mb-4',
-  members: 'flex space-x-2 mb-4',
-  member: 'flex items-center space-x-2',
+  members: 'flex -space-x-4 mb-4',
+  member: 'flex items-center space-x-2 relative',
+  extraMembers: 'text-gray-400 w-10 h-10 flex justify-end text-sm',
   avatar: 'w-10 h-10 rounded-full',
-  initials:
-    'bg-gray-200 text-gray-800 font-bold rounded-full w-10 h-10 flex items-center justify-center',
   dates: 'text-gray-500',
 }
 
