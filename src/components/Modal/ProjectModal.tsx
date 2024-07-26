@@ -1,10 +1,13 @@
 import { useForm } from 'react-hook-form'
 import { Form } from '../ui/form'
 
+import { InviteStatus } from '@/api'
 import { useModal } from '@/hooks/useModal'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { MailIcon, XIcon } from 'lucide-react'
+import React from 'react'
 import { z } from 'zod'
 import {
   DatePickerInfoForm,
@@ -167,22 +170,38 @@ export const ProjectDeleteModal = () => {
 }
 
 export const ProjectInviteModal = () => {
+  const [inviteEmailList, setInviteEmailList] = React.useState<
+    { email: string; status: string }[]
+  >([])
+
   const { toggleModal } = useModal()
 
   const form = useForm({
-    resolver: zodResolver(formSchemaProject),
+    resolver: zodResolver(formEmailProject),
     defaultValues: {
       email: '',
     },
   })
+
+  const handleRemove = (index: number) => {
+    setInviteEmailList(inviteEmailList.filter((_, i) => i !== index))
+  }
+
   function onSubmit(values: z.infer<typeof formEmailProject>) {
+    setInviteEmailList([
+      ...inviteEmailList,
+      { email: form.watch('email') ?? '', status: InviteStatus.Invited },
+    ])
+    // form.setValue('email', '')
+    form.reset()
+
     console.log(values)
     // toggleModal()
   }
 
   return (
     <Modal>
-      <p className="text-h4">프로젝트를 팀원 초대</p>
+      <p className="text-h4">프로젝트 팀원 초대</p>
       <div className="flex w-full flex-col gap-6">
         <Form {...form}>
           <form
@@ -196,12 +215,47 @@ export const ProjectInviteModal = () => {
               type="submit"
               title="초대"
               disabled={!form.formState.isValid}
+              variant={form.formState.isValid ? 'default' : 'disabled'}
+              onClick={() => {
+                form.formState.isValid
+              }}
             >
               <p>초대하기</p>
             </Button>
           </form>
         </Form>
-        <p className="text-subtle text-slate-400">초대된 팀원이 없어요!</p>
+        <div className="flex flex-col gap-2">
+          {inviteEmailList.map((data, index) => {
+            const color =
+              data.status == InviteStatus.Invited
+                ? 'text-gray-500'
+                : data.status == InviteStatus.Acceped
+                  ? 'text-blue-500'
+                  : 'text-red-500'
+            return (
+              <div
+                className="flex items-center justify-between p-1"
+                key={index}
+              >
+                <div className="flex items-center gap-2">
+                  <MailIcon size={16} />
+                  <p className="text-subtle">{data.email}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className={`text-small ${color}`}>{data.status}</p>
+                  <XIcon
+                    size={16}
+                    onClick={() => handleRemove(index)}
+                    className="cursor-pointer text-black"
+                  />
+                </div>
+              </div>
+            )
+          })}
+          {inviteEmailList.length == 0 && (
+            <p className="text-subtle text-slate-400">초대된 팀원이 없어요!</p>
+          )}
+        </div>
         <Button
           title="취소"
           variant="secondary"

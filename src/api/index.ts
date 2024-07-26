@@ -5,7 +5,7 @@ export {
 } from './constants/header-key'
 
 // USER
-export { UserStatus } from './services/user/model'
+export { InviteStatus, UserStatus } from './services/user/model'
 export type { UserInfoResponse } from './services/user/model'
 export {
   useEditUserMutation,
