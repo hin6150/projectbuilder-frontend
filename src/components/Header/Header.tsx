@@ -15,7 +15,7 @@ const Header: React.FC = () => {
       <div className="text-h3">오늘 회의</div>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <ProfileAvatar name="cv" />
+          <ProfileAvatar name="cv" size="40" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[184px]">
           <DropdownMenuItem>
