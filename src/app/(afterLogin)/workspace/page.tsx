@@ -47,7 +47,6 @@ const workspace = () => {
       </div>
 
       {open && type == ModalTypes.CREATE && <ProjectCreateModal />}
-      {open && type == ModalTypes.CREATE && <ProjectCreateModal />}
       {open && type == ModalTypes.EDIT && <ProjectEditeModal />}
       {open && type == ModalTypes.DELETE && <ProjectDeleteModal />}
       {open && type == ModalTypes.INVITE && <ProjectInviteModal />}
