@@ -52,7 +52,7 @@ export const ProjectCreateModal = () => {
             <TextAreaForm
               form={form}
               name="description"
-              label="프로젝트 개요"
+              label="프로젝트 개요(선택)"
             />
           </div>
           <div className="flex w-full gap-3">
@@ -115,7 +115,7 @@ export const ProjectEditeModal = () => {
             <TextAreaForm
               form={form}
               name="description"
-              label="프로젝트 개요"
+              label="프로젝트 개요(선택)"
             />
           </div>
           <div className="flex w-full gap-3">

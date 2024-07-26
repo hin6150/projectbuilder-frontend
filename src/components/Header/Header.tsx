@@ -11,7 +11,7 @@ import {
 
 const Header: React.FC = () => {
   return (
-    <header className="flex h-20 items-center justify-between p-4">
+    <header className="flex h-20 items-center justify-between py-4">
       <div className="text-h3">오늘 회의</div>
       <DropdownMenu>
         <DropdownMenuTrigger>
