@@ -19,6 +19,7 @@ import { Modal } from './Modal'
 
 export const ProjectCreateModal = () => {
   const { toggleModal } = useModal()
+
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
     defaultValues: {
@@ -42,7 +43,7 @@ export const ProjectCreateModal = () => {
           className="flex w-full flex-col gap-6"
         >
           <div className="flex flex-col gap-10">
-            <DefaultInputForm form={form} name="name" label="프로젝트 이름" />
+            <DefaultInputForm form={form} name="title" label="프로젝트 이름" />
             <DatePickerInfoForm
               form={form}
               name="period"
@@ -67,6 +68,7 @@ export const ProjectCreateModal = () => {
               type="submit"
               title="생성"
               disabled={!form.formState.isValid}
+              variant={form.formState.isValid ? 'default' : 'disabled'}
               className="flex-1"
             >
               <p className="text-body">생성</p>
@@ -80,6 +82,7 @@ export const ProjectCreateModal = () => {
 
 export const ProjectEditeModal = () => {
   const { toggleModal } = useModal()
+
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
     defaultValues: {
@@ -88,13 +91,14 @@ export const ProjectEditeModal = () => {
       description: '',
     },
   })
+
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
     toggleModal()
   }
 
   return (
     <Modal>
-      <p className="text-h4">프로젝트 생성</p>
+      <p className="text-h4">프로젝트 수정</p>
 
       <Form {...form}>
         <form
@@ -102,7 +106,7 @@ export const ProjectEditeModal = () => {
           className="flex w-full flex-col gap-6"
         >
           <div className="flex flex-col gap-10">
-            <DefaultInputForm form={form} name="name" label="프로젝트 이름" />
+            <DefaultInputForm form={form} name="title" label="프로젝트 이름" />
             <DatePickerInfoForm
               form={form}
               name="period"
@@ -125,8 +129,9 @@ export const ProjectEditeModal = () => {
             </Button>
             <Button
               type="submit"
-              title="생성"
+              title="수정"
               disabled={!form.formState.isValid}
+              variant={form.formState.isValid ? 'default' : 'disabled'}
               className="flex-1"
             >
               <p className="text-body">수정</p>
@@ -214,9 +219,6 @@ export const ProjectInviteModal = () => {
               title="초대"
               disabled={!form.formState.isValid}
               variant={form.formState.isValid ? 'default' : 'disabled'}
-              onClick={() => {
-                form.formState.isValid
-              }}
             >
               <p>초대하기</p>
             </Button>
