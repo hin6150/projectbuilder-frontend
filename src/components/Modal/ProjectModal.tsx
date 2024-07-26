@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { Form } from '../ui/form'
 
-import { InviteStatus } from '@/api'
+import { ProjectInviteStatus } from '@/api'
 import { useModal } from '@/hooks/useModal'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
@@ -158,9 +158,7 @@ export const ProjectDeleteModal = () => {
           type="submit"
           title="삭제"
           className="flex-1"
-          onClick={() => {
-            toggleModal()
-          }}
+          onClick={toggleModal}
         >
           <p className="text-body">삭제</p>
         </Button>
@@ -190,7 +188,7 @@ export const ProjectInviteModal = () => {
   function onSubmit(values: z.infer<typeof formEmailProject>) {
     setInviteEmailList([
       ...inviteEmailList,
-      { email: form.watch('email') ?? '', status: InviteStatus.Invited },
+      { email: form.watch('email') ?? '', status: ProjectInviteStatus.Invited },
     ])
     // form.setValue('email', '')
     form.reset()
@@ -227,9 +225,9 @@ export const ProjectInviteModal = () => {
         <div className="flex flex-col gap-2">
           {inviteEmailList.map((data, index) => {
             const color =
-              data.status == InviteStatus.Invited
+              data.status == ProjectInviteStatus.Invited
                 ? 'text-gray-500'
-                : data.status == InviteStatus.Acceped
+                : data.status == ProjectInviteStatus.Acceped
                   ? 'text-blue-500'
                   : 'text-red-500'
             return (

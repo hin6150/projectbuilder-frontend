@@ -40,6 +40,7 @@ const JoinForm = () => {
     form.setValue('privacy', chekced, { shouldValidate: true })
     form.setValue('mail', chekced, { shouldValidate: true })
   }
+
   const userSignUpMutation = useUserSignUpMutation(
     {
       name: form.watch('name'),
@@ -113,7 +114,7 @@ const JoinForm = () => {
           <Button
             type="submit"
             variant={!form.formState.isValid ? 'disabled' : 'default'}
-            disabled={!form.formState.isValid}
+            disabled={!form.formState.isValid || userSignUpMutation.isPending}
             className="w-full"
           >
             <p className="text-body">회원가입</p>

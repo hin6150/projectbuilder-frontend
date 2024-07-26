@@ -27,7 +27,7 @@ const profileEdit: React.FC = () => {
   const [value, setValue] = React.useState<string>('')
   const [imageUrl, setImageUrl] = React.useState<string>('')
 
-  const { data } = useUserInfoQuery()
+  const { data, isLoading } = useUserInfoQuery()
 
   const form = useForm<z.infer<typeof formSchemaUserEdit>>({
     resolver: zodResolver(formSchemaUserEdit),
@@ -103,6 +103,10 @@ const profileEdit: React.FC = () => {
 
   const onSubmit = () => {
     editUserMutation.mutate()
+  }
+
+  if (isLoading) {
+    return null
   }
 
   return (

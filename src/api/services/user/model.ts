@@ -25,12 +25,6 @@ export const mbtiOptions = [
 
 export const toolList = ['Github', 'Figma', 'Notion']
 
-export const enum InviteStatus {
-  Invited = '초대완료',
-  Acceped = '수락',
-  Denied = '거절',
-}
-
 export interface UserInfoResponse {
   code: string
   result: {
