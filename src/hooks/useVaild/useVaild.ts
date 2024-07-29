@@ -63,6 +63,12 @@ const publicField = z.string()
 
 const participate = z.string()
 
+const cycleField = z.string()
+
+const repeatDay = z.string()
+
+const endDate = z.date()
+
 export const formSchemaUserEdit = z.object({
   name: nameField,
   email: emailField,
@@ -118,6 +124,13 @@ export const formSchemaTeamSchedule = z.object({
   allday: alldayField,
   repeat: repeatField,
   participate: participate,
+})
+
+export const formSchemaRepeatSchedule = z.object({
+  repeat: repeatField,
+  cycle: cycleField,
+  day: repeatDay,
+  end: endDate,
 })
 
 export const formatPhoneNumber = (value: string) => {

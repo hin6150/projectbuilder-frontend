@@ -5,5 +5,6 @@ export {
   formSchemaUserEdit,
   formSchemaPersonalSchedule,
   formSchemaTeamSchedule,
+  formSchemaRepeatSchedule,
   formatPhoneNumber,
 } from './useVaild'

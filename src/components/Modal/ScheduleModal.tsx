@@ -3,6 +3,7 @@ import * as React from 'react'
 import { useModal } from '@/hooks/useModal'
 import {
   formSchemaPersonalSchedule,
+  formSchemaRepeatSchedule,
   formSchemaTeamSchedule,
 } from '@/hooks/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -10,27 +11,27 @@ import { useForm } from 'react-hook-form'
 import { Form } from '../ui/form'
 import { z } from 'zod'
 import { Modal } from './Modal'
-import { Calendar, ChevronDown, LockIcon } from 'lucide-react'
+import { LockIcon } from 'lucide-react'
 import {
   DatePickerInfoForm,
   DefaultInputForm,
   TextAreaForm,
 } from '../InputForm'
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-} from '../ui/dropdown-menu'
 import { Button } from '../ui/button'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import { Checkbox } from '../ui/checkbox'
+import {
+  CycleForm,
+  PublicForm,
+  RepeatForm,
+  ScheduleTypeForm,
+} from '../InputForm/InputForm'
 
 export const ScheduleCreateModal = () => {
-  const { toggleModal, open, setModal, type } = useModal()
+  const { toggleModal, open, type } = useModal()
   const [selectedType, setSelectedType] = React.useState('개인 일정')
-  const [selectedRepeat, setSelectedRepeat] = React.useState('반복 안함')
+  const [selectedRepeat, setSelectedRepeat] =
+    React.useState<string>('반복 안함')
   const [selectedPublic, setSelectedPublic] = React.useState('내용 비공개')
 
   const formSchema =
@@ -54,16 +55,6 @@ export const ScheduleCreateModal = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     toggleModal()
   }
-  const handleTypeClick = (scheduleType: string) => {
-    setSelectedType(scheduleType)
-  }
-  const handleRepeatClick = (scheduleRepeat: string) => {
-    setSelectedRepeat(scheduleRepeat)
-  }
-
-  const handlePublicClick = (schedulePublic: string) => {
-    setSelectedPublic(schedulePublic)
-  }
 
   return (
     <>
@@ -75,24 +66,11 @@ export const ScheduleCreateModal = () => {
           >
             <div className="flex w-[384px] items-center justify-between self-stretch">
               <p className="text-h4">일정 생성</p>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex h-[16px] w-[72px] items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  <p className="text-small">{selectedType}</p>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent className="text-center">
-                  <DropdownMenuLabel>일정 유형</DropdownMenuLabel>
-                  <DropdownMenuItem
-                    onClick={() => handleTypeClick('개인 일정')}
-                  >
-                    개인 일정
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleTypeClick('팀 일정')}>
-                    팀 일정
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <ScheduleTypeForm
+                form={form}
+                value={selectedType}
+                setValue={setSelectedType}
+              />
             </div>
 
             <div className="flex flex-col gap-4">
@@ -110,51 +88,11 @@ export const ScheduleCreateModal = () => {
                       하루 종일
                     </label>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center gap-1">
-                      <p className="text-small">{selectedRepeat}</p>
-                      <ChevronDown className="h-4 w-4" />
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuContent className="text-center">
-                      <DropdownMenuLabel>반복 여부</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          handleRepeatClick('매일')
-                        }}
-                      >
-                        매일
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          handleRepeatClick('매주')
-                        }}
-                      >
-                        매주
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          handleRepeatClick('매월')
-                        }}
-                      >
-                        매월
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          handleRepeatClick('반복 안함')
-                        }}
-                      >
-                        반복 안함
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          handleRepeatClick('맞춤 설정')
-                        }}
-                      >
-                        맞춤 설정
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <RepeatForm
+                    form={form}
+                    value={selectedRepeat}
+                    setValue={setSelectedRepeat}
+                  />
                   {selectedType === '개인 일정' && (
                     <>
                       <div className="flex items-center gap-1">
@@ -162,29 +100,11 @@ export const ScheduleCreateModal = () => {
                         <p className="text-small">공개 여부</p>
                       </div>
 
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className="flex items-center gap-1">
-                          <p className="text-small">{selectedPublic}</p>
-                          <ChevronDown className="h-4 w-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuLabel>공개 여부</DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              handlePublicClick('내용 비공개')
-                            }}
-                          >
-                            내용 비공개
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              handlePublicClick('공개')
-                            }}
-                          >
-                            공개
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <PublicForm
+                        form={form}
+                        value={selectedPublic}
+                        setValue={setSelectedPublic}
+                      />
                     </>
                   )}
                 </div>
@@ -218,6 +138,39 @@ export const ScheduleCreateModal = () => {
           </form>
         </Form>
       </Modal>
+      {open && type === ModalTypes.REPEAT && <ScheduleCreateModal />}
     </>
+  )
+}
+
+export const ScheduleRepeatModal = () => {
+  const { toggleModal } = useModal()
+  const [cycle, Setcycle] = React.useState<string>('')
+  const [value, setValue] = React.useState<string>('')
+
+  const form = useForm({
+    resolver: zodResolver(formSchemaRepeatSchedule),
+    defaultValues: {
+      repeat: '1',
+      cycle: '',
+      day: '',
+      end: new Date(),
+    },
+  })
+
+  return (
+    <Modal>
+      <p className="text-h4">반복 맞춤 설정</p>
+      <div className="flex w-full flex-col gap-6">
+        <Form {...form}>
+          <form>
+            <div className="flex items-end gap-2 self-stretch">
+              <DefaultInputForm form={form} name="repeat" label="반복 주기" />
+              <CycleForm form={form} value={cycle} setValue={Setcycle} />
+            </div>
+          </form>
+        </Form>
+      </div>
+    </Modal>
   )
 }

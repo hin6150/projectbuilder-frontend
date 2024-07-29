@@ -4,7 +4,10 @@ import { Button } from '../ui/button'
 import { ChevronLeft, ChevronRight, PlusIcon } from 'lucide-react'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
-import { ScheduleCreateModal } from '../Modal/ScheduleModal'
+import {
+  ScheduleCreateModal,
+  ScheduleRepeatModal,
+} from '../Modal/ScheduleModal'
 
 type ViewType = 'month' | 'week' | 'day'
 interface CalendarHeaderProps {
@@ -71,6 +74,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         </Button>
       </div>
       {open && type == ModalTypes.CREATE && <ScheduleCreateModal />}
+      {open && type == ModalTypes.REPEAT && <ScheduleRepeatModal />}
     </div>
   )
 }
