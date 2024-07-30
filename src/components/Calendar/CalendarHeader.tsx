@@ -5,7 +5,10 @@ import { ChevronLeft, ChevronRight, PlusIcon } from 'lucide-react'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import {
+  RepeatScheduleDeleteModal,
+  ScheduleCheckModal,
   ScheduleCreateModal,
+  ScheduleDeleteModal,
   ScheduleRepeatModal,
 } from '../Modal/ScheduleModal'
 
@@ -74,7 +77,10 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         </Button>
       </div>
       {open && type == ModalTypes.CREATE && <ScheduleCreateModal />}
+      {open && type == ModalTypes.CHECK && <ScheduleCheckModal />}
+      {open && type == ModalTypes.EDIT && <ScheduleCreateModal />}
       {open && type == ModalTypes.REPEAT && <ScheduleRepeatModal />}
+      {open && type == ModalTypes.DELETE && <RepeatScheduleDeleteModal />}
     </div>
   )
 }

@@ -61,6 +61,13 @@ interface entry {
   email: string
 }
 
+interface participate {
+  imageUrl: string
+  name: string
+  email: string
+  attend: string
+}
+
 interface formType {
   form: UseFormReturn<z.infer<any>>
 }
@@ -115,9 +122,17 @@ interface publicFormType {
 
 interface participateFormType {
   form: UseFormReturn<z.infer<any>>
+  participates: participate[]
+  setParticipates: React.Dispatch<React.SetStateAction<string>>
 }
 
 interface scheduleTypeFormType {
+  form: UseFormReturn<z.infer<any>>
+  value: string
+  setValue: React.Dispatch<React.SetStateAction<string>>
+}
+
+interface repeatDayFormType {
   form: UseFormReturn<z.infer<any>>
   value: string
   setValue: React.Dispatch<React.SetStateAction<string>>
@@ -573,7 +588,7 @@ export const CycleForm = ({ form, value, setValue }: cycleFormType) => {
 export const RepeatForm = ({ form, value, setValue }: repeatFormType) => {
   const [repeat, setRepeat] = React.useState<string>('')
   const repeatList = ['매일', '매주', '매월', '반복 안함', '맞춤 설정']
-  const { toggleModal, setModal, open, closing } = useModal()
+  const { setModal } = useModal()
 
   const handleSelect = (selectedRepeat: string) => {
     setRepeat(selectedRepeat)
@@ -710,8 +725,19 @@ export const ScheduleTypeForm = ({
   )
 }
 
-export const repeatDay = ({ form }: formType) => {
+export const RepeatDayForm = ({ form, value, setValue }: repeatDayFormType) => {
   const days = ['일', '월', '화', '수', '목', '금', '토']
+  const [selectedDays, setSelectedDays] = React.useState<string[]>(['일'])
+
+  const handleClick = (day: string) => {
+    setSelectedDays((prevSelectedDays) => {
+      if (prevSelectedDays.includes(day)) {
+        return prevSelectedDays.filter((selectedDay) => selectedDay !== day)
+      } else {
+        return [...prevSelectedDays, day]
+      }
+    })
+  }
   return (
     <FormField
       control={form.control}
@@ -719,7 +745,95 @@ export const repeatDay = ({ form }: formType) => {
       render={({ field }) => (
         <FormItem className="flex flex-col items-start gap-2 self-stretch">
           <FormLabel className="text-p">반복 요일</FormLabel>
-          <FormControl className="flex items-start justify-between self-stretch px-4 py-2"></FormControl>
+          <FormControl>
+            <div className="flex items-start justify-between self-stretch px-4 py-2">
+              {days.map((item, index) => {
+                return (
+                  <span
+                    key={index}
+                    onClick={() => {
+                      handleClick(item)
+                    }}
+                    className={`flex h-[36px] w-[36px] cursor-pointer items-center justify-center px-[10px] py-1 text-large text-gray-400 ${selectedDays.includes(item) ? 'h-[36px] w-[36px] rounded-full bg-black text-white' : ''}`}
+                  >
+                    {item}
+                  </span>
+                )
+              })}
+            </div>
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
+
+export const participateForm = ({
+  form,
+  participates,
+  setParticipates,
+}: participateFormType) => {
+  const [image, setImage] = React.useState('')
+  const [name, setName] = React.useState('')
+
+  const participateSchema = z.object({
+    name: z.string(),
+    image: z.string(),
+    attend: z.string(),
+  })
+
+  return (
+    <FormField
+      control={form.control}
+      name="participates"
+      render={({ field }) => (
+        <FormItem className="flex h-[36px] items-center gap-2 self-stretch px-[8px] py-[6px]"></FormItem>
+      )}
+    ></FormField>
+  )
+}
+
+export const EndDateForm = ({
+  form,
+  name,
+  label,
+  ...rest
+}: defaultFormType) => {
+  const formatDate = (date: Date) => {
+    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
+    return `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
+  }
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+          <FormLabel className="text-p">{label}</FormLabel>
+          <FormControl className="flex items-start gap-[8px] self-stretch">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Input
+                  {...rest}
+                  {...field}
+                  value={
+                    field.value ? formatDate(new Date(field.value)) : '없음'
+                  }
+                  readOnly
+                />
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="single"
+                  disabled={(date) => date <= new Date()}
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={field.onChange}
+                />
+              </PopoverContent>
+            </Popover>
+          </FormControl>
         </FormItem>
       )}
     />
