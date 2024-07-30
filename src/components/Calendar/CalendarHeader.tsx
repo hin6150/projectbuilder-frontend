@@ -1,9 +1,8 @@
 'use client'
-import React from 'react'
-import { Button } from '../ui/button'
-import { ChevronLeft, ChevronRight, PlusIcon } from 'lucide-react'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
+import { ChevronLeft, ChevronRight, PlusIcon } from 'lucide-react'
+import React from 'react'
 import {
   RepeatScheduleDeleteModal,
   ScheduleCheckModal,
@@ -12,6 +11,7 @@ import {
   ScheduleEditModal,
   ScheduleRepeatModal,
 } from '../Modal/ScheduleModal'
+import { Button } from '../ui/button'
 
 type ViewType = 'month' | 'week' | 'day'
 interface CalendarHeaderProps {
@@ -35,11 +35,13 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onNext,
   onToday,
 }) => {
-  const { open, toggleModal, setModal, type } = useModal()
+  const { modals, openModal } = useModal()
+
   const handleClick = () => {
-    setModal(ModalTypes.CREATE)
-    toggleModal()
+    openModal('default', ModalTypes.CREATE)
+    console.log(modals)
   }
+
   return (
     <>
       <div className="flex w-[864px] items-center justify-between self-stretch px-4">
@@ -78,13 +80,23 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             <PlusIcon className="h-4 w-4" />
           </Button>
         </div>
-        {open && type == ModalTypes.CREATE && <ScheduleCreateModal />}
       </div>
-      {open && type == ModalTypes.CHECK && <ScheduleCheckModal />}
-      {open && type == ModalTypes.EDIT && <ScheduleEditModal />}
-      {open && type == ModalTypes.REPEAT && <ScheduleRepeatModal />}
-      {open && type == ModalTypes.DELETE && <ScheduleDeleteModal />}
-      {open && type == ModalTypes.DELETE_REPEAT && (
+      {modals.default.open && modals.default.type == ModalTypes.CREATE && (
+        <ScheduleCreateModal />
+      )}
+      {modals.default.open && modals.default.type == ModalTypes.CHECK && (
+        <ScheduleCheckModal />
+      )}
+      {modals.default.open && modals.default.type == ModalTypes.EDIT && (
+        <ScheduleEditModal />
+      )}
+      {modals.dimed.type && modals.dimed.type == ModalTypes.REPEAT && (
+        <ScheduleRepeatModal />
+      )}
+      {modals.dimed.type && modals.dimed.type == ModalTypes.DELETE && (
+        <ScheduleDeleteModal />
+      )}
+      {modals.dimed.type && modals.dimed.type == ModalTypes.DELETE_REPEAT && (
         <RepeatScheduleDeleteModal />
       )}
     </>

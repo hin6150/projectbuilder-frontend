@@ -23,6 +23,7 @@ export default function RootLayout({
             <ReactQueryProvider>
               <ModalContextProvider>
                 <div>{children}</div>
+                <div id="scheduleModal" />
                 <div id="modal" />
               </ModalContextProvider>
             </ReactQueryProvider>
@@ -31,6 +32,7 @@ export default function RootLayout({
           <ReactQueryProvider>
             <ModalContextProvider>
               <div>{children}</div>
+              <div id="scheduleModal" />
               <div id="modal" />
             </ModalContextProvider>
           </ReactQueryProvider>

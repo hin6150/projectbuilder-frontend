@@ -22,7 +22,7 @@ const Card = ({ data }: { data: ProjectInfo }) => {
   const visibleMembers = data.user.slice(0, MAX_VISIBLE_MEMBERS)
   const remainingMemberCount = data.user.length - MAX_VISIBLE_MEMBERS
 
-  const { setModal, toggleModal } = useModal()
+  const { openModal } = useModal()
 
   return (
     <Link href={`/project/${data.uid}`}>
@@ -69,8 +69,7 @@ const Card = ({ data }: { data: ProjectInfo }) => {
             >
               <DropdownMenuItem
                 onClick={() => {
-                  setModal(ModalTypes.INVITE)
-                  toggleModal()
+                  openModal('dimed', ModalTypes.INVITE)
                 }}
               >
                 <div className="flex items-center gap-2 p-2">
@@ -80,8 +79,7 @@ const Card = ({ data }: { data: ProjectInfo }) => {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  setModal(ModalTypes.EDIT)
-                  toggleModal()
+                  openModal('dimed', ModalTypes.EDIT)
                 }}
               >
                 <div className="flex items-center gap-2 p-2">
@@ -91,8 +89,7 @@ const Card = ({ data }: { data: ProjectInfo }) => {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  setModal(ModalTypes.DELETE)
-                  toggleModal()
+                  openModal('dimed', ModalTypes.DELETE)
                 }}
               >
                 <div className="flex items-center gap-2 p-2">
