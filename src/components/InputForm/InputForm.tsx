@@ -32,7 +32,13 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { CommandList } from 'cmdk'
-import { CalendarIcon, Check, ChevronDown, ChevronsUpDown } from 'lucide-react'
+import {
+  CalendarIcon,
+  Check,
+  ChevronDown,
+  ChevronsUpDown,
+  XIcon,
+} from 'lucide-react'
 import * as React from 'react'
 import { z } from 'zod'
 
@@ -120,10 +126,15 @@ interface publicFormType {
   setValue: React.Dispatch<React.SetStateAction<string>>
 }
 
+type Participant = {
+  name: string
+  email: string
+}
+
 interface participateFormType {
   form: UseFormReturn<z.infer<any>>
-  participates: participate[]
-  setParticipates: React.Dispatch<React.SetStateAction<string>>
+  participates: Participant[]
+  setParticipates: React.Dispatch<React.SetStateAction<Participant[]>>
 }
 
 interface scheduleTypeFormType {
@@ -588,6 +599,7 @@ export const CycleForm = ({ form, value, setValue }: cycleFormType) => {
 export const RepeatForm = ({ form, value, setValue }: repeatFormType) => {
   const [repeat, setRepeat] = React.useState<string>('')
   const repeatList = ['매일', '매주', '매월', '반복 안함', '맞춤 설정']
+
   const { setModal } = useModal()
 
   const handleSelect = (selectedRepeat: string) => {
@@ -675,8 +687,6 @@ export const PublicForm = ({ form, value, setValue }: publicFormType) => {
     />
   )
 }
-
-export const ParticipateForm = {}
 
 export const ScheduleTypeForm = ({
   form,
@@ -768,13 +778,25 @@ export const RepeatDayForm = ({ form, value, setValue }: repeatDayFormType) => {
   )
 }
 
-export const participateForm = ({
+export const ParticipateForm = ({
   form,
   participates,
   setParticipates,
 }: participateFormType) => {
-  const [image, setImage] = React.useState('')
-  const [name, setName] = React.useState('')
+  const [searchQuery, setSearchQuery] = React.useState<string>('')
+  const [filteredParticipates, setFilteredParticipates] =
+    React.useState<Participant[]>(participates)
+
+  const filterParticipates = (
+    query: string,
+    participates: Participant[],
+  ): Participant[] => {
+    return participates.filter(
+      (participant) =>
+        participant.name.toLowerCase().includes(query.toLowerCase()) ||
+        participant.email.toLowerCase().includes(query.toLowerCase()),
+    )
+  }
 
   const participateSchema = z.object({
     name: z.string(),
@@ -782,12 +804,55 @@ export const participateForm = ({
     attend: z.string(),
   })
 
+  // 검색어 또는 참여자 목록이 변경될 때 필터링된 참여자 목록을 업데이트
+  React.useEffect(() => {
+    setFilteredParticipates(filterParticipates(searchQuery, participates))
+  }, [searchQuery, participates])
+
   return (
     <FormField
       control={form.control}
       name="participates"
       render={({ field }) => (
-        <FormItem className="flex h-[36px] items-center gap-2 self-stretch px-[8px] py-[6px]"></FormItem>
+        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+          <FormLabel>참가자</FormLabel>
+          <FormControl>
+            <Input
+              placeholder="@이름, 이메일로 추가"
+              {...field}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </FormControl>
+
+          {searchQuery && (
+            <div>
+              <div className="max-h-[250px] w-[384px] overflow-y-auto rounded border bg-white">
+                <ul className="m-0 list-none p-0">
+                  {filteredParticipates.map((participant, index) => (
+                    <li
+                      key={index}
+                      className="cursor-pointer p-2 hover:bg-gray-200"
+                      onClick={() => {
+                        setParticipates((prev) => [...prev, participant])
+                        setSearchQuery('')
+                      }}
+                    >
+                      {/* 프로필 이미지 추가해야함*/}
+                      <p className="flex-[1_0_0] text-small">
+                        {participant.name}
+                      </p>
+                      <XIcon className="h-4 w-4" />
+                    </li>
+                  ))}
+                  {filteredParticipates.length === 0 && (
+                    <li className="p-2 text-gray-500">검색 결과가 없습니다.</li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          )}
+        </FormItem>
       )}
     ></FormField>
   )
