@@ -137,4 +137,14 @@ export const projectHandlers = [
       code: 'SUCCESS',
     })
   }),
+  http.delete(
+    `${process.env.NEXT_PUBLIC_API_URL}/project/info/*/TeamInfo`,
+    () => {
+      console.log(`Invited user deleted`)
+
+      return HttpResponse.json<DefaultResponse>({
+        code: 'SUCCESS',
+      })
+    },
+  ),
 ]

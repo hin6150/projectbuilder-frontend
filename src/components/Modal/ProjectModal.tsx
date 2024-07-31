@@ -5,6 +5,7 @@ import { z } from 'zod'
 import {
   ProjectInfo,
   TeamInfo,
+  useDeleteTeamInfo,
   useInviteTeamInfo,
   useTeamInfoQuery,
 } from '@/api'
@@ -242,12 +243,9 @@ export const ProjectDeleteModal = ({ uid }: { uid: string }) => {
 
 export const ProjectInviteModal = ({ uid }: { uid: string }) => {
   const { data, isLoading } = useTeamInfoQuery({}, uid)
-
-  console.log(data)
   const [inviteEmailList, setInviteEmailList] = useState<TeamInfo[]>(
     data?.result ?? [],
   )
-
   const { toggleModal } = useModal()
 
   const form = useForm({
@@ -276,8 +274,33 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
     },
   )
 
-  const handleRemove = (index: number) => {
-    setInviteEmailList(inviteEmailList.filter((_, i) => i !== index))
+  const deleteTeamInfo = useDeleteTeamInfo(
+    {
+      uid: uid,
+      email: form.watch('email'),
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          uid: uid,
+          email: form.watch('email'),
+        })
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
+
+  const handleRemove = async (index: number) => {
+    // Call deleteTeamInfo and wait for it to complete
+    try {
+      await deleteTeamInfo.mutateAsync() // Use mutateAsync for async operations
+      // Proceed to remove the item from the list
+      setInviteEmailList(inviteEmailList.filter((_, i) => i !== index))
+    } catch (error) {
+      console.error('Error deleting team info:', error)
+    }
   }
 
   function onSubmit(values: z.infer<typeof formEmailProject>) {

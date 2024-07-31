@@ -1,3 +1,5 @@
+import { StringDecoder } from 'string_decoder'
+
 export const enum ProjectInviteStatus {
   Invited = '초대완료',
   Acceped = '수락',
@@ -36,6 +38,11 @@ export interface TeamInfo {
 }
 
 export interface InviteTeamDto {
+  uid: string
+  email: string
+}
+
+export interface DeleteTeamDto {
   uid: string
   email: string
 }

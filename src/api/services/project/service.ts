@@ -7,6 +7,7 @@ import {
   AddProjectDTO,
   EditProjectDTO,
   InviteTeamDto,
+  DeleteTeamDto,
 } from './model'
 
 export const projectService = {
@@ -58,6 +59,15 @@ export const projectService = {
   async inviteTeamInfo(client: QueryClient, dto: InviteTeamDto) {
     return (
       APIBuilder.post(`/project/info/${dto.uid}/TeamInfo`)
+        // .withCredentials(client)
+        .build()
+        .call<DefaultResponse>({ body: JSON.stringify(dto) })
+    )
+  },
+
+  async deleteTeamInfo(client: QueryClient, dto: DeleteTeamDto) {
+    return (
+      APIBuilder.delete(`/project/info/${dto.uid}/TeamInfo`)
         // .withCredentials(client)
         .build()
         .call<DefaultResponse>({ body: JSON.stringify(dto) })

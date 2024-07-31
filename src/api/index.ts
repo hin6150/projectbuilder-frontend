@@ -25,6 +25,7 @@ export type {
   TeamInfo,
   TeamInfoResponse,
   InviteTeamDto,
+  DeleteTeamDto,
 } from './services/project/model'
 export {
   useProjectInfoQuery,
@@ -33,6 +34,7 @@ export {
   useEditProjectInfo,
   useDeleteProjectInfo,
   useInviteTeamInfo,
+  useDeleteTeamInfo,
 } from './services/project/quries'
 
 //Schedule
