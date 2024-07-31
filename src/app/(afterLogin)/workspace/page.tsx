@@ -34,6 +34,12 @@ const Workspace = () => {
     toggleModal()
   }
 
+  const handleInviteClick = (project: ProjectInfo) => {
+    setSelectedProject(project)
+    setModal(ModalTypes.INVITE)
+    toggleModal()
+  }
+
   if (isLoading) {
     return null
   }
@@ -55,6 +61,7 @@ const Workspace = () => {
             key={projectData.uid}
             data={projectData}
             onEditClick={() => handleEditClick(projectData)}
+            onInviteClick={() => handleInviteClick(projectData)}
           />
         ))}
       </div>
@@ -64,7 +71,11 @@ const Workspace = () => {
         <ProjectEditeModal project={selectedProject} />
       )}
       {open && type == ModalTypes.DELETE && <ProjectDeleteModal />}
-      {open && type == ModalTypes.INVITE && <ProjectInviteModal />}
+      {open && type == ModalTypes.INVITE && selectedProject && (
+        <ProjectInviteModal
+          initialEmails={selectedProject.user.map((user) => user.email)}
+        />
+      )}
     </main>
   )
 }

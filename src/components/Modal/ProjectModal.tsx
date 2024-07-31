@@ -175,10 +175,19 @@ export const ProjectDeleteModal = () => {
   )
 }
 
-export const ProjectInviteModal = () => {
+export const ProjectInviteModal = ({
+  initialEmails,
+}: {
+  initialEmails?: string[]
+}) => {
   const [inviteEmailList, setInviteEmailList] = useState<
     { email: string; status: string }[]
-  >([])
+  >(
+    initialEmails?.map((email) => ({
+      email,
+      status: ProjectInviteStatus.Invited,
+    })) || [],
+  )
 
   const { toggleModal } = useModal()
 
@@ -199,8 +208,6 @@ export const ProjectInviteModal = () => {
       { email: form.watch('email') ?? '', status: ProjectInviteStatus.Invited },
     ])
     form.reset()
-
-    console.log(values)
   }
 
   return (

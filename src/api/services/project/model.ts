@@ -8,6 +8,7 @@ interface ProjectUserInfo {
   uid: string
   avatar: string | undefined
   name: string
+  email: string
 }
 
 export interface ProjectInfo {
