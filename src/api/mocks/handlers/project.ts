@@ -122,6 +122,14 @@ export const projectHandlers = [
       code: 'SUCCESS',
     })
   }),
+  http.post(
+    `${process.env.NEXT_PUBLIC_API_URL}/project/info/*/TeamInfo`,
+    async (req) => {
+      return HttpResponse.json<DefaultResponse>({
+        code: 'SUCCESS',
+      })
+    },
+  ),
   http.delete(`${process.env.NEXT_PUBLIC_API_URL}/project/info/:uid`, () => {
     console.log(`Project deleted`)
 

@@ -12,6 +12,7 @@ import {
   TeamInfoResponse,
   AddProjectDTO,
   EditProjectDTO,
+  InviteTeamDto,
 } from './model'
 import { projectService } from './service'
 
@@ -32,6 +33,9 @@ export const projectOptions = {
   }),
   deleteProjectInfo: (client: QueryClient, uid: string) => ({
     mutationFn: () => projectService.deleteProjectInfo(client, uid),
+  }),
+  inviteTeamInfo: (client: QueryClient, dto: InviteTeamDto) => ({
+    mutationFn: () => projectService.inviteTeamInfo(client, dto),
   }),
 }
 
@@ -54,6 +58,18 @@ export const useTeamInfoQuery = (
 
   return useQuery<TeamInfoResponse>({
     ...projectOptions.teamInfo(queryClient, uid),
+    ...options,
+  })
+}
+
+export const useInviteTeamInfo = (
+  dto: InviteTeamDto,
+  options: MutationOptions = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    ...projectOptions.inviteTeamInfo(queryClient, dto),
     ...options,
   })
 }

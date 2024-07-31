@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ProjectInfo, TeamInfo, useTeamInfoQuery } from '@/api'
+import {
+  ProjectInfo,
+  TeamInfo,
+  useInviteTeamInfo,
+  useTeamInfoQuery,
+} from '@/api'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
 import { useModal } from '@/hooks/useModal'
@@ -253,6 +258,24 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
     },
   })
 
+  const inviteTeamInfo = useInviteTeamInfo(
+    {
+      uid: uid,
+      email: form.watch('email'),
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          uid: uid,
+          email: form.watch('email'),
+        })
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
+
   const handleRemove = (index: number) => {
     setInviteEmailList(inviteEmailList.filter((_, i) => i !== index))
   }
@@ -262,6 +285,7 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
       ...inviteEmailList,
       { email: form.watch('email') ?? '', state: ProjectInviteStatus.Invited },
     ])
+    inviteTeamInfo.mutate()
     form.reset()
   }
 

@@ -6,6 +6,7 @@ import {
   DefaultResponse,
   AddProjectDTO,
   EditProjectDTO,
+  InviteTeamDto,
 } from './model'
 
 export const projectService = {
@@ -51,6 +52,15 @@ export const projectService = {
         // .withCredentials(client)
         .build()
         .call<TeamInfoResponse>()
+    )
+  },
+
+  async inviteTeamInfo(client: QueryClient, dto: InviteTeamDto) {
+    return (
+      APIBuilder.post(`/project/info/${dto.uid}/TeamInfo`)
+        // .withCredentials(client)
+        .build()
+        .call<DefaultResponse>({ body: JSON.stringify(dto) })
     )
   },
 }

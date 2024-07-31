@@ -35,6 +35,11 @@ export interface TeamInfo {
   state: ProjectInviteStatus
 }
 
+export interface InviteTeamDto {
+  uid: string
+  email: string
+}
+
 export interface AddProjectDTO {
   title: string
   subTitle: string
