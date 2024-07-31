@@ -818,41 +818,8 @@ export const ParticipateForm = ({
         <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
           <FormLabel>참가자</FormLabel>
           <FormControl>
-            <Input
-              placeholder="@이름, 이메일로 추가"
-              {...field}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <Input placeholder="@이름, 이메일로 추가" {...field} />
           </FormControl>
-
-          {searchQuery && (
-            <div>
-              <div className="max-h-[250px] w-[384px] overflow-y-auto rounded border bg-white">
-                <ul className="m-0 list-none p-0">
-                  {filteredParticipates.map((participant, index) => (
-                    <li
-                      key={index}
-                      className="cursor-pointer p-2 hover:bg-gray-200"
-                      onClick={() => {
-                        setParticipates((prev) => [...prev, participant])
-                        setSearchQuery('')
-                      }}
-                    >
-                      {/* 프로필 이미지 추가해야함*/}
-                      <p className="flex-[1_0_0] text-small">
-                        {participant.name}
-                      </p>
-                      <XIcon className="h-4 w-4" />
-                    </li>
-                  ))}
-                  {filteredParticipates.length === 0 && (
-                    <li className="p-2 text-gray-500">검색 결과가 없습니다.</li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          )}
         </FormItem>
       )}
     ></FormField>

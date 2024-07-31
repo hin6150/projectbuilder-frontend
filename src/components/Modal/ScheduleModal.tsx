@@ -2,12 +2,19 @@
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import {
+  formSchemaCheckSchedule,
   formSchemaPersonalSchedule,
   formSchemaRepeatSchedule,
   formSchemaTeamSchedule,
 } from '@/hooks/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LockIcon, PencilIcon, Trash2Icon } from 'lucide-react'
+import {
+  CalendarIcon,
+  LockIcon,
+  PencilIcon,
+  RepeatIcon,
+  Trash2Icon,
+} from 'lucide-react'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -37,7 +44,7 @@ type Participant = {
 }
 
 export const ScheduleCreateModal = () => {
-  const { closeModal } = useModal()
+  const { closeModal, openModal } = useModal()
   const [selectedType, setSelectedType] = React.useState<string>('개인 일정')
   const [selectedRepeat, setSelectedRepeat] = React.useState<string>('')
   const [selectedPublic, setSelectedPublic] = React.useState<string>('')
@@ -57,7 +64,7 @@ export const ScheduleCreateModal = () => {
       description: '',
       allday: false,
       repeat: '',
-      public: '',
+      publicContent: '',
       participate: [],
     },
   })
@@ -139,7 +146,7 @@ export const ScheduleCreateModal = () => {
               title="생성"
               className="flex flex-[1_0_0] gap-[10px]"
               onClick={() => {
-                closeModal('default')
+                openModal('default', ModalTypes.CHECK)
               }}
               disabled={!form.formState.isValid}
               variant={form.formState.isValid ? 'default' : 'disabled'}
@@ -174,7 +181,7 @@ export const ScheduleEditModal = () => {
       description: '',
       allday: false,
       repeat: '',
-      public: '',
+      publicContent: '',
       participate: [],
     },
   })
@@ -272,28 +279,82 @@ export const ScheduleEditModal = () => {
 export const ScheduleCheckModal = () => {
   const { openModal, closeModal } = useModal()
 
+  const form = useForm({
+    resolver: zodResolver(formSchemaCheckSchedule),
+    defaultValues: {
+      type: '팀 일정',
+      title: '스크럼 회의',
+      period: { from: '2024.08.02 (금) 오후 2:00', to: '오후 2:15' },
+      description: '이슈를 공유합시다',
+      publicContent: '내용 비공개',
+      allday: false,
+      repeat: '매주 금요일',
+      participate: [],
+      team: ['자기주도 프로젝트'],
+    },
+  })
+
+  const title = form.watch('title')
+  const type = form.watch('type')
+  const periodFrom = form.watch('period.from')
+  const periodTo = form.watch('period.to')
+  const description = form.watch('description')
+  const publicContent = form.watch('publicContent')
+  const allday = form.watch('allday')
+  const repeat = form.watch('repeat')
+  const participate = form.watch('participate')
+  const team = form.watch('team')
+
   return (
     <ScheduleModal>
-      <div className="flex items-center justify-between self-stretch">
-        <p className="text-h4">일정 이름입니다</p>
-        <div className="flex gap-2">
-          <PencilIcon
-            className="h-6 w-6"
-            onClick={() => {
-              openModal('default', ModalTypes.EDIT)
-            }}
-          />
-          <Trash2Icon
-            className="h-6 w-6"
-            onClick={() => {
-              openModal('dimed', ModalTypes.DELETE)
-            }}
-          />
-        </div>
-      </div>
-      <Button className="w-full" onClick={() => closeModal('default')}>
-        <p>닫기</p>
-      </Button>
+      <Form {...form}>
+        <form className="flex w-[384px] flex-[1_0_0] flex-col items-start gap-6">
+          <div className="flex items-center justify-between self-stretch">
+            <p className="text-h4">{title}</p>
+            <div className="flex gap-2">
+              <PencilIcon
+                className="h-6 w-6"
+                onClick={() => {
+                  openModal('default', ModalTypes.EDIT)
+                }}
+              />
+              <Trash2Icon
+                className="h-6 w-6"
+                onClick={() => {
+                  openModal('dimed', ModalTypes.DELETE)
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-4 self-stretch">
+            <p>
+              {periodFrom} ~ {periodTo}
+            </p>
+            <div className="flex items-center justify-between self-stretch">
+              <div className="flex w-[88px] items-center gap-2">
+                <p className="text-small text-gray-400">{repeat}</p>
+                <RepeatIcon className="h-4 w-4" />
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="flex items-center gap-1">
+                  <LockIcon className="h-4 w-4" />
+                  <span className="text-small">{publicContent}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <CalendarIcon className="h-4 w-4">
+                    <span className="text-small">{type}</span>
+                  </CalendarIcon>
+                </div>
+              </div>
+            </div>
+            <p className="text-p">{description}</p>
+          </div>
+
+          <Button className="w-full" onClick={() => closeModal('default')}>
+            <p>닫기</p>
+          </Button>
+        </form>
+      </Form>
     </ScheduleModal>
   )
 }
