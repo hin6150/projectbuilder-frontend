@@ -61,7 +61,12 @@ const Card = ({ data }: { data: ProjectInfo }) => {
                 className="cursor-pointer text-slate-500"
               />
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[184px]">
+            <DropdownMenuContent
+              className="w-[184px]"
+              onClick={(e) => {
+                e.preventDefault()
+              }}
+            >
               <DropdownMenuItem
                 onClick={() => {
                   setModal(ModalTypes.INVITE)

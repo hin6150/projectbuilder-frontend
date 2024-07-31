@@ -27,18 +27,18 @@ const JoinForm = () => {
       phonenumber: '',
       use: false,
       privacy: false,
-      mail: false,
+      marketing: false,
     },
     mode: 'onChange',
   })
 
   const isAllChecked =
-    form.watch('use') && form.watch('privacy') && form.watch('mail')
+    form.watch('use') && form.watch('privacy') && form.watch('marketing')
 
   const onCheckAll = (chekced: boolean) => {
     form.setValue('use', chekced, { shouldValidate: true })
     form.setValue('privacy', chekced, { shouldValidate: true })
-    form.setValue('mail', chekced, { shouldValidate: true })
+    form.setValue('marketing', chekced, { shouldValidate: true })
   }
 
   const userSignUpMutation = useUserSignUpMutation(
@@ -46,7 +46,7 @@ const JoinForm = () => {
       name: form.watch('name'),
       phone: form.watch('phonenumber'),
       requiredTermsAgree: form.watch('privacy') && form.watch('use'),
-      marketingEmailOptIn: !!form.watch('mail'),
+      marketingEmailOptIn: !!form.watch('marketing'),
     },
     {
       onSuccess: () => {
@@ -54,7 +54,7 @@ const JoinForm = () => {
           name: form.watch('name'),
           phone: form.watch('phonenumber'),
           requiredTermsAgree: form.watch('privacy') && form.watch('use'),
-          marketingEmailOptIn: !!form.watch('mail'),
+          marketingEmailOptIn: !!form.watch('marketing'),
         })
         router.push('/signup/optionalInfo')
       },
@@ -107,7 +107,7 @@ const JoinForm = () => {
             <div className="flex flex-col items-start gap-[16px] self-stretch">
               <CheckBoxForm form={form} name="use" />
               <CheckBoxForm form={form} name="privacy" />
-              <CheckBoxForm form={form} name="mail" />
+              <CheckBoxForm form={form} name="marketing" />
             </div>
           </div>
 

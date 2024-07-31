@@ -65,7 +65,7 @@ interface defaultFormType {
 
 interface checkBoxFormType {
   form: UseFormReturn<z.infer<any>>
-  name: 'use' | 'privacy' | 'mail'
+  name: 'use' | 'privacy' | 'marketing'
 }
 
 interface avatarFormType {
@@ -480,7 +480,7 @@ export const CheckBoxForm = ({ form, name }: checkBoxFormType) => (
               onCheckedChange={field.onChange}
             />
             <label htmlFor={name} className="text-small text-gray-500">
-              {name === 'mail' ? (
+              {name === 'marketing' ? (
                 '마케팅 메일 수신 동의 (선택)'
               ) : (
                 <>
