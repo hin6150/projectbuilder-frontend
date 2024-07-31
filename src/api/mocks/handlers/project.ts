@@ -1,6 +1,6 @@
 import {
   ProjectInviteStatus,
-  AddProjectInfoResponse,
+  DefaultResponse,
 } from '@/api/services/project/model'
 import { http, HttpResponse } from 'msw'
 
@@ -118,20 +118,7 @@ export const projectHandlers = [
     })
   }),
   http.post(`${process.env.NEXT_PUBLIC_API_URL}/project/info`, async (req) => {
-    // const dto: AddProjectDTO = await req.json()
-    // const { uid, title, subTitle, user, startDate, endDate } = dto
-
-    // if (!schedules[year]) {
-    //   schedules[year] = {}
-    // }
-
-    // if (!schedules[year][month]) {
-    //   schedules[year][month] = []
-    // }
-
-    // schedules[year][month].push(schedule)
-
-    return HttpResponse.json<AddProjectInfoResponse>({
+    return HttpResponse.json<DefaultResponse>({
       code: 'SUCCESS',
     })
   }),

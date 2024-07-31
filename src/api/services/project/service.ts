@@ -3,7 +3,7 @@ import { QueryClient } from '@tanstack/react-query'
 import {
   ProjectInfoResponse,
   TeamInfoResponse,
-  AddProjectInfoResponse,
+  DefaultResponse,
   AddProjectDTO,
 } from './model'
 
@@ -22,7 +22,7 @@ export const projectService = {
       APIBuilder.post('/project/info')
         // .withCredentials(client)
         .build()
-        .call<AddProjectInfoResponse>({ body: JSON.stringify(dto) })
+        .call<DefaultResponse>({ body: JSON.stringify(dto) })
     )
   },
 

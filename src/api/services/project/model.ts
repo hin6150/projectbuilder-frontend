@@ -42,6 +42,6 @@ export interface AddProjectDTO {
   endDate: string
 }
 
-export interface AddProjectInfoResponse {
+export interface DefaultResponse {
   code: string
 }
