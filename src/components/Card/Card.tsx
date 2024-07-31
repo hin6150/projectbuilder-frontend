@@ -18,7 +18,13 @@ import { ProfileAvatar } from '../Avatar/Avatar'
 
 const MAX_VISIBLE_MEMBERS = 5
 
-const Card = ({ data }: { data: ProjectInfo }) => {
+const Card = ({
+  data,
+  onEditClick,
+}: {
+  data: ProjectInfo
+  onEditClick: () => void
+}) => {
   const visibleMembers = data.user.slice(0, MAX_VISIBLE_MEMBERS)
   const remainingMemberCount = data.user.length - MAX_VISIBLE_MEMBERS
 
@@ -69,19 +75,7 @@ const Card = ({ data }: { data: ProjectInfo }) => {
             >
               <DropdownMenuItem
                 onClick={() => {
-                  setModal(ModalTypes.INVITE)
-                  toggleModal()
-                }}
-              >
-                <div className="flex items-center gap-2 p-2">
-                  <UserPlusIcon size={16} />
-                  <p className="text-subtle font-medium">팀원 초대</p>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setModal(ModalTypes.EDIT)
-                  toggleModal()
+                  onEditClick() // 편집 클릭 시 호출
                 }}
               >
                 <div className="flex items-center gap-2 p-2">
