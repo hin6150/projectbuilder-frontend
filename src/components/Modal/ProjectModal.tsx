@@ -30,6 +30,7 @@ export const ProjectCreateModal = () => {
   })
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
+    // 프로젝트 생성 로직을 추가합니다.
     toggleModal()
   }
 
@@ -96,6 +97,7 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
   })
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
+    // 수정된 프로젝트 데이터를 처리하는 로직을 추가합니다.
     toggleModal()
   }
 
