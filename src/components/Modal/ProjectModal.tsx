@@ -18,7 +18,7 @@ import { Button } from '../ui/button'
 import { Modal } from './Modal'
 
 export const ProjectCreateModal = () => {
-  const { toggleModal } = useModal()
+  const { closeModal } = useModal()
 
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
@@ -30,7 +30,7 @@ export const ProjectCreateModal = () => {
   })
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
-    toggleModal()
+    closeModal('dimed')
   }
 
   return (
@@ -60,7 +60,7 @@ export const ProjectCreateModal = () => {
               title="취소"
               variant="secondary"
               className="flex-1"
-              onClick={toggleModal}
+              onClick={() => closeModal('dimed')}
             >
               <p className="text-body">취소</p>
             </Button>
@@ -80,8 +80,8 @@ export const ProjectCreateModal = () => {
   )
 }
 
-export const ProjectEditeModal = () => {
-  const { toggleModal } = useModal()
+export const ProjectEditModal = () => {
+  const { closeModal } = useModal()
 
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
@@ -93,7 +93,7 @@ export const ProjectEditeModal = () => {
   })
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
-    toggleModal()
+    closeModal('dimed')
   }
 
   return (
@@ -123,7 +123,7 @@ export const ProjectEditeModal = () => {
               title="취소"
               variant="secondary"
               className="flex-1"
-              onClick={toggleModal}
+              onClick={() => closeModal('dimed')}
             >
               <p className="text-body">취소</p>
             </Button>
@@ -144,7 +144,7 @@ export const ProjectEditeModal = () => {
 }
 
 export const ProjectDeleteModal = () => {
-  const { toggleModal } = useModal()
+  const { closeModal } = useModal()
 
   return (
     <Modal>
@@ -155,7 +155,7 @@ export const ProjectDeleteModal = () => {
           title="취소"
           variant="secondary"
           className="flex-1"
-          onClick={toggleModal}
+          onClick={() => closeModal('dimed')}
         >
           <p className="text-body">취소</p>
         </Button>
@@ -163,7 +163,7 @@ export const ProjectDeleteModal = () => {
           type="submit"
           title="삭제"
           className="flex-1"
-          onClick={toggleModal}
+          onClick={() => closeModal('dimed')}
         >
           <p className="text-body">삭제</p>
         </Button>
@@ -177,7 +177,7 @@ export const ProjectInviteModal = () => {
     { email: string; status: string }[]
   >([])
 
-  const { toggleModal } = useModal()
+  const { closeModal } = useModal()
 
   const form = useForm({
     resolver: zodResolver(formEmailProject),
@@ -199,7 +199,7 @@ export const ProjectInviteModal = () => {
     form.reset()
 
     console.log(values)
-    // toggleModal()
+    // closeModal()
   }
 
   return (
@@ -260,7 +260,7 @@ export const ProjectInviteModal = () => {
           title="취소"
           variant="secondary"
           className="w-full flex-1"
-          onClick={toggleModal}
+          onClick={() => closeModal('dimed')}
         >
           <p className="text-body">취소</p>
         </Button>

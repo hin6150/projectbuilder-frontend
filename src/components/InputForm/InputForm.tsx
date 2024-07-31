@@ -46,21 +46,21 @@ import { toolList } from '@/api/services/user/model'
 import { getInitials } from '@/components/Avatar/Avatar'
 import { Icon } from '@/components/Icon'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useModal } from '@/hooks/useModal'
+import { ModalTypes } from '@/hooks/useModal/useModal'
 import { formatPhoneNumber } from '@/hooks/useVaild'
 import { format, getDay } from 'date-fns'
 import { UseFormReturn } from 'react-hook-form'
 import { Calendar } from '../ui/calendar'
 import { Checkbox } from '../ui/checkbox'
-import { Textarea } from '../ui/textarea'
 import {
   DropdownMenu,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
-import { useModal } from '@/hooks/useModal'
-import { ModalTypes } from '@/hooks/useModal/useModal'
+import { Textarea } from '../ui/textarea'
 
 interface entry {
   tool: string
@@ -600,14 +600,14 @@ export const RepeatForm = ({ form, value, setValue }: repeatFormType) => {
   const [repeat, setRepeat] = React.useState<string>('')
   const repeatList = ['매일', '매주', '매월', '반복 안함', '맞춤 설정']
 
-  const { setModal } = useModal()
+  const { openModal } = useModal()
 
   const handleSelect = (selectedRepeat: string) => {
     setRepeat(selectedRepeat)
     setValue(selectedRepeat)
 
     if (selectedRepeat === '맞춤 설정') {
-      setModal(ModalTypes.REPEAT)
+      openModal('dimed', ModalTypes.REPEAT)
     }
   }
 

@@ -1,25 +1,21 @@
 'use client'
-import * as React from 'react'
 import { useModal } from '@/hooks/useModal'
+import { ModalTypes } from '@/hooks/useModal/useModal'
 import {
   formSchemaPersonalSchedule,
   formSchemaRepeatSchedule,
   formSchemaTeamSchedule,
 } from '@/hooks/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { Form } from '../ui/form'
-import { z } from 'zod'
-import { Modal } from './Modal'
 import { LockIcon, PencilIcon, Trash2Icon } from 'lucide-react'
+import * as React from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 import {
   DatePickerInfoForm,
   DefaultInputForm,
   TextAreaForm,
 } from '../InputForm'
-import { Button } from '../ui/button'
-import { ModalTypes } from '@/hooks/useModal/useModal'
-import { Checkbox } from '../ui/checkbox'
 import {
   CycleForm,
   EndDateForm,
@@ -29,8 +25,12 @@ import {
   RepeatForm,
   ScheduleTypeForm,
 } from '../InputForm/InputForm'
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
+import { Button } from '../ui/button'
+import { Checkbox } from '../ui/checkbox'
+import { Form } from '../ui/form'
 import { Label } from '../ui/label'
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
+import { Modal, ScheduleModal } from './Modal'
 
 type Participant = {
   name: string
@@ -38,7 +38,7 @@ type Participant = {
 }
 
 export const ScheduleCreateModal = () => {
-  const { toggleModal, setModal } = useModal()
+  const { closeModal } = useModal()
   const [selectedType, setSelectedType] = React.useState<string>('개인 일정')
   const [selectedRepeat, setSelectedRepeat] = React.useState<string>('')
   const [selectedPublic, setSelectedPublic] = React.useState<string>('')
@@ -64,11 +64,11 @@ export const ScheduleCreateModal = () => {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    toggleModal()
+    closeModal('default')
   }
 
   return (
-    <Modal>
+    <ScheduleModal>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -127,7 +127,7 @@ export const ScheduleCreateModal = () => {
           <div className="flex w-full items-start justify-end gap-[12px] self-stretch">
             <Button
               title="취소"
-              onClick={toggleModal}
+              onClick={() => closeModal('default')}
               className="flex flex-[1_0_0] gap-[10px] bg-blue-100"
             >
               <p className="text-body text-blue-500">취소</p>
@@ -135,7 +135,9 @@ export const ScheduleCreateModal = () => {
             <Button
               title="생성"
               className="flex flex-[1_0_0] gap-[10px]"
-              onClick={() => setModal(ModalTypes.CHECK)}
+              onClick={() => {
+                closeModal('default')
+              }}
               disabled={!form.formState.isValid}
               variant={form.formState.isValid ? 'default' : 'disabled'}
             >
@@ -144,12 +146,12 @@ export const ScheduleCreateModal = () => {
           </div>
         </form>
       </Form>
-    </Modal>
+    </ScheduleModal>
   )
 }
 
 export const ScheduleEditModal = () => {
-  const { toggleModal, setModal } = useModal()
+  const { closeModal } = useModal()
   const [selectedType, setSelectedType] = React.useState<string>('개인 일정')
   const [selectedRepeat, setSelectedRepeat] = React.useState<string>('')
   const [selectedPublic, setSelectedPublic] = React.useState<string>('')
@@ -175,11 +177,11 @@ export const ScheduleEditModal = () => {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    toggleModal()
+    closeModal('default')
   }
 
   return (
-    <Modal>
+    <ScheduleModal>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -238,15 +240,16 @@ export const ScheduleEditModal = () => {
           <div className="flex w-full items-start justify-end gap-[12px] self-stretch">
             <Button
               title="취소"
-              onClick={toggleModal}
+              onClick={() => closeModal('default')}
               className="flex flex-[1_0_0] gap-[10px] bg-blue-100"
             >
               <p className="text-body text-blue-500">취소</p>
             </Button>
             <Button
               title="수정"
+              // type="submit"
               className="flex flex-[1_0_0] gap-[10px]"
-              onClick={() => setModal(ModalTypes.CHECK)}
+              // onClick={() => {}}
               disabled={!form.formState.isValid}
               variant={form.formState.isValid ? 'default' : 'disabled'}
             >
@@ -255,41 +258,41 @@ export const ScheduleEditModal = () => {
           </div>
         </form>
       </Form>
-    </Modal>
+    </ScheduleModal>
   )
 }
 
 export const ScheduleCheckModal = () => {
-  const { toggleModal, setModal } = useModal()
+  const { openModal, closeModal } = useModal()
 
   return (
-    <Modal>
+    <ScheduleModal>
       <div className="flex items-center justify-between self-stretch">
         <p className="text-h4">일정 이름입니다</p>
         <div className="flex gap-2">
           <PencilIcon
             className="h-6 w-6"
             onClick={() => {
-              setModal(ModalTypes.EDIT)
+              openModal('default', ModalTypes.EDIT)
             }}
           />
           <Trash2Icon
             className="h-6 w-6"
             onClick={() => {
-              setModal(ModalTypes.DELETE)
+              openModal('dimed', ModalTypes.DELETE)
             }}
           />
         </div>
       </div>
-      <Button className="w-full" onClick={toggleModal}>
+      <Button className="w-full" onClick={() => closeModal('default')}>
         <p>닫기</p>
       </Button>
-    </Modal>
+    </ScheduleModal>
   )
 }
 
 export const ScheduleRepeatModal = () => {
-  const { toggleModal, setModal } = useModal()
+  const { closeModal } = useModal()
   const [cycle, setCycle] = React.useState<string>('')
   const [day, setDay] = React.useState<string>('')
 
@@ -317,15 +320,19 @@ export const ScheduleRepeatModal = () => {
           <div className="flex w-full items-start justify-end gap-[12px] self-stretch">
             <Button
               title="취소"
-              onClick={toggleModal}
+              type="button"
+              onClick={() => closeModal('dimed')}
               className="flex flex-[1_0_0] gap-[10px] bg-blue-100"
             >
               <p className="text-body text-blue-500">취소</p>
             </Button>
             <Button
               title="수정"
+              type="button"
               className="flex flex-[1_0_0] gap-[10px]"
-              onClick={() => setModal(ModalTypes.EDIT)}
+              onClick={() => {
+                closeModal('dimed')
+              }}
               disabled={!form.formState.isValid}
               variant={form.formState.isValid ? 'default' : 'disabled'}
             >
@@ -339,7 +346,7 @@ export const ScheduleRepeatModal = () => {
 }
 
 export const ScheduleDeleteModal = () => {
-  const { toggleModal } = useModal()
+  const { closeModal } = useModal()
 
   return (
     <Modal>
@@ -350,7 +357,9 @@ export const ScheduleDeleteModal = () => {
           title="취소"
           variant="secondary"
           className="flex-1"
-          onClick={toggleModal}
+          onClick={() => {
+            closeModal('dimed')
+          }}
         >
           <p className="text-body">취소</p>
         </Button>
@@ -358,7 +367,10 @@ export const ScheduleDeleteModal = () => {
           type="submit"
           title="삭제"
           className="flex-1"
-          onClick={toggleModal}
+          onClick={() => {
+            closeModal('dimed')
+            closeModal('default')
+          }}
         >
           <p className="text-body">삭제</p>
         </Button>
@@ -368,10 +380,10 @@ export const ScheduleDeleteModal = () => {
 }
 
 export const RepeatScheduleDeleteModal = () => {
-  const { toggleModal } = useModal()
+  const { closeModal } = useModal()
 
   return (
-    <Modal>
+    <ScheduleModal>
       <p className="text-h4">반복되는 일정을 삭제하시겠습니까?</p>
       <RadioGroup
         defaultValue="only"
@@ -396,7 +408,9 @@ export const RepeatScheduleDeleteModal = () => {
           title="취소"
           variant="secondary"
           className="flex-1"
-          onClick={toggleModal}
+          onClick={() => {
+            closeModal('default')
+          }}
         >
           <p className="text-body">취소</p>
         </Button>
@@ -404,11 +418,14 @@ export const RepeatScheduleDeleteModal = () => {
           type="submit"
           title="삭제"
           className="flex-1"
-          onClick={toggleModal}
+          onClick={() => {
+            closeModal('dimed')
+            closeModal('default')
+          }}
         >
           <p className="text-body">삭제</p>
         </Button>
       </div>
-    </Modal>
+    </ScheduleModal>
   )
 }
