@@ -1,13 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ProjectInfo } from '@/api'
+import { ProjectInfo, TeamInfo, useTeamInfoQuery } from '@/api'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
 import { useModal } from '@/hooks/useModal'
 import { ProjectInviteStatus } from '@/api'
-import { Form } from '../ui/form'
+import { Form, useFormField } from '../ui/form'
 import { Button } from '../ui/button'
 import { Modal } from './Modal'
 import { MailIcon, XIcon } from 'lucide-react'
@@ -57,12 +57,12 @@ export const ProjectCreateModal = () => {
           </div>
           <div className="flex w-full gap-3">
             <Button
-              title="취소"
+              title="닫기"
               variant="secondary"
               className="flex-1"
               onClick={toggleModal}
             >
-              <p className="text-body">취소</p>
+              <p className="text-body">닫기</p>
             </Button>
             <Button
               type="submit"
@@ -123,12 +123,12 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
           </div>
           <div className="flex w-full gap-3">
             <Button
-              title="취소"
+              title="닫기"
               variant="secondary"
               className="flex-1"
               onClick={toggleModal}
             >
-              <p className="text-body">취소</p>
+              <p className="text-body">닫기</p>
             </Button>
             <Button
               type="submit"
@@ -155,12 +155,12 @@ export const ProjectDeleteModal = () => {
       <p className="text-p">해당 행동은 되돌릴 수 없습니다.</p>
       <div className="flex w-full gap-3">
         <Button
-          title="취소"
+          title="닫기"
           variant="secondary"
           className="flex-1"
           onClick={toggleModal}
         >
-          <p className="text-body">취소</p>
+          <p className="text-body">닫기</p>
         </Button>
         <Button
           type="submit"
@@ -175,18 +175,12 @@ export const ProjectDeleteModal = () => {
   )
 }
 
-export const ProjectInviteModal = ({
-  initialEmails,
-}: {
-  initialEmails?: string[]
-}) => {
-  const [inviteEmailList, setInviteEmailList] = useState<
-    { email: string; status: string }[]
-  >(
-    initialEmails?.map((email) => ({
-      email,
-      status: ProjectInviteStatus.Invited,
-    })) || [],
+export const ProjectInviteModal = ({ uid }: { uid: string }) => {
+  const { data, isLoading } = useTeamInfoQuery({}, uid)
+
+  console.log(data)
+  const [inviteEmailList, setInviteEmailList] = useState<TeamInfo[]>(
+    data?.result ?? [],
   )
 
   const { toggleModal } = useModal()
@@ -195,6 +189,7 @@ export const ProjectInviteModal = ({
     resolver: zodResolver(formEmailProject),
     defaultValues: {
       email: '',
+      state: '',
     },
   })
 
@@ -205,7 +200,7 @@ export const ProjectInviteModal = ({
   function onSubmit(values: z.infer<typeof formEmailProject>) {
     setInviteEmailList([
       ...inviteEmailList,
-      { email: form.watch('email') ?? '', status: ProjectInviteStatus.Invited },
+      { email: form.watch('email') ?? '', state: ProjectInviteStatus.Invited },
     ])
     form.reset()
   }
@@ -235,9 +230,9 @@ export const ProjectInviteModal = ({
         <div className="flex flex-col gap-2">
           {inviteEmailList.map((data, index) => {
             const color =
-              data.status == ProjectInviteStatus.Invited
+              data.state == ProjectInviteStatus.Invited
                 ? 'text-gray-500'
-                : data.status == ProjectInviteStatus.Acceped
+                : data.state == ProjectInviteStatus.Acceped
                   ? 'text-blue-500'
                   : 'text-red-500'
             return (
@@ -250,7 +245,7 @@ export const ProjectInviteModal = ({
                   <p className="text-subtle">{data.email}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className={`text-small ${color}`}>{data.status}</p>
+                  <p className={`text-small ${color}`}>{data.state}</p>
                   <XIcon
                     size={16}
                     onClick={() => handleRemove(index)}
@@ -265,12 +260,12 @@ export const ProjectInviteModal = ({
           )}
         </div>
         <Button
-          title="취소"
+          title="닫기"
           variant="secondary"
           className="w-full flex-1"
           onClick={toggleModal}
         >
-          <p className="text-body">취소</p>
+          <p className="text-body">닫기</p>
         </Button>
       </div>
     </Modal>

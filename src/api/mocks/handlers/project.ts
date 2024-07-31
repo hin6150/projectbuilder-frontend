@@ -15,13 +15,11 @@ export const projectHandlers = [
               uid: 'c57a1af5-ccde-4a16-86d0-ad202e1c91f0',
               avatar: '',
               name: '홍길동',
-              email: 'hongildong@naver.com',
             },
             {
               uid: 'c57a1af5-ccde-4a16-86d0-ad202e1c91f0',
               avatar: '',
               name: '홍길동',
-              email: 'hongildong@naver.com',
             },
           ],
           startDate: '2024.09.01',
@@ -36,7 +34,6 @@ export const projectHandlers = [
               uid: 'c57a1af5-ccde-4a16-86d0-ad202e1c91f0',
               avatar: '',
               name: '홍길동',
-              email: 'hongildong@naver.com',
             },
           ],
           startDate: '2024.09.01',
@@ -51,7 +48,6 @@ export const projectHandlers = [
               uid: 'c57a1af5-ccde-4a16-86d0-ad202e1c91f0',
               avatar: '',
               name: '홍길동',
-              email: 'hongildong@naver.com',
             },
           ],
           startDate: '2024.09.01',
@@ -66,37 +62,31 @@ export const projectHandlers = [
               uid: 'c57a1af5-ccde-4a16-86d0-ad202e1c91f0',
               avatar: '',
               name: '김재연',
-              email: 'kimjaeyeon@naver.com',
             },
             {
               uid: '1f2a7092-ede4-4fbe-9077-7fbb2c3a23a6',
               avatar: 'https://avatars.githubusercontent.com/u/145416041?v=4',
               name: '이서우',
-              email: 'seowoo@naver.com',
             },
             {
               uid: 'c57a1af5-ccde-4a16-86d0-ad202e1c91f0',
               avatar: '',
               name: '조건희',
-              email: 'gunhee@naver.com',
             },
             {
               uid: '1f2a7092-ede4-4fbe-9077-7fbb2c3a23a6',
               avatar: 'https://avatars.githubusercontent.com/u/145416041?v=4',
               name: '이서우',
-              email: 'seowoo@naver.com',
             },
             {
               uid: 'c57a1af5-ccde-4a16-86d0-ad202e1c91f0',
               avatar: '',
               name: '이윤영',
-              email: 'yunyoung@naver.com',
             },
             {
               uid: '1f2a7092-ede4-4fbe-9077-7fbb2c3a23a6',
               avatar: 'https://avatars.githubusercontent.com/u/145416041?v=4',
               name: '이서우',
-              email: 'seowoo@naver.com',
             },
           ],
           startDate: '2024.07.01',
@@ -105,26 +95,23 @@ export const projectHandlers = [
       ],
     })
   }),
-  http.get(
-    `${process.env.NEXT_PUBLIC_API_URL}/project/info/:uid/TeamInfo`,
-    () => {
-      return HttpResponse.json({
-        code: 'SUCCESS',
-        result: [
-          {
-            email: 'test@gmail.com',
-            state: ProjectInviteStatus.Acceped,
-          },
-          {
-            email: 'test@naver.com',
-            state: ProjectInviteStatus.Denied,
-          },
-          {
-            email: 'test@naver.com',
-            state: ProjectInviteStatus.Invited,
-          },
-        ],
-      })
-    },
-  ),
+  http.get(`${process.env.NEXT_PUBLIC_API_URL}/project/info/*/TeamInfo`, () => {
+    return HttpResponse.json({
+      code: 'SUCCESS',
+      result: [
+        {
+          email: 'test@gmail.com',
+          state: ProjectInviteStatus.Acceped,
+        },
+        {
+          email: 'test@naver.com',
+          state: ProjectInviteStatus.Denied,
+        },
+        {
+          email: 'test@naver.com',
+          state: ProjectInviteStatus.Invited,
+        },
+      ],
+    })
+  }),
 ]

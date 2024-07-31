@@ -16,10 +16,17 @@ export {
 export { userService } from './services/user/service'
 
 //Project
-export { ProjectInviteState } from './services/project/model'
 export { ProjectInviteStatus } from './services/project/model'
-export type { ProjectInfo, ProjectInfoResponse } from './services/project/model'
-export { useProjectInfoQuery } from './services/project/quries'
+export type {
+  ProjectInfo,
+  ProjectInfoResponse,
+  TeamInfo,
+  TeamInfoResponse,
+} from './services/project/model'
+export {
+  useProjectInfoQuery,
+  useTeamInfoQuery,
+} from './services/project/quries'
 
 //Schedule
 export type { ScheduleResponse } from './services/schedule/model'

@@ -72,9 +72,7 @@ const Workspace = () => {
       )}
       {open && type == ModalTypes.DELETE && <ProjectDeleteModal />}
       {open && type == ModalTypes.INVITE && selectedProject && (
-        <ProjectInviteModal
-          initialEmails={selectedProject.user.map((user) => user.email)}
-        />
+        <ProjectInviteModal uid={selectedProject.uid} />
       )}
     </main>
   )

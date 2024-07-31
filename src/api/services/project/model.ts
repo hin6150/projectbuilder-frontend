@@ -24,3 +24,13 @@ export interface ProjectInfoResponse {
   code: string
   result: ProjectInfo[]
 }
+
+export interface TeamInfoResponse {
+  code: string
+  result: TeamInfo[]
+}
+
+export interface TeamInfo {
+  email: string
+  state: ProjectInviteStatus
+}
