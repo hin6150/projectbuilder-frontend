@@ -12,19 +12,18 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import {
-  DatePickerInfoForm,
   DefaultInputForm,
   TextAreaForm,
-} from '../InputForm'
-import {
   CycleForm,
+  DateTimePickerForm,
   EndDateForm,
   ParticipateForm,
   PublicForm,
   RepeatDayForm,
   RepeatForm,
   ScheduleTypeForm,
-} from '../InputForm/InputForm'
+} from '../InputForm'
+
 import { Button } from '../ui/button'
 import { Checkbox } from '../ui/checkbox'
 import { Form } from '../ui/form'
@@ -86,7 +85,11 @@ export const ScheduleCreateModal = () => {
           <div className="flex flex-col gap-4">
             <DefaultInputForm form={form} name="title" label="일정 이름" />
             <div className="flex flex-col gap-[6px]">
-              <DatePickerInfoForm form={form} name="period" label="일정 시간" />
+              <DateTimePickerForm
+                form={form}
+                name="datetime"
+                label="일정 시간"
+              />
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <Checkbox id="allday" />
@@ -199,7 +202,11 @@ export const ScheduleEditModal = () => {
           <div className="flex flex-col gap-4">
             <DefaultInputForm form={form} name="title" label="일정 이름" />
             <div className="flex flex-col gap-[6px]">
-              <DatePickerInfoForm form={form} name="period" label="일정 시간" />
+              <DateTimePickerForm
+                form={form}
+                name="datetime"
+                label="일정 시간"
+              />
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <Checkbox id="allday" />
