@@ -30,6 +30,9 @@ export const projectOptions = {
   editProjectInfo: (client: QueryClient, dto: EditProjectDTO) => ({
     mutationFn: () => projectService.editProjectInfo(client, dto),
   }),
+  deleteProjectInfo: (client: QueryClient, uid: string) => ({
+    mutationFn: () => projectService.deleteProjectInfo(client, uid),
+  }),
 }
 
 export const useProjectInfoQuery = (
@@ -75,6 +78,18 @@ export const useEditProjectInfo = (
 
   return useMutation({
     ...projectOptions.editProjectInfo(queryClient, dto),
+    ...options,
+  })
+}
+
+export const useDeleteProjectInfo = (
+  uid: string,
+  options: MutationOptions = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    ...projectOptions.deleteProjectInfo(queryClient, uid),
     ...options,
   })
 }

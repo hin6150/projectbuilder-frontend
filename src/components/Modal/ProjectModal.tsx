@@ -10,6 +10,7 @@ import {
   ProjectInviteStatus,
   useAddProjectInfo,
   useEditProjectInfo,
+  useDeleteProjectInfo,
 } from '@/api'
 import { Form, useFormField } from '../ui/form'
 import { Button } from '../ui/button'
@@ -195,8 +196,23 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
   )
 }
 
-export const ProjectDeleteModal = () => {
+export const ProjectDeleteModal = ({ uid }: { uid: string }) => {
   const { toggleModal } = useModal()
+
+  const deleteProjectInfo = useDeleteProjectInfo(uid, {
+    onSuccess: () => {
+      console.log('프로젝트 삭제 성공:', uid)
+      toggleModal()
+    },
+    onError: (err: Error) => {
+      console.error('프로젝트 삭제 실패:', err)
+      toggleModal()
+    },
+  })
+
+  const handleDeleteClick = () => {
+    deleteProjectInfo.mutate()
+  }
 
   return (
     <Modal>
@@ -211,12 +227,7 @@ export const ProjectDeleteModal = () => {
         >
           <p className="text-body">닫기</p>
         </Button>
-        <Button
-          type="submit"
-          title="삭제"
-          className="flex-1"
-          onClick={toggleModal}
-        >
+        <Button title="삭제" className="flex-1" onClick={handleDeleteClick}>
           <p className="text-body">삭제</p>
         </Button>
       </div>

@@ -36,6 +36,15 @@ export const projectService = {
     )
   },
 
+  async deleteProjectInfo(client: QueryClient, uid: string) {
+    return (
+      APIBuilder.delete(`/project/info/${uid}`)
+        // .withCredentials(client)
+        .build()
+        .call<DefaultResponse>()
+    )
+  },
+
   async teamInfo(client: QueryClient, uid: string) {
     return (
       APIBuilder.get(`/project/info/${uid}/TeamInfo`)

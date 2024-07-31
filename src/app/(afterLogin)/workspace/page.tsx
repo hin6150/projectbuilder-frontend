@@ -70,7 +70,9 @@ const Workspace = () => {
       {open && type == ModalTypes.EDIT && selectedProject && (
         <ProjectEditeModal project={selectedProject} />
       )}
-      {open && type == ModalTypes.DELETE && <ProjectDeleteModal />}
+      {open && type == ModalTypes.DELETE && selectedProject && (
+        <ProjectDeleteModal uid={selectedProject.uid} />
+      )}
       {open && type == ModalTypes.INVITE && selectedProject && (
         <ProjectInviteModal uid={selectedProject.uid} />
       )}

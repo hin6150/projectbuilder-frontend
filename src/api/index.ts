@@ -30,6 +30,7 @@ export {
   useTeamInfoQuery,
   useAddProjectInfo,
   useEditProjectInfo,
+  useDeleteProjectInfo,
 } from './services/project/quries'
 
 //Schedule
