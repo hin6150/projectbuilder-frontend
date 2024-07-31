@@ -1,6 +1,17 @@
 import { CustomQueryOptions } from '@/api/type'
-import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ProjectInfoResponse, TeamInfoResponse } from './model'
+import {
+  MutationOptions,
+  QueryClient,
+  useQuery,
+  useQueryClient,
+  useMutation,
+} from '@tanstack/react-query'
+import {
+  ProjectInfo,
+  ProjectInfoResponse,
+  TeamInfoResponse,
+  AddProjectDTO,
+} from './model'
 import { projectService } from './service'
 
 export const projectOptions = {
@@ -11,6 +22,9 @@ export const projectOptions = {
   teamInfo: (client: QueryClient, uid: string) => ({
     queryKey: ['teamList'],
     queryFn: () => projectService.teamInfo(client, uid),
+  }),
+  addProjectInfo: (client: QueryClient, dto: AddProjectDTO) => ({
+    mutationFn: () => projectService.addProjectInfo(client, dto),
   }),
 }
 
@@ -33,6 +47,18 @@ export const useTeamInfoQuery = (
 
   return useQuery<TeamInfoResponse>({
     ...projectOptions.teamInfo(queryClient, uid),
+    ...options,
+  })
+}
+
+export const useAddProjectInfo = (
+  dto: AddProjectDTO,
+  options: MutationOptions = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    ...projectOptions.addProjectInfo(queryClient, dto),
     ...options,
   })
 }

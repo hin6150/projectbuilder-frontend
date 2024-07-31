@@ -1,6 +1,11 @@
 import { APIBuilder } from '@/api/lib/fetcher'
 import { QueryClient } from '@tanstack/react-query'
-import { ProjectInfoResponse, TeamInfoResponse } from './model'
+import {
+  ProjectInfoResponse,
+  TeamInfoResponse,
+  AddProjectInfoResponse,
+  AddProjectDTO,
+} from './model'
 
 export const projectService = {
   async projectInfo(client: QueryClient) {
@@ -9,6 +14,15 @@ export const projectService = {
         // .withCredentials(client)
         .build()
         .call<ProjectInfoResponse>()
+    )
+  },
+
+  async addProjectInfo(client: QueryClient, dto: AddProjectDTO) {
+    return (
+      APIBuilder.post('/project/info')
+        // .withCredentials(client)
+        .build()
+        .call<AddProjectInfoResponse>({ body: JSON.stringify(dto) })
     )
   },
 

@@ -1,4 +1,7 @@
-import { ProjectInviteStatus } from '@/api/services/project/model'
+import {
+  ProjectInviteStatus,
+  AddProjectInfoResponse,
+} from '@/api/services/project/model'
 import { http, HttpResponse } from 'msw'
 
 export const projectHandlers = [
@@ -112,6 +115,24 @@ export const projectHandlers = [
           state: ProjectInviteStatus.Invited,
         },
       ],
+    })
+  }),
+  http.post(`${process.env.NEXT_PUBLIC_API_URL}/project/info`, async (req) => {
+    // const dto: AddProjectDTO = await req.json()
+    // const { uid, title, subTitle, user, startDate, endDate } = dto
+
+    // if (!schedules[year]) {
+    //   schedules[year] = {}
+    // }
+
+    // if (!schedules[year][month]) {
+    //   schedules[year][month] = []
+    // }
+
+    // schedules[year][month].push(schedule)
+
+    return HttpResponse.json<AddProjectInfoResponse>({
+      code: 'SUCCESS',
     })
   }),
 ]

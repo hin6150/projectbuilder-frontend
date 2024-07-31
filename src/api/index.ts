@@ -20,12 +20,14 @@ export { ProjectInviteStatus } from './services/project/model'
 export type {
   ProjectInfo,
   ProjectInfoResponse,
+  AddProjectDTO,
   TeamInfo,
   TeamInfoResponse,
 } from './services/project/model'
 export {
   useProjectInfoQuery,
   useTeamInfoQuery,
+  useAddProjectInfo,
 } from './services/project/quries'
 
 //Schedule

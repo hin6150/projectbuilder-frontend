@@ -34,3 +34,14 @@ export interface TeamInfo {
   email: string
   state: ProjectInviteStatus
 }
+
+export interface AddProjectDTO {
+  title: string
+  subTitle: string
+  startDate: string
+  endDate: string
+}
+
+export interface AddProjectInfoResponse {
+  code: string
+}
