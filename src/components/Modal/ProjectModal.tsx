@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-
 import { ProjectInfo } from '@/api'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
@@ -31,7 +30,6 @@ export const ProjectCreateModal = () => {
   })
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
-    // 프로젝트 생성 로직을 추가합니다.
     toggleModal()
   }
 
@@ -82,14 +80,13 @@ export const ProjectCreateModal = () => {
   )
 }
 
-// 수정된 ProjectEditeModal 컴포넌트
 export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
   const { toggleModal } = useModal()
 
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
     defaultValues: {
-      title: project.title, // 프로젝트 데이터를 기본값으로 설정
+      title: project.title,
       period: {
         from: new Date(project.startDate),
         to: new Date(project.endDate),
@@ -99,7 +96,6 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
   })
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
-    // 수정된 프로젝트 데이터를 처리하는 로직을 추가합니다.
     toggleModal()
   }
 

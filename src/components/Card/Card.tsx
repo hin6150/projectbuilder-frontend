@@ -75,7 +75,7 @@ const Card = ({
             >
               <DropdownMenuItem
                 onClick={() => {
-                  onEditClick() // 편집 클릭 시 호출
+                  onEditClick()
                 }}
               >
                 <div className="flex items-center gap-2 p-2">

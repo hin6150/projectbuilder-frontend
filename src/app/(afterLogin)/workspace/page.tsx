@@ -19,7 +19,6 @@ const Workspace = () => {
 
   const { open, toggleModal, setModal, type } = useModal()
 
-  // 편집할 프로젝트의 데이터를 저장할 상태
   const [selectedProject, setSelectedProject] = useState<ProjectInfo | null>(
     null,
   )
@@ -30,7 +29,7 @@ const Workspace = () => {
   }
 
   const handleEditClick = (project: ProjectInfo) => {
-    setSelectedProject(project) // 편집할 프로젝트 설정
+    setSelectedProject(project)
     setModal(ModalTypes.EDIT)
     toggleModal()
   }
@@ -55,7 +54,7 @@ const Workspace = () => {
           <Card
             key={projectData.uid}
             data={projectData}
-            onEditClick={() => handleEditClick(projectData)} // 편집 버튼 클릭 시 호출
+            onEditClick={() => handleEditClick(projectData)}
           />
         ))}
       </div>
