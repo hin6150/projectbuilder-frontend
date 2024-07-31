@@ -75,7 +75,18 @@ const Card = ({
             >
               <DropdownMenuItem
                 onClick={() => {
-                  onEditClick()
+                  setModal(ModalTypes.INVITE)
+                  toggleModal()
+                }}
+              >
+                <div className="flex items-center gap-2 p-2">
+                  <UserPlusIcon size={16} />
+                  <p className="text-subtle font-medium">팀원 초대</p>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  onEditClick() // 편집 클릭 시 호출
                 }}
               >
                 <div className="flex items-center gap-2 p-2">
