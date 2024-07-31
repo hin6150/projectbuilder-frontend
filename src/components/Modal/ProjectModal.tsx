@@ -6,7 +6,11 @@ import { ProjectInfo, TeamInfo, useTeamInfoQuery } from '@/api'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
 import { useModal } from '@/hooks/useModal'
-import { ProjectInviteStatus, useAddProjectInfo } from '@/api'
+import {
+  ProjectInviteStatus,
+  useAddProjectInfo,
+  useEditProjectInfo,
+} from '@/api'
 import { Form, useFormField } from '../ui/form'
 import { Button } from '../ui/button'
 import { Modal } from './Modal'
@@ -33,7 +37,7 @@ export const ProjectCreateModal = () => {
     {
       title: form.watch('title'),
       subTitle: form.watch('description'),
-      startDate: form.watch('period').from.toISOString(), // period.from을 ISO 문자열로 변환합니다.
+      startDate: form.watch('period').from.toISOString(),
       endDate: form.watch('period').to.toISOString(),
     },
     {
@@ -41,7 +45,7 @@ export const ProjectCreateModal = () => {
         console.log('Success:', {
           title: form.watch('title'),
           subTitle: form.watch('description'),
-          startDate: form.watch('period').from.toISOString(), // period.from을 ISO 문자열로 변환합니다.
+          startDate: form.watch('period').from.toISOString(),
           endDate: form.watch('period').to.toISOString(),
         })
       },
@@ -117,8 +121,30 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
       description: project.subTitle || '',
     },
   })
+  const editProjectInfo = useEditProjectInfo(
+    {
+      title: form.watch('title'),
+      subTitle: form.watch('description'),
+      startDate: form.watch('period').from.toISOString(),
+      endDate: form.watch('period').to.toISOString(),
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          title: form.watch('title'),
+          subTitle: form.watch('description'),
+          startDate: form.watch('period').from.toISOString(),
+          endDate: form.watch('period').to.toISOString(),
+        })
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
+    editProjectInfo.mutate()
     toggleModal()
   }
 

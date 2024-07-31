@@ -21,6 +21,7 @@ export type {
   ProjectInfo,
   ProjectInfoResponse,
   AddProjectDTO,
+  EditProjectDTO,
   TeamInfo,
   TeamInfoResponse,
 } from './services/project/model'
@@ -28,6 +29,7 @@ export {
   useProjectInfoQuery,
   useTeamInfoQuery,
   useAddProjectInfo,
+  useEditProjectInfo,
 } from './services/project/quries'
 
 //Schedule

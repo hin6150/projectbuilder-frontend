@@ -11,6 +11,7 @@ import {
   ProjectInfoResponse,
   TeamInfoResponse,
   AddProjectDTO,
+  EditProjectDTO,
 } from './model'
 import { projectService } from './service'
 
@@ -25,6 +26,9 @@ export const projectOptions = {
   }),
   addProjectInfo: (client: QueryClient, dto: AddProjectDTO) => ({
     mutationFn: () => projectService.addProjectInfo(client, dto),
+  }),
+  editProjectInfo: (client: QueryClient, dto: EditProjectDTO) => ({
+    mutationFn: () => projectService.editProjectInfo(client, dto),
   }),
 }
 
@@ -59,6 +63,18 @@ export const useAddProjectInfo = (
 
   return useMutation({
     ...projectOptions.addProjectInfo(queryClient, dto),
+    ...options,
+  })
+}
+
+export const useEditProjectInfo = (
+  dto: EditProjectDTO,
+  options: MutationOptions = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    ...projectOptions.editProjectInfo(queryClient, dto),
     ...options,
   })
 }
