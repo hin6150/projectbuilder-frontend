@@ -1,6 +1,7 @@
 'use client'
 
-import { useProjectInfoQuery } from '@/api'
+import React, { useState } from 'react'
+import { useProjectInfoQuery, ProjectInfo } from '@/api'
 import Card from '@/components/Card/Card'
 import {
   ProjectCreateModal,
@@ -13,21 +14,30 @@ import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import { PlusIcon } from 'lucide-react'
 
-const workspace = () => {
+const Workspace = () => {
   const { data, isLoading } = useProjectInfoQuery()
 
   const { open, toggleModal, setModal, type } = useModal()
+
+  // 편집할 프로젝트의 데이터를 저장할 상태
+  const [selectedProject, setSelectedProject] = useState<ProjectInfo | null>(
+    null,
+  )
 
   const handleClick = () => {
     setModal(ModalTypes.CREATE)
     toggleModal()
   }
 
+  const handleEditClick = (project: ProjectInfo) => {
+    setSelectedProject(project) // 편집할 프로젝트 설정
+    setModal(ModalTypes.EDIT)
+    toggleModal()
+  }
+
   if (isLoading) {
     return null
   }
-
-  console.log(data)
 
   return (
     <main className="mt-5">
@@ -41,16 +51,22 @@ const workspace = () => {
       </div>
 
       <div className="flex flex-wrap gap-5">
-        {data?.result.map((data) => {
-          return <Card data={data} />
-        })}
+        {data?.result.map((projectData) => (
+          <Card
+            key={projectData.uid}
+            data={projectData}
+            onEditClick={() => handleEditClick(projectData)} // 편집 버튼 클릭 시 호출
+          />
+        ))}
       </div>
 
       {open && type == ModalTypes.CREATE && <ProjectCreateModal />}
-      {open && type == ModalTypes.EDIT && <ProjectEditeModal />}
+      {open && type == ModalTypes.EDIT && selectedProject && (
+        <ProjectEditeModal project={selectedProject} />
+      )}
       {open && type == ModalTypes.DELETE && <ProjectDeleteModal />}
       {open && type == ModalTypes.INVITE && <ProjectInviteModal />}
     </main>
   )
 }
-export default workspace
+export default Workspace

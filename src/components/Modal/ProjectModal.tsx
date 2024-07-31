@@ -1,21 +1,22 @@
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Form } from '../ui/form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
-import { ProjectInviteStatus } from '@/api'
-import { useModal } from '@/hooks/useModal'
+import { ProjectInfo } from '@/api'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useModal } from '@/hooks/useModal'
+import { ProjectInviteStatus } from '@/api'
+import { Form } from '../ui/form'
+import { Button } from '../ui/button'
+import { Modal } from './Modal'
 import { MailIcon, XIcon } from 'lucide-react'
-import React from 'react'
-import { z } from 'zod'
 import {
   DatePickerInfoForm,
   DefaultInputForm,
   TextAreaForm,
 } from '../InputForm'
-import { Button } from '../ui/button'
-import { Modal } from './Modal'
 
 export const ProjectCreateModal = () => {
   const { toggleModal } = useModal()
@@ -30,6 +31,7 @@ export const ProjectCreateModal = () => {
   })
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
+    // 프로젝트 생성 로직을 추가합니다.
     toggleModal()
   }
 
@@ -80,19 +82,24 @@ export const ProjectCreateModal = () => {
   )
 }
 
-export const ProjectEditeModal = () => {
+// 수정된 ProjectEditeModal 컴포넌트
+export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
   const { toggleModal } = useModal()
 
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
     defaultValues: {
-      title: '',
-      period: { from: new Date(), to: new Date() },
-      description: '',
+      title: project.title, // 프로젝트 데이터를 기본값으로 설정
+      period: {
+        from: new Date(project.startDate),
+        to: new Date(project.endDate),
+      },
+      description: project.subTitle || '',
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
+    // 수정된 프로젝트 데이터를 처리하는 로직을 추가합니다.
     toggleModal()
   }
 
@@ -173,7 +180,7 @@ export const ProjectDeleteModal = () => {
 }
 
 export const ProjectInviteModal = () => {
-  const [inviteEmailList, setInviteEmailList] = React.useState<
+  const [inviteEmailList, setInviteEmailList] = useState<
     { email: string; status: string }[]
   >([])
 
@@ -195,11 +202,9 @@ export const ProjectInviteModal = () => {
       ...inviteEmailList,
       { email: form.watch('email') ?? '', status: ProjectInviteStatus.Invited },
     ])
-    // form.setValue('email', '')
     form.reset()
 
     console.log(values)
-    // toggleModal()
   }
 
   return (
