@@ -32,7 +32,13 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { CommandList } from 'cmdk'
-import { Check, ChevronsUpDown } from 'lucide-react'
+import {
+  CalendarIcon,
+  Check,
+  ChevronDown,
+  ChevronsUpDown,
+  XIcon,
+} from 'lucide-react'
 import * as React from 'react'
 import { z } from 'zod'
 
@@ -40,16 +46,33 @@ import { toolList } from '@/api/services/user/model'
 import { getInitials } from '@/components/Avatar/Avatar'
 import { Icon } from '@/components/Icon'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useModal } from '@/hooks/useModal'
+import { ModalTypes } from '@/hooks/useModal/useModal'
 import { formatPhoneNumber } from '@/hooks/useVaild'
 import { format, getDay } from 'date-fns'
 import { UseFormReturn } from 'react-hook-form'
 import { Calendar } from '../ui/calendar'
 import { Checkbox } from '../ui/checkbox'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu'
 import { Textarea } from '../ui/textarea'
+import { TimePickerDemo } from '../TimePicker/time-picker-demo'
 
 interface entry {
   tool: string
   email: string
+}
+
+interface participate {
+  imageUrl: string
+  name: string
+  email: string
+  attend: string
 }
 
 interface formType {
@@ -81,6 +104,47 @@ interface infoFormType {
 }
 
 interface mbtiFormType {
+  form: UseFormReturn<z.infer<any>>
+  value: string
+  setValue: React.Dispatch<React.SetStateAction<string>>
+}
+
+interface cycleFormType {
+  form: UseFormReturn<z.infer<any>>
+  value: string
+  setValue: React.Dispatch<React.SetStateAction<string>>
+}
+
+interface repeatFormType {
+  form: UseFormReturn<z.infer<any>>
+  value: string
+  setValue: React.Dispatch<React.SetStateAction<string>>
+}
+
+interface publicFormType {
+  form: UseFormReturn<z.infer<any>>
+  value: string
+  setValue: React.Dispatch<React.SetStateAction<string>>
+}
+
+type Participant = {
+  name: string
+  email: string
+}
+
+interface participateFormType {
+  form: UseFormReturn<z.infer<any>>
+  participates: Participant[]
+  setParticipates: React.Dispatch<React.SetStateAction<Participant[]>>
+}
+
+interface scheduleTypeFormType {
+  form: UseFormReturn<z.infer<any>>
+  value: string
+  setValue: React.Dispatch<React.SetStateAction<string>>
+}
+
+interface repeatDayFormType {
   form: UseFormReturn<z.infer<any>>
   value: string
   setValue: React.Dispatch<React.SetStateAction<string>>
@@ -498,3 +562,391 @@ export const CheckBoxForm = ({ form, name }: checkBoxFormType) => (
     )}
   />
 )
+
+export const CycleForm = ({ form, value, setValue }: cycleFormType) => {
+  const [cycle, setCycle] = React.useState<string>('')
+  const cycleList = ['일(Day)', '주(Week)', '월(Month)', '년(Year)']
+
+  return (
+    <FormField
+      control={form.control}
+      name="cycle"
+      render={({ field }) => (
+        <FormItem>
+          <FormControl>
+            <Select value={cycle} onValueChange={setCycle}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="주(Week)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {cycleList.map((cycle) => {
+                    return (
+                      <SelectItem value={cycle} key={cycle}>
+                        {cycle}
+                      </SelectItem>
+                    )
+                  })}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </FormControl>
+        </FormItem>
+      )}
+    ></FormField>
+  )
+}
+
+export const RepeatForm = ({ form, value, setValue }: repeatFormType) => {
+  const [repeat, setRepeat] = React.useState<string>('')
+  const repeatList = ['매일', '매주', '매월', '반복 안함', '맞춤 설정']
+
+  const { openModal } = useModal()
+
+  const handleSelect = (selectedRepeat: string) => {
+    setRepeat(selectedRepeat)
+    setValue(selectedRepeat)
+
+    if (selectedRepeat === '맞춤 설정') {
+      openModal('dimed', ModalTypes.REPEAT)
+    }
+  }
+
+  return (
+    <FormField
+      control={form.control}
+      name="repeat"
+      render={({ field }) => (
+        <FormItem>
+          <FormControl>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1">
+                <p className="text-small">{repeat || '반복 안함'}</p>
+                <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent className="text-center">
+                <DropdownMenuLabel>반복 여부</DropdownMenuLabel>
+                {repeatList.map((item, index) => {
+                  return (
+                    <DropdownMenuItem
+                      key={index}
+                      onClick={() => handleSelect(item)}
+                    >
+                      {item}
+                    </DropdownMenuItem>
+                  )
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
+
+export const PublicForm = ({ form, value, setValue }: publicFormType) => {
+  const [publicContent, setPublicContent] = React.useState<string>('')
+  const publicList = ['내용 비공개', '공개']
+
+  const handleSelect = (selectedPublic: string) => {
+    setPublicContent(selectedPublic)
+    setValue(selectedPublic)
+  }
+
+  return (
+    <FormField
+      control={form.control}
+      name="repeat"
+      render={({ field }) => (
+        <FormItem>
+          <FormControl>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1">
+                <p className="text-small">{publicContent || '내용 비공개'}</p>
+                <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent className="text-center">
+                <DropdownMenuLabel>반복 여부</DropdownMenuLabel>
+                {publicList.map((item, index) => {
+                  return (
+                    <DropdownMenuItem
+                      key={index}
+                      onClick={() => handleSelect(item)}
+                    >
+                      {item}
+                    </DropdownMenuItem>
+                  )
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
+
+export const ScheduleTypeForm = ({
+  form,
+  value,
+  setValue,
+}: scheduleTypeFormType) => {
+  const [type, setType] = React.useState<string>('')
+  const typeList = ['개인 일정', '팀 일정']
+
+  const handleSelect = (selectedType: string) => {
+    setType(selectedType)
+    setValue(selectedType)
+  }
+
+  return (
+    <FormField
+      control={form.control}
+      name="type"
+      render={({ field }) => (
+        <FormItem>
+          <FormControl>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1">
+                <CalendarIcon className="h-4 w-4" />
+                <p className="text-small">{type || '개인 일정'}</p>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent className="text-center">
+                <DropdownMenuLabel>반복 여부</DropdownMenuLabel>
+                {typeList.map((item, index) => {
+                  return (
+                    <DropdownMenuItem
+                      key={index}
+                      onClick={() => handleSelect(item)}
+                    >
+                      {item}
+                    </DropdownMenuItem>
+                  )
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
+
+export const RepeatDayForm = ({ form, value, setValue }: repeatDayFormType) => {
+  const days = ['일', '월', '화', '수', '목', '금', '토']
+  const [selectedDays, setSelectedDays] = React.useState<string[]>(['일'])
+
+  const handleClick = (day: string) => {
+    setSelectedDays((prevSelectedDays) => {
+      if (prevSelectedDays.includes(day)) {
+        return prevSelectedDays.filter((selectedDay) => selectedDay !== day)
+      } else {
+        return [...prevSelectedDays, day]
+      }
+    })
+  }
+  return (
+    <FormField
+      control={form.control}
+      name="day"
+      render={({ field }) => (
+        <FormItem className="flex flex-col items-start gap-2 self-stretch">
+          <FormLabel className="text-p">반복 요일</FormLabel>
+          <FormControl>
+            <div className="flex items-start justify-between self-stretch px-4 py-2">
+              {days.map((item, index) => {
+                return (
+                  <span
+                    key={index}
+                    onClick={() => {
+                      handleClick(item)
+                    }}
+                    className={`flex h-[36px] w-[36px] cursor-pointer items-center justify-center px-[10px] py-1 text-large text-gray-400 ${selectedDays.includes(item) ? 'h-[36px] w-[36px] rounded-full bg-black text-white' : ''}`}
+                  >
+                    {item}
+                  </span>
+                )
+              })}
+            </div>
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
+
+export const ParticipateForm = ({
+  form,
+  participates,
+  setParticipates,
+}: participateFormType) => {
+  const [searchQuery, setSearchQuery] = React.useState<string>('')
+  const [filteredParticipates, setFilteredParticipates] =
+    React.useState<Participant[]>(participates)
+
+  const filterParticipates = (
+    query: string,
+    participates: Participant[],
+  ): Participant[] => {
+    return participates.filter(
+      (participant) =>
+        participant.name.toLowerCase().includes(query.toLowerCase()) ||
+        participant.email.toLowerCase().includes(query.toLowerCase()),
+    )
+  }
+
+  const participateSchema = z.object({
+    name: z.string(),
+    image: z.string(),
+    attend: z.string(),
+  })
+
+  // 검색어 또는 참여자 목록이 변경될 때 필터링된 참여자 목록을 업데이트
+  React.useEffect(() => {
+    setFilteredParticipates(filterParticipates(searchQuery, participates))
+  }, [searchQuery, participates])
+
+  return (
+    <FormField
+      control={form.control}
+      name="participates"
+      render={({ field }) => (
+        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+          <FormLabel>참가자</FormLabel>
+          <FormControl>
+            <Input placeholder="@이름, 이메일로 추가" {...field} />
+          </FormControl>
+        </FormItem>
+      )}
+    ></FormField>
+  )
+}
+
+export const EndDateForm = ({
+  form,
+  name,
+  label,
+  ...rest
+}: defaultFormType) => {
+  const formatDate = (date: Date) => {
+    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
+    return `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
+  }
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+          <FormLabel className="text-p">{label}</FormLabel>
+          <FormControl className="flex items-start gap-[8px] self-stretch">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Input
+                  {...rest}
+                  {...field}
+                  value={
+                    field.value ? formatDate(new Date(field.value)) : '없음'
+                  }
+                  readOnly
+                />
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="single"
+                  disabled={(date) => date <= new Date()}
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={field.onChange}
+                />
+              </PopoverContent>
+            </Popover>
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
+
+export function DateTimePickerForm({
+  form,
+  name,
+  label,
+  ...rest
+}: defaultFormType) {
+  const [date, setDate] = React.useState<Date | undefined>(undefined)
+  const [startDate, setStartDate] = React.useState<Date | undefined>(undefined)
+  const [endDate, setEndDate] = React.useState<Date | undefined>(undefined)
+
+  const formatDate = (
+    date: Date,
+    start: Date | undefined,
+    end: Date | undefined,
+  ) => {
+    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
+    const datePart = `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
+
+    const formattedStartTime = start ? format(start, 'a h:mm') : ''
+    const formattedEndTime = end ? format(end, 'a h:mm') : ''
+
+    return formattedStartTime && formattedEndTime
+      ? `${datePart} ${formattedStartTime} ~ ${formattedEndTime}`
+      : formattedStartTime || formattedEndTime
+        ? `${datePart} ${formattedStartTime || formattedEndTime}`
+        : datePart
+  }
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Input
+                  placeholder="일정 시간"
+                  className="text-left"
+                  {...rest}
+                  {...field}
+                  value={
+                    field.value
+                      ? formatDate(new Date(field.value), startDate, endDate)
+                      : '일정 시간'
+                  }
+                  readOnly
+                />
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(selectedDate) => {
+                    setDate(selectedDate)
+                    field.onChange(selectedDate)
+                  }}
+                  initialFocus
+                />
+                <div className="border-t border-border p-3">
+                  <TimePickerDemo
+                    startDate={startDate}
+                    setStartDate={setStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}

@@ -40,7 +40,7 @@ export {
 //Schedule
 export type { ScheduleResponse } from './services/schedule/model'
 export {
-  useSchedulesQuery,
-  useAddScheduleMutation,
   scheduleOptions,
+  useAddScheduleMutation,
+  useSchedulesQuery,
 } from './services/schedule/quries'

@@ -6,7 +6,7 @@ import Card from '@/components/Card/Card'
 import {
   ProjectCreateModal,
   ProjectDeleteModal,
-  ProjectEditeModal,
+  ProjectEditModal,
   ProjectInviteModal,
 } from '@/components/Modal/ProjectModal'
 import { Button } from '@/components/ui/button'
@@ -17,31 +17,35 @@ import { PlusIcon } from 'lucide-react'
 const Workspace = () => {
   const { data, isLoading } = useProjectInfoQuery()
 
-  const { open, toggleModal, setModal, type } = useModal()
+  const { openModal, modals } = useModal()
 
   const [selectedProject, setSelectedProject] = useState<ProjectInfo | null>(
     null,
   )
 
   const handleClick = () => {
-    setModal(ModalTypes.CREATE)
-    toggleModal()
-  }
-
-  const handleEditClick = (project: ProjectInfo) => {
-    setSelectedProject(project)
-    setModal(ModalTypes.EDIT)
-    toggleModal()
-  }
-
-  const handleInviteClick = (project: ProjectInfo) => {
-    setSelectedProject(project)
-    setModal(ModalTypes.INVITE)
-    toggleModal()
+    openModal('dimed', ModalTypes.CREATE)
   }
 
   if (isLoading) {
     return null
+  }
+
+  const renderModal = () => {
+    if (!modals.dimed.open) return null
+
+    switch (modals.dimed.type) {
+      case ModalTypes.CREATE:
+        return <ProjectCreateModal />
+      case ModalTypes.EDIT:
+        return <ProjectEditeModal project={selectedProject} />
+      case ModalTypes.DELETE:
+        return <ProjectDeleteModal uid={selectedProject.uid} />
+      case ModalTypes.INVITE:
+        return <ProjectInviteModal uid={selectedProject.uid} />
+      default:
+        return null
+    }
   }
 
   return (
@@ -60,22 +64,12 @@ const Workspace = () => {
           <Card
             key={projectData.uid}
             data={projectData}
-            onEditClick={() => handleEditClick(projectData)}
-            onInviteClick={() => handleInviteClick(projectData)}
+            setSelectedProject={setSelectedProject}
           />
         ))}
       </div>
 
-      {open && type == ModalTypes.CREATE && <ProjectCreateModal />}
-      {open && type == ModalTypes.EDIT && selectedProject && (
-        <ProjectEditeModal project={selectedProject} />
-      )}
-      {open && type == ModalTypes.DELETE && selectedProject && (
-        <ProjectDeleteModal uid={selectedProject.uid} />
-      )}
-      {open && type == ModalTypes.INVITE && selectedProject && (
-        <ProjectInviteModal uid={selectedProject.uid} />
-      )}
+      {renderModal()}
     </main>
   )
 }

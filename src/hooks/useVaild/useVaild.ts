@@ -53,6 +53,24 @@ const period = z.object({
 
 const description = z.string()
 
+const scheduletypeField = z.string()
+
+const alldayField = z.boolean().optional()
+
+const repeatField = z.string()
+
+const publicField = z.string()
+
+const participate = z.string()
+
+const cycleField = z.string()
+
+const repeatDay = z.string()
+
+const endDate = z.date()
+
+const teamName = z.string()
+
 export const formSchemaUserEdit = z.object({
   name: nameField,
   email: emailField,
@@ -88,6 +106,45 @@ export const formSchemaProject = z.object({
 
 export const formEmailProject = z.object({
   email: emailField,
+})
+
+export const formSchemaPersonalSchedule = z.object({
+  type: scheduletypeField,
+  title: title,
+  period: period,
+  description: description,
+  allday: alldayField,
+  repeat: repeatField,
+  publicContent: publicField,
+})
+
+export const formSchemaTeamSchedule = z.object({
+  type: scheduletypeField,
+  title: title,
+  period: period,
+  description: description,
+  allday: alldayField,
+  repeat: repeatField,
+  participate: participate,
+})
+
+export const formSchemaRepeatSchedule = z.object({
+  repeat: repeatField,
+  cycle: cycleField,
+  day: repeatDay,
+  end: endDate,
+})
+
+export const formSchemaCheckSchedule = z.object({
+  type: scheduletypeField,
+  title: title,
+  period: period,
+  description: description,
+  publicContent: publicField,
+  allday: alldayField,
+  repeat: repeatField,
+  participate: participate,
+  team: teamName,
 })
 
 export const formatPhoneNumber = (value: string) => {

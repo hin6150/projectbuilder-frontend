@@ -21,17 +21,15 @@ const MAX_VISIBLE_MEMBERS = 5
 // Card.tsx
 const Card = ({
   data,
-  onEditClick,
-  onInviteClick,
+  setSelectedProject,
 }: {
   data: ProjectInfo
-  onEditClick: () => void
-  onInviteClick: () => void // 초대 클릭 핸들러 추가
+  setSelectedProject: any
 }) => {
   const visibleMembers = data.user.slice(0, MAX_VISIBLE_MEMBERS)
   const remainingMemberCount = data.user.length - MAX_VISIBLE_MEMBERS
 
-  const { setModal, toggleModal } = useModal()
+  const { openModal } = useModal()
 
   return (
     <Link href={`/project/${data.uid}`}>
@@ -78,7 +76,8 @@ const Card = ({
             >
               <DropdownMenuItem
                 onClick={() => {
-                  onInviteClick() // 초대 클릭 시 호출
+                  setSelectedProject(data)
+                  openModal('dimed', ModalTypes.INVITE)
                 }}
               >
                 <div className="flex items-center gap-2 p-2">
@@ -88,7 +87,8 @@ const Card = ({
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  onEditClick() // 편집 클릭 시 호출
+                  setSelectedProject(data)
+                  openModal('dimed', ModalTypes.EDIT)
                 }}
               >
                 <div className="flex items-center gap-2 p-2">
@@ -98,8 +98,7 @@ const Card = ({
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  setModal(ModalTypes.DELETE)
-                  toggleModal()
+                  openModal('dimed', ModalTypes.DELETE)
                 }}
               >
                 <div className="flex items-center gap-2 p-2">
