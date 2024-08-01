@@ -43,7 +43,7 @@ import * as React from 'react'
 import { z } from 'zod'
 
 import { toolList } from '@/api/services/user/model'
-import { getInitials } from '@/components/Avatar/Avatar'
+import { getInitials, ProfileAvatar } from '@/components/Avatar/Avatar'
 import { Icon } from '@/components/Icon'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useModal } from '@/hooks/useModal'
@@ -103,6 +103,12 @@ interface infoFormType {
   setEntries: React.Dispatch<React.SetStateAction<entry[]>>
 }
 
+interface participateFormType {
+  form: UseFormReturn<z.infer<any>>
+  participates: participate[]
+  setParticipates: React.Dispatch<React.SetStateAction<participate[]>>
+}
+
 interface mbtiFormType {
   form: UseFormReturn<z.infer<any>>
   value: string
@@ -125,17 +131,6 @@ interface publicFormType {
   form: UseFormReturn<z.infer<any>>
   value: string
   setValue: React.Dispatch<React.SetStateAction<string>>
-}
-
-type Participant = {
-  name: string
-  email: string
-}
-
-interface participateFormType {
-  form: UseFormReturn<z.infer<any>>
-  participates: Participant[]
-  setParticipates: React.Dispatch<React.SetStateAction<Participant[]>>
 }
 
 interface scheduleTypeFormType {
@@ -779,36 +774,75 @@ export const RepeatDayForm = ({ form, value, setValue }: repeatDayFormType) => {
   )
 }
 
+// 기본 참가자 데이터
+const defaultParticipants: participate[] = [
+  {
+    imageUrl: '',
+    name: '홍길동',
+    email: 'hong@example.com',
+    attend: '참석',
+  },
+  {
+    imageUrl: '',
+    name: '김철수',
+    email: 'kim@example.com',
+    attend: '불참',
+  },
+  {
+    imageUrl: '',
+    name: '이영희',
+    email: 'lee@example.com',
+    attend: '미정',
+  },
+]
+
 export const ParticipateForm = ({
   form,
   participates,
   setParticipates,
 }: participateFormType) => {
-  const [searchQuery, setSearchQuery] = React.useState<string>('')
-  const [filteredParticipates, setFilteredParticipates] =
-    React.useState<Participant[]>(participates)
+  const [searchTerm, setSearchTerm] = React.useState('')
+  const [searchResults, setSearchResults] = React.useState<participate[]>([])
 
-  const filterParticipates = (
-    query: string,
-    participates: Participant[],
-  ): Participant[] => {
-    return participates.filter(
-      (participant) =>
-        participant.name.toLowerCase().includes(query.toLowerCase()) ||
-        participant.email.toLowerCase().includes(query.toLowerCase()),
-    )
+  React.useEffect(() => {
+    if (searchTerm.startsWith('@')) {
+      const filterTerm = searchTerm.slice(1).trim().toLowerCase()
+      const results = defaultParticipants.filter(
+        (participant) =>
+          participant.name.toLowerCase().includes(filterTerm) ||
+          participant.email.toLowerCase().includes(filterTerm),
+      )
+      setSearchResults(results)
+    } else {
+      setSearchResults([])
+    }
+  }, [searchTerm])
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+  }
+  const handleAddParticipant = (participant: participate) => {
+    setParticipates((prev) => [...prev, participant])
+    setSearchTerm('')
+    setSearchResults([])
   }
 
-  const participateSchema = z.object({
-    name: z.string(),
-    image: z.string(),
-    attend: z.string(),
-  })
+  const handleRemoveParticipant = (index: number) => {
+    setParticipates(participates.filter((_, i) => i !== index))
+  }
 
-  // 검색어 또는 참여자 목록이 변경될 때 필터링된 참여자 목록을 업데이트
-  React.useEffect(() => {
-    setFilteredParticipates(filterParticipates(searchQuery, participates))
-  }, [searchQuery, participates])
+  const getAttendClass = (attend: string) => {
+    switch (attend) {
+      case '참석':
+        return 'text-blue-500'
+      case '불참':
+        return 'text-slate-500'
+      case '미정':
+        return 'text-red-500'
+      default:
+        return ''
+    }
+  }
 
   return (
     <FormField
@@ -818,8 +852,52 @@ export const ParticipateForm = ({
         <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
           <FormLabel>참가자</FormLabel>
           <FormControl>
-            <Input placeholder="@이름, 이메일로 추가" {...field} />
+            <Input
+              placeholder="@이름, 이메일로 추가"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
           </FormControl>
+          <div className="webkit-scrollbar-display-none max-h-[150px] w-full overflow-y-auto">
+            {searchResults.length > 0 && (
+              <ul className="z-10 w-[384px] rounded-[8px] border-slate-100 bg-white px-1 py-1 text-small shadow">
+                {searchResults.map((participant, index) => (
+                  <li
+                    key={index}
+                    className="cursor-pointer p-2 hover:bg-gray-100"
+                    onClick={() => handleAddParticipant(participant)}
+                  >
+                    {participant.name} ({participant.email})
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {participates.map((participant, index) => (
+              <div
+                key={index}
+                className="flex h-[36px] items-center gap-2 self-stretch px-[6px] px-[8px] text-detail"
+              >
+                <ProfileAvatar
+                  name={participant.name}
+                  imageUrl={participant.imageUrl}
+                  size="28px"
+                />
+                <p className="flex-[1_0_0] text-small">{participant.name}</p>
+                <p
+                  className={`text-detail ${getAttendClass(participant.attend)}`}
+                >
+                  {participant.attend}
+                </p>
+                <XIcon
+                  className="h-4 w-4 cursor-pointer"
+                  onClick={() => {
+                    handleRemoveParticipant(index)
+                  }}
+                />
+              </div>
+            ))}
+          </div>
         </FormItem>
       )}
     ></FormField>

@@ -39,17 +39,14 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Modal, ScheduleModal } from './Modal'
 import { ProfileAvatar } from '../Avatar/Avatar'
 
-type Participant = {
-  name: string
-  email: string
-}
-
 export const ScheduleCreateModal = () => {
   const { closeModal, openModal } = useModal()
   const [selectedType, setSelectedType] = React.useState<string>('개인 일정')
   const [selectedRepeat, setSelectedRepeat] = React.useState<string>('')
   const [selectedPublic, setSelectedPublic] = React.useState<string>('')
-  const [participates, setParticipates] = React.useState<Participant[]>([])
+  const [participates, setParticipates] = React.useState<
+    { imageUrl: string; name: string; email: string; attend: string }[]
+  >([])
 
   const formSchema =
     selectedType === '개인 일정'
@@ -166,7 +163,9 @@ export const ScheduleEditModal = () => {
   const [selectedType, setSelectedType] = React.useState<string>('개인 일정')
   const [selectedRepeat, setSelectedRepeat] = React.useState<string>('')
   const [selectedPublic, setSelectedPublic] = React.useState<string>('')
-  const [participates, setParticipates] = React.useState<Participant[]>([])
+  const [participates, setParticipates] = React.useState<
+    { imageUrl: string; name: string; email: string; attend: string }[]
+  >([])
 
   const formSchema =
     selectedType === '개인 일정'
