@@ -1,4 +1,7 @@
-import { ProjectInviteStatus } from '@/api/services/project/model'
+import {
+  ProjectInviteStatus,
+  DefaultResponse,
+} from '@/api/services/project/model'
 import { http, HttpResponse } from 'msw'
 
 export const projectHandlers = [
@@ -95,25 +98,52 @@ export const projectHandlers = [
       ],
     })
   }),
-  http.get(
-    `${process.env.NEXT_PUBLIC_API_URL}/project/info/:uid/TeamInfo`,
-    () => {
-      return HttpResponse.json({
+  http.get(`${process.env.NEXT_PUBLIC_API_URL}/project/info/*/TeamInfo`, () => {
+    return HttpResponse.json({
+      code: 'SUCCESS',
+      result: [
+        {
+          email: 'test@gmail.com',
+          state: ProjectInviteStatus.Acceped,
+        },
+        {
+          email: 'test@naver.com',
+          state: ProjectInviteStatus.Denied,
+        },
+        {
+          email: 'test@naver.com',
+          state: ProjectInviteStatus.Invited,
+        },
+      ],
+    })
+  }),
+  http.post(`${process.env.NEXT_PUBLIC_API_URL}/project/info`, async (req) => {
+    return HttpResponse.json<DefaultResponse>({
+      code: 'SUCCESS',
+    })
+  }),
+  http.post(
+    `${process.env.NEXT_PUBLIC_API_URL}/project/info/*/TeamInfo`,
+    async (req) => {
+      return HttpResponse.json<DefaultResponse>({
         code: 'SUCCESS',
-        result: [
-          {
-            email: 'test@gmail.com',
-            state: ProjectInviteStatus.Acceped,
-          },
-          {
-            email: 'test@naver.com',
-            state: ProjectInviteStatus.Denied,
-          },
-          {
-            email: 'test@naver.com',
-            state: ProjectInviteStatus.Invited,
-          },
-        ],
+      })
+    },
+  ),
+  http.delete(`${process.env.NEXT_PUBLIC_API_URL}/project/info/:uid`, () => {
+    console.log(`Project deleted`)
+
+    return HttpResponse.json<DefaultResponse>({
+      code: 'SUCCESS',
+    })
+  }),
+  http.delete(
+    `${process.env.NEXT_PUBLIC_API_URL}/project/info/*/TeamInfo`,
+    () => {
+      console.log(`Invited user deleted`)
+
+      return HttpResponse.json<DefaultResponse>({
+        code: 'SUCCESS',
       })
     },
   ),
