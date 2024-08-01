@@ -61,7 +61,7 @@ const repeatField = z.string()
 
 const publicField = z.string()
 
-const participate = z.string()
+const attend = z.string()
 
 const cycleField = z.string()
 
@@ -70,6 +70,12 @@ const repeatDay = z.string()
 const endDate = z.date()
 
 const teamName = z.string()
+
+const participate = z.object({
+  imageUrl: imageUrlField,
+  name: nameField,
+  attend: attend,
+})
 
 export const formSchemaUserEdit = z.object({
   name: nameField,

@@ -37,6 +37,7 @@ import { Form } from '../ui/form'
 import { Label } from '../ui/label'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Modal, ScheduleModal } from './Modal'
+import { ProfileAvatar } from '../Avatar/Avatar'
 
 type Participant = {
   name: string
@@ -289,7 +290,11 @@ export const ScheduleCheckModal = () => {
       publicContent: '내용 비공개',
       allday: false,
       repeat: '매주 금요일',
-      participate: [],
+      participate: {
+        imageUrl: '',
+        name: '홍길동',
+        attend: '참석',
+      },
       team: ['자기주도 프로젝트'],
     },
   })
@@ -304,6 +309,13 @@ export const ScheduleCheckModal = () => {
   const repeat = form.watch('repeat')
   const participate = form.watch('participate')
   const team = form.watch('team')
+
+  const attendClass =
+    participate.attend === '참석'
+      ? 'text-blue-500'
+      : participate.attend === '불참'
+        ? 'text-slate-500'
+        : 'text-red-500'
 
   return (
     <ScheduleModal>
@@ -347,6 +359,19 @@ export const ScheduleCheckModal = () => {
                 </div>
               </div>
             </div>
+            {type === '팀 일정' && (
+              <div className="flex h-[36px] items-center gap-2 self-stretch px-[8px] py-[6px] text-detail">
+                <ProfileAvatar
+                  imageUrl={participate.imageUrl}
+                  name={participate.name}
+                  size="30px"
+                />
+                <p className="flex-[1_0_0] text-small">{participate.name}</p>
+                <p className={`text-detail ${attendClass}`}>
+                  {participate.attend}
+                </p>
+              </div>
+            )}
             <p className="text-p">{description}</p>
           </div>
 
