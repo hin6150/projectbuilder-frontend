@@ -1,32 +1,30 @@
-import React, { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import {
   ProjectInfo,
+  ProjectInviteStatus,
   TeamInfo,
+  useAddProjectInfo,
+  useDeleteProjectInfo,
   useDeleteTeamInfo,
+  useEditProjectInfo,
   useInviteTeamInfo,
   useTeamInfoQuery,
 } from '@/api'
+import { useModal } from '@/hooks/useModal'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
-import { useModal } from '@/hooks/useModal'
-import {
-  ProjectInviteStatus,
-  useAddProjectInfo,
-  useEditProjectInfo,
-  useDeleteProjectInfo,
-} from '@/api'
-import { Form, useFormField } from '../ui/form'
-import { Button } from '../ui/button'
-import { Modal } from './Modal'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { MailIcon, XIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 import {
   DatePickerInfoForm,
   DefaultInputForm,
   TextAreaForm,
 } from '../InputForm'
+import { Button } from '../ui/button'
+import { Form } from '../ui/form'
+import { Modal } from './Modal'
 
 export const ProjectCreateModal = () => {
   const { closeModal } = useModal()
@@ -116,7 +114,6 @@ export const ProjectCreateModal = () => {
 
 export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
   const { closeModal } = useModal()
-
 
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
@@ -242,12 +239,16 @@ export const ProjectDeleteModal = ({ uid }: { uid: string }) => {
   )
 }
 
-
 export const ProjectInviteModal = ({ uid }: { uid: string }) => {
-  const { data, isLoading } = useTeamInfoQuery({}, uid)
-  const [inviteEmailList, setInviteEmailList] = useState<TeamInfo[]>(
-    data?.result ?? [],
-  )
+  const { data } = useTeamInfoQuery({}, uid)
+  const [inviteEmailList, setInviteEmailList] = useState<TeamInfo[]>([])
+
+  useEffect(() => {
+    if (data != null) {
+      setInviteEmailList([...data?.result])
+    }
+  }, [data])
+
   const { closeModal } = useModal()
 
   const form = useForm({
@@ -315,7 +316,6 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
 
     console.log(values)
     // closeModal()
-
   }
 
   return (
