@@ -18,7 +18,16 @@ import { ProfileAvatar } from '../Avatar/Avatar'
 
 const MAX_VISIBLE_MEMBERS = 5
 
-const Card = ({ data }: { data: ProjectInfo }) => {
+// Card.tsx
+const Card = ({
+  data,
+  onEditClick,
+  onInviteClick,
+}: {
+  data: ProjectInfo
+  onEditClick: () => void
+  onInviteClick: () => void // 초대 클릭 핸들러 추가
+}) => {
   const visibleMembers = data.user.slice(0, MAX_VISIBLE_MEMBERS)
   const remainingMemberCount = data.user.length - MAX_VISIBLE_MEMBERS
 
@@ -69,8 +78,7 @@ const Card = ({ data }: { data: ProjectInfo }) => {
             >
               <DropdownMenuItem
                 onClick={() => {
-                  setModal(ModalTypes.INVITE)
-                  toggleModal()
+                  onInviteClick() // 초대 클릭 시 호출
                 }}
               >
                 <div className="flex items-center gap-2 p-2">
@@ -80,8 +88,7 @@ const Card = ({ data }: { data: ProjectInfo }) => {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  setModal(ModalTypes.EDIT)
-                  toggleModal()
+                  onEditClick() // 편집 클릭 시 호출
                 }}
               >
                 <div className="flex items-center gap-2 p-2">

@@ -1,21 +1,32 @@
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Form } from '../ui/form'
-
-import { ProjectInviteStatus } from '@/api'
-import { useModal } from '@/hooks/useModal'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import {
+  ProjectInfo,
+  TeamInfo,
+  useDeleteTeamInfo,
+  useInviteTeamInfo,
+  useTeamInfoQuery,
+} from '@/api'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useModal } from '@/hooks/useModal'
+import {
+  ProjectInviteStatus,
+  useAddProjectInfo,
+  useEditProjectInfo,
+  useDeleteProjectInfo,
+} from '@/api'
+import { Form, useFormField } from '../ui/form'
+import { Button } from '../ui/button'
+import { Modal } from './Modal'
 import { MailIcon, XIcon } from 'lucide-react'
-import React from 'react'
-import { z } from 'zod'
 import {
   DatePickerInfoForm,
   DefaultInputForm,
   TextAreaForm,
 } from '../InputForm'
-import { Button } from '../ui/button'
-import { Modal } from './Modal'
 
 export const ProjectCreateModal = () => {
   const { toggleModal } = useModal()
@@ -29,7 +40,30 @@ export const ProjectCreateModal = () => {
     },
   })
 
+  const addProjectInfo = useAddProjectInfo(
+    {
+      title: form.watch('title'),
+      subTitle: form.watch('description'),
+      startDate: form.watch('period').from.toISOString(),
+      endDate: form.watch('period').to.toISOString(),
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          title: form.watch('title'),
+          subTitle: form.watch('description'),
+          startDate: form.watch('period').from.toISOString(),
+          endDate: form.watch('period').to.toISOString(),
+        })
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
+
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
+    addProjectInfo.mutate()
     toggleModal()
   }
 
@@ -57,12 +91,12 @@ export const ProjectCreateModal = () => {
           </div>
           <div className="flex w-full gap-3">
             <Button
-              title="취소"
+              title="닫기"
               variant="secondary"
               className="flex-1"
               onClick={toggleModal}
             >
-              <p className="text-body">취소</p>
+              <p className="text-body">닫기</p>
             </Button>
             <Button
               type="submit"
@@ -80,19 +114,44 @@ export const ProjectCreateModal = () => {
   )
 }
 
-export const ProjectEditeModal = () => {
+export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
   const { toggleModal } = useModal()
 
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
     defaultValues: {
-      title: '',
-      period: { from: new Date(), to: new Date() },
-      description: '',
+      title: project.title,
+      period: {
+        from: new Date(project.startDate),
+        to: new Date(project.endDate),
+      },
+      description: project.subTitle || '',
     },
   })
+  const editProjectInfo = useEditProjectInfo(
+    {
+      title: form.watch('title'),
+      subTitle: form.watch('description'),
+      startDate: form.watch('period').from.toISOString(),
+      endDate: form.watch('period').to.toISOString(),
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          title: form.watch('title'),
+          subTitle: form.watch('description'),
+          startDate: form.watch('period').from.toISOString(),
+          endDate: form.watch('period').to.toISOString(),
+        })
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
+    editProjectInfo.mutate()
     toggleModal()
   }
 
@@ -120,12 +179,12 @@ export const ProjectEditeModal = () => {
           </div>
           <div className="flex w-full gap-3">
             <Button
-              title="취소"
+              title="닫기"
               variant="secondary"
               className="flex-1"
               onClick={toggleModal}
             >
-              <p className="text-body">취소</p>
+              <p className="text-body">닫기</p>
             </Button>
             <Button
               type="submit"
@@ -143,8 +202,23 @@ export const ProjectEditeModal = () => {
   )
 }
 
-export const ProjectDeleteModal = () => {
+export const ProjectDeleteModal = ({ uid }: { uid: string }) => {
   const { toggleModal } = useModal()
+
+  const deleteProjectInfo = useDeleteProjectInfo(uid, {
+    onSuccess: () => {
+      console.log('프로젝트 삭제 성공:', uid)
+      toggleModal()
+    },
+    onError: (err: Error) => {
+      console.error('프로젝트 삭제 실패:', err)
+      toggleModal()
+    },
+  })
+
+  const handleDeleteClick = () => {
+    deleteProjectInfo.mutate()
+  }
 
   return (
     <Modal>
@@ -152,19 +226,14 @@ export const ProjectDeleteModal = () => {
       <p className="text-p">해당 행동은 되돌릴 수 없습니다.</p>
       <div className="flex w-full gap-3">
         <Button
-          title="취소"
+          title="닫기"
           variant="secondary"
           className="flex-1"
           onClick={toggleModal}
         >
-          <p className="text-body">취소</p>
+          <p className="text-body">닫기</p>
         </Button>
-        <Button
-          type="submit"
-          title="삭제"
-          className="flex-1"
-          onClick={toggleModal}
-        >
+        <Button title="삭제" className="flex-1" onClick={handleDeleteClick}>
           <p className="text-body">삭제</p>
         </Button>
       </div>
@@ -172,34 +241,75 @@ export const ProjectDeleteModal = () => {
   )
 }
 
-export const ProjectInviteModal = () => {
-  const [inviteEmailList, setInviteEmailList] = React.useState<
-    { email: string; status: string }[]
-  >([])
-
+export const ProjectInviteModal = ({ uid }: { uid: string }) => {
+  const { data, isLoading } = useTeamInfoQuery({}, uid)
+  const [inviteEmailList, setInviteEmailList] = useState<TeamInfo[]>(
+    data?.result ?? [],
+  )
   const { toggleModal } = useModal()
 
   const form = useForm({
     resolver: zodResolver(formEmailProject),
     defaultValues: {
       email: '',
+      state: '',
     },
   })
 
-  const handleRemove = (index: number) => {
-    setInviteEmailList(inviteEmailList.filter((_, i) => i !== index))
+  const inviteTeamInfo = useInviteTeamInfo(
+    {
+      uid: uid,
+      email: form.watch('email'),
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          uid: uid,
+          email: form.watch('email'),
+        })
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
+
+  const deleteTeamInfo = useDeleteTeamInfo(
+    {
+      uid: uid,
+      email: form.watch('email'),
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          uid: uid,
+          email: form.watch('email'),
+        })
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
+
+  const handleRemove = async (index: number) => {
+    // Call deleteTeamInfo and wait for it to complete
+    try {
+      await deleteTeamInfo.mutateAsync() // Use mutateAsync for async operations
+      // Proceed to remove the item from the list
+      setInviteEmailList(inviteEmailList.filter((_, i) => i !== index))
+    } catch (error) {
+      console.error('Error deleting team info:', error)
+    }
   }
 
   function onSubmit(values: z.infer<typeof formEmailProject>) {
     setInviteEmailList([
       ...inviteEmailList,
-      { email: form.watch('email') ?? '', status: ProjectInviteStatus.Invited },
+      { email: form.watch('email') ?? '', state: ProjectInviteStatus.Invited },
     ])
-    // form.setValue('email', '')
+    inviteTeamInfo.mutate()
     form.reset()
-
-    console.log(values)
-    // toggleModal()
   }
 
   return (
@@ -227,9 +337,9 @@ export const ProjectInviteModal = () => {
         <div className="flex flex-col gap-2">
           {inviteEmailList.map((data, index) => {
             const color =
-              data.status == ProjectInviteStatus.Invited
+              data.state == ProjectInviteStatus.Invited
                 ? 'text-gray-500'
-                : data.status == ProjectInviteStatus.Acceped
+                : data.state == ProjectInviteStatus.Acceped
                   ? 'text-blue-500'
                   : 'text-red-500'
             return (
@@ -242,7 +352,7 @@ export const ProjectInviteModal = () => {
                   <p className="text-subtle">{data.email}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className={`text-small ${color}`}>{data.status}</p>
+                  <p className={`text-small ${color}`}>{data.state}</p>
                   <XIcon
                     size={16}
                     onClick={() => handleRemove(index)}
@@ -257,12 +367,12 @@ export const ProjectInviteModal = () => {
           )}
         </div>
         <Button
-          title="취소"
+          title="닫기"
           variant="secondary"
           className="w-full flex-1"
           onClick={toggleModal}
         >
-          <p className="text-body">취소</p>
+          <p className="text-body">닫기</p>
         </Button>
       </div>
     </Modal>
