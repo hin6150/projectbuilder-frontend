@@ -1,6 +1,7 @@
 'use client'
 
-import { useProjectInfoQuery } from '@/api'
+import React, { useState } from 'react'
+import { useProjectInfoQuery, ProjectInfo } from '@/api'
 import Card from '@/components/Card/Card'
 import {
   ProjectCreateModal,
@@ -13,10 +14,14 @@ import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import { PlusIcon } from 'lucide-react'
 
-const workspace = () => {
+const Workspace = () => {
   const { data, isLoading } = useProjectInfoQuery()
 
   const { openModal, modals } = useModal()
+
+  const [selectedProject, setSelectedProject] = useState<ProjectInfo | null>(
+    null,
+  )
 
   const handleClick = () => {
     openModal('dimed', ModalTypes.CREATE)
@@ -33,11 +38,11 @@ const workspace = () => {
       case ModalTypes.CREATE:
         return <ProjectCreateModal />
       case ModalTypes.EDIT:
-        return <ProjectEditModal />
+        return <ProjectEditeModal project={selectedProject} />
       case ModalTypes.DELETE:
-        return <ProjectDeleteModal />
+        return <ProjectDeleteModal uid={selectedProject.uid} />
       case ModalTypes.INVITE:
-        return <ProjectInviteModal />
+        return <ProjectInviteModal uid={selectedProject.uid} />
       default:
         return null
     }
@@ -55,13 +60,17 @@ const workspace = () => {
       </div>
 
       <div className="flex flex-wrap gap-5">
-        {data?.result.map((data) => {
-          return <Card data={data} />
-        })}
+        {data?.result.map((projectData) => (
+          <Card
+            key={projectData.uid}
+            data={projectData}
+            setSelectedProject={setSelectedProject}
+          />
+        ))}
       </div>
 
       {renderModal()}
     </main>
   )
 }
-export default workspace
+export default Workspace

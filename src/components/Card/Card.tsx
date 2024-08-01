@@ -18,7 +18,14 @@ import { ProfileAvatar } from '../Avatar/Avatar'
 
 const MAX_VISIBLE_MEMBERS = 5
 
-const Card = ({ data }: { data: ProjectInfo }) => {
+// Card.tsx
+const Card = ({
+  data,
+  setSelectedProject,
+}: {
+  data: ProjectInfo
+  setSelectedProject: any
+}) => {
   const visibleMembers = data.user.slice(0, MAX_VISIBLE_MEMBERS)
   const remainingMemberCount = data.user.length - MAX_VISIBLE_MEMBERS
 
@@ -69,6 +76,7 @@ const Card = ({ data }: { data: ProjectInfo }) => {
             >
               <DropdownMenuItem
                 onClick={() => {
+                  setSelectedProject(data)
                   openModal('dimed', ModalTypes.INVITE)
                 }}
               >
@@ -79,6 +87,7 @@ const Card = ({ data }: { data: ProjectInfo }) => {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
+                  setSelectedProject(data)
                   openModal('dimed', ModalTypes.EDIT)
                 }}
               >
