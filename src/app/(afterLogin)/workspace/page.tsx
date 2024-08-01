@@ -1,18 +1,18 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useProjectInfoQuery, ProjectInfo } from '@/api'
+import { ProjectInfo, useProjectInfoQuery } from '@/api'
 import Card from '@/components/Card/Card'
 import {
   ProjectCreateModal,
   ProjectDeleteModal,
-  ProjectEditModal,
+  ProjectEditeModal,
   ProjectInviteModal,
 } from '@/components/Modal/ProjectModal'
 import { Button } from '@/components/ui/button'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import { PlusIcon } from 'lucide-react'
+import { useState } from 'react'
 
 const Workspace = () => {
   const { data, isLoading } = useProjectInfoQuery()
@@ -38,11 +38,18 @@ const Workspace = () => {
       case ModalTypes.CREATE:
         return <ProjectCreateModal />
       case ModalTypes.EDIT:
-        return <ProjectEditeModal project={selectedProject} />
+        if (selectedProject != null) {
+          return <ProjectEditeModal project={selectedProject} />
+        }
       case ModalTypes.DELETE:
-        return <ProjectDeleteModal uid={selectedProject.uid} />
+        if (selectedProject != null) {
+          return <ProjectDeleteModal uid={selectedProject.uid} />
+        }
       case ModalTypes.INVITE:
-        return <ProjectInviteModal uid={selectedProject.uid} />
+        if (selectedProject != null) {
+          return <ProjectInviteModal uid={selectedProject.uid} />
+        }
+
       default:
         return null
     }
