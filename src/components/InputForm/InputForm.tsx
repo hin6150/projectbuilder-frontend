@@ -121,28 +121,30 @@ interface cycleFormType {
   setValue: React.Dispatch<React.SetStateAction<string>>
 }
 
-interface repeatFormType {
-  form: UseFormReturn<z.infer<any>>
-  value: string
-  setValue: React.Dispatch<React.SetStateAction<string>>
-}
-
-interface publicFormType {
-  form: UseFormReturn<z.infer<any>>
-  value: string
-  setValue: React.Dispatch<React.SetStateAction<string>>
-}
-
-interface scheduleTypeFormType {
-  form: UseFormReturn<z.infer<any>>
-  value: string
-  setValue: React.Dispatch<React.SetStateAction<string>>
-}
-
 interface repeatDayFormType {
   form: UseFormReturn<z.infer<any>>
   value: string
   setValue: React.Dispatch<React.SetStateAction<string>>
+}
+
+interface DropdownFormProps {
+  form: UseFormReturn<z.infer<any>>
+  value: string
+  setValue: React.Dispatch<React.SetStateAction<string>>
+  options: string[]
+  defaultValue: string
+  label: string
+  name: string
+}
+
+interface SelectFormProps {
+  form: UseFormReturn<z.infer<any>>
+  value: string
+  setValue: React.Dispatch<React.SetStateAction<string>>
+  options: string[]
+  defaultValue: string
+  name: string
+  className: string
 }
 
 export const ToolInfoForm = ({ form, entries, setEntries }: infoFormType) => {
@@ -558,51 +560,25 @@ export const CheckBoxForm = ({ form, name }: checkBoxFormType) => (
   />
 )
 
-export const CycleForm = ({ form, value, setValue }: cycleFormType) => {
-  const [cycle, setCycle] = React.useState<string>('')
-  const cycleList = ['일(Day)', '주(Week)', '월(Month)', '년(Year)']
-
-  return (
-    <FormField
-      control={form.control}
-      name="cycle"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <Select value={cycle} onValueChange={setCycle}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="주(Week)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {cycleList.map((cycle) => {
-                    return (
-                      <SelectItem value={cycle} key={cycle}>
-                        {cycle}
-                      </SelectItem>
-                    )
-                  })}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </FormControl>
-        </FormItem>
-      )}
-    ></FormField>
+export const SelectForm: React.FC<SelectFormProps> = ({
+  form,
+  value,
+  setValue,
+  options,
+  defaultValue,
+  name,
+  className,
+}) => {
+  const [selectedValue, setSelectedValue] = React.useState<string>(
+    value || defaultValue,
   )
-}
-
-export const RepeatForm = ({ form, value, setValue }: repeatFormType) => {
-  const [repeat, setRepeat] = React.useState<string>('')
-  const repeatList = ['매일', '매주', '매월', '반복 안함', '맞춤 설정']
-
   const { openModal } = useModal()
 
-  const handleSelect = (selectedRepeat: string) => {
-    setRepeat(selectedRepeat)
-    setValue(selectedRepeat)
+  const handleSelect = (selected: string) => {
+    setSelectedValue(selected)
+    setValue(selected)
 
-    if (selectedRepeat === '맞춤 설정') {
+    if (selected === '맞춤 설정' && openModal) {
       openModal('dimed', ModalTypes.REPEAT)
     }
   }
@@ -610,30 +586,29 @@ export const RepeatForm = ({ form, value, setValue }: repeatFormType) => {
   return (
     <FormField
       control={form.control}
-      name="repeat"
+      name={name}
       render={({ field }) => (
         <FormItem>
           <FormControl>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1">
-                <p className="text-small">{repeat || '반복 안함'}</p>
-                <ChevronDown className="h-4 w-4" />
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent className="text-center">
-                <DropdownMenuLabel>반복 여부</DropdownMenuLabel>
-                {repeatList.map((item, index) => {
-                  return (
-                    <DropdownMenuItem
-                      key={index}
-                      onClick={() => handleSelect(item)}
-                    >
-                      {item}
-                    </DropdownMenuItem>
-                  )
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Select
+              value={selectedValue}
+              onValueChange={(value) => {
+                handleSelect(value)
+              }}
+            >
+              <SelectTrigger className={className}>
+                <SelectValue placeholder={defaultValue} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {options.map((option) => (
+                    <SelectItem value={option} key={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </FormControl>
         </FormItem>
       )}
@@ -641,87 +616,47 @@ export const RepeatForm = ({ form, value, setValue }: repeatFormType) => {
   )
 }
 
-export const PublicForm = ({ form, value, setValue }: publicFormType) => {
-  const [publicContent, setPublicContent] = React.useState<string>('')
-  const publicList = ['내용 비공개', '공개']
-
-  const handleSelect = (selectedPublic: string) => {
-    setPublicContent(selectedPublic)
-    setValue(selectedPublic)
-  }
-
-  return (
-    <FormField
-      control={form.control}
-      name="repeat"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1">
-                <p className="text-small">{publicContent || '내용 비공개'}</p>
-                <ChevronDown className="h-4 w-4" />
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent className="text-center">
-                <DropdownMenuLabel>반복 여부</DropdownMenuLabel>
-                {publicList.map((item, index) => {
-                  return (
-                    <DropdownMenuItem
-                      key={index}
-                      onClick={() => handleSelect(item)}
-                    >
-                      {item}
-                    </DropdownMenuItem>
-                  )
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  )
-}
-
-export const ScheduleTypeForm = ({
+export const DropdownForm: React.FC<DropdownFormProps> = ({
   form,
   value,
   setValue,
-}: scheduleTypeFormType) => {
-  const [type, setType] = React.useState<string>('')
-  const typeList = ['개인 일정', '팀 일정']
+  options,
+  defaultValue,
+  label,
+  name,
+}) => {
+  const [selectedValue, setSelectedValue] = React.useState<string>(
+    value || defaultValue,
+  )
 
-  const handleSelect = (selectedType: string) => {
-    setType(selectedType)
-    setValue(selectedType)
+  const handleSelect = (selected: string) => {
+    setSelectedValue(selected)
+    setValue(selected)
   }
 
   return (
     <FormField
       control={form.control}
-      name="type"
+      name={name}
       render={({ field }) => (
         <FormItem>
           <FormControl>
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-1">
-                <CalendarIcon className="h-4 w-4" />
-                <p className="text-small">{type || '개인 일정'}</p>
+                <p className="text-small">{selectedValue || defaultValue}</p>
+                <ChevronDown className="h-4 w-4" />
               </DropdownMenuTrigger>
 
               <DropdownMenuContent className="text-center">
-                <DropdownMenuLabel>반복 여부</DropdownMenuLabel>
-                {typeList.map((item, index) => {
-                  return (
-                    <DropdownMenuItem
-                      key={index}
-                      onClick={() => handleSelect(item)}
-                    >
-                      {item}
-                    </DropdownMenuItem>
-                  )
-                })}
+                <DropdownMenuLabel>{label}</DropdownMenuLabel>
+                {options.map((item, index) => (
+                  <DropdownMenuItem
+                    key={index}
+                    onClick={() => handleSelect(item)}
+                  >
+                    {item}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </FormControl>
@@ -774,28 +709,6 @@ export const RepeatDayForm = ({ form, value, setValue }: repeatDayFormType) => {
   )
 }
 
-// 기본 참가자 데이터
-const defaultParticipants: participate[] = [
-  {
-    imageUrl: '',
-    name: '홍길동',
-    email: 'hong@example.com',
-    attend: '참석',
-  },
-  {
-    imageUrl: '',
-    name: '김철수',
-    email: 'kim@example.com',
-    attend: '불참',
-  },
-  {
-    imageUrl: '',
-    name: '이영희',
-    email: 'lee@example.com',
-    attend: '미정',
-  },
-]
-
 export const ParticipateForm = ({
   form,
   participates,
@@ -803,6 +716,28 @@ export const ParticipateForm = ({
 }: participateFormType) => {
   const [searchTerm, setSearchTerm] = React.useState('')
   const [searchResults, setSearchResults] = React.useState<participate[]>([])
+
+  // 기본 참가자 데이터
+  const defaultParticipants: participate[] = [
+    {
+      imageUrl: '',
+      name: '홍길동',
+      email: 'hong@example.com',
+      attend: '참석',
+    },
+    {
+      imageUrl: '',
+      name: '김철수',
+      email: 'kim@example.com',
+      attend: '불참',
+    },
+    {
+      imageUrl: '',
+      name: '이영희',
+      email: 'lee@example.com',
+      attend: '미정',
+    },
+  ]
 
   React.useEffect(() => {
     if (searchTerm.startsWith('@')) {
