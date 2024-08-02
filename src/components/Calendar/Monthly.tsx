@@ -12,27 +12,29 @@ import {
 } from './style'
 
 interface MonthlyProps {
-  month: string
-  year: number
+  date: Date
 }
 
-export function Monthly({ month, year }: MonthlyProps) {
+export function Monthly({ date }: MonthlyProps) {
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
-  const weeks = generateCalendar(year, parseInt(month))
+  const weeks = generateCalendar(date)
 
   const { data } = useSchedulesQuery()
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1 // month는 숫자
+
   const getSchedulesForDay = (day: number, isThisMonth: boolean) => {
-    if (isThisMonth && data?.result[year]?.[parseInt(month)]) {
-      return data.result[year][parseInt(month)].filter(
+    if (isThisMonth && data?.result[year]?.[month]) {
+      return data.result[year][month].filter(
         (schedule) => schedule.date === day,
       )
     }
 
     if (!isThisMonth) {
-      const prevMonth = parseInt(month) === 1 ? 12 : parseInt(month) - 1
-      const prevYear = parseInt(month) === 1 ? year - 1 : year
-      const nextMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1
-      const nextYear = parseInt(month) === 12 ? year + 1 : year
+      const prevMonth = month === 1 ? 12 : month - 1
+      const prevYear = month === 1 ? year - 1 : year
+      const nextMonth = month === 12 ? 1 : month + 1
+      const nextYear = month === 12 ? year + 1 : year
 
       if (data?.result[prevYear]?.[prevMonth] && day > 15) {
         return data.result[prevYear][prevMonth].filter(
@@ -90,7 +92,7 @@ export function Monthly({ month, year }: MonthlyProps) {
                   key={dayIndex}
                 >
                   <div className="flex h-6 w-full flex-col">
-                    {day !== '' && (
+                    {day !== null && (
                       <>
                         <p className="p-2">{day}</p>
                         <div className="flex flex-col gap-[2px]">

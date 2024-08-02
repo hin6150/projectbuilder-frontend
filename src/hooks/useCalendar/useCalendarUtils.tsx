@@ -1,3 +1,11 @@
+import {
+  endOfMonth,
+  startOfMonth,
+  startOfWeek,
+  endOfWeek,
+  addDays,
+} from 'date-fns'
+
 export const daysInMonth = (year: number, month: number) => {
   return new Date(year, month, 0).getDate()
 }
@@ -16,51 +24,34 @@ export const formatDate = (date: number) => {
   return date.toString().padStart(2, '0')
 }
 
-export const generateCalendar = (year: number, month: number) => {
-  const days = daysInMonth(year, month)
-  const firstDay = getFirstDayofMonth(year, month)
-  const prevMonthDays = getPreviousMonthDays(year, month)
+export const generateCalendar = (date: Date) => {
+  const startDate = startOfMonth(date)
+  const endDate = endOfMonth(date)
+
+  const startWeek = startOfWeek(startDate)
+  const endWeek = endOfWeek(endDate)
 
   const weeks = []
-  let week = Array(7).fill('')
-  let dayCounter = 1
-  let nextMonthDayCounter = 1
+  let currentWeek = []
 
-  for (let i = firstDay - 1; i >= 0; i--) {
-    week[i] = { day: prevMonthDays - (firstDay - 1 - i), isThisMonth: false }
-  }
+  let currentDate = startWeek
 
-  for (let i = firstDay; i < 7; i++) {
-    week[i] = { day: dayCounter++, isThisMonth: true }
-  }
+  while (currentDate <= endWeek) {
+    currentWeek.push({
+      day: currentDate.getDate(),
+      isThisMonth: currentDate >= startDate && currentDate <= endDate,
+    })
 
-  weeks.push(week)
-
-  while (dayCounter <= days) {
-    week = Array(7).fill('')
-    for (let i = 0; i < 7 && dayCounter <= days; i++) {
-      week[i] = { day: dayCounter++, isThisMonth: true }
+    if (currentDate.getDay() === 6) {
+      weeks.push(currentWeek)
+      currentWeek = []
     }
-    weeks.push(week)
+
+    currentDate = addDays(currentDate, 1)
   }
 
-  if (weeks[weeks.length - 1].filter((day) => day !== '').length < 7) {
-    for (let i = 0; i < 7; i++) {
-      if (weeks[weeks.length - 1][i] === '') {
-        weeks[weeks.length - 1][i] = {
-          day: nextMonthDayCounter++,
-          isThisMonth: false,
-        }
-      }
-    }
-  }
-
-  while (weeks.length < 6) {
-    week = Array(7).fill('')
-    for (let i = 0; i < 7; i++) {
-      week[i] = { day: nextMonthDayCounter++, isThisMonth: false }
-    }
-    weeks.push(week)
+  if (currentWeek.length > 0) {
+    weeks.push(currentWeek)
   }
 
   return weeks

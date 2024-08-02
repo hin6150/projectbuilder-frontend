@@ -1,23 +1,23 @@
 'use client'
 import * as React from 'react'
+import { Weekly } from '@/components/Calendar/Weekly'
 import { CalendarHeader } from '@/components/Header/CalendarHeader'
-import { Monthly } from '@/components/Calendar/Monthly'
 import { useCalendar } from '@/hooks/useCalendar'
 
-export default function Page() {
+export default function page() {
   const { state, handlePrev, handleNext, handleToday, formatMonth } =
     useCalendar()
 
   return (
     <div>
       <CalendarHeader
-        view="month"
+        view="week"
         date={state.date}
-        onPrev={() => handlePrev('month')}
-        onNext={() => handleNext('month')}
+        onPrev={() => handlePrev('week')}
+        onNext={() => handleNext('week')}
         onToday={handleToday}
       />
-      <Monthly date={state.date} />
+      <Weekly week={state.date} />
     </div>
   )
 }

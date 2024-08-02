@@ -1,7 +1,7 @@
 'use client'
 import * as React from 'react'
 import { List } from '@/components/Calendar/List'
-import { CalendarHeader } from '@/components/Calendar/CalendarHeader'
+import { CalendarHeader } from '@/components/Header/CalendarHeader'
 import { useCalendar } from '@/hooks/useCalendar'
 
 export default function page() {

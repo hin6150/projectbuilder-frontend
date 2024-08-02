@@ -1,8 +1,9 @@
 'use client'
-import { useModal } from '@/hooks/useModal'
-import { ModalTypes } from '@/hooks/useModal/useModal'
 import { ChevronLeft, ChevronRight, PlusIcon } from 'lucide-react'
 import React from 'react'
+import { Button } from '../ui/button'
+import { useModal } from '@/hooks/useModal'
+import { ModalTypes } from '@/hooks/useModal/useModal'
 import {
   RepeatScheduleDeleteModal,
   ScheduleCheckModal,
@@ -11,15 +12,11 @@ import {
   ScheduleEditModal,
   ScheduleRepeatModal,
 } from '../Modal/ScheduleModal'
-import { Button } from '../ui/button'
 
 type ViewType = 'month' | 'week' | 'day'
 interface CalendarHeaderProps {
   view: ViewType
-  month?: string
-  year?: number
-  week?: number
-  day?: number
+  date: Date
   onPrev: () => void
   onNext: () => void
   onToday: () => void
@@ -27,15 +24,14 @@ interface CalendarHeaderProps {
 
 export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   view,
-  month,
-  year,
-  week,
-  day,
+  date,
   onPrev,
   onNext,
   onToday,
 }) => {
   const { modals, openModal } = useModal()
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
 
   const handleClick = () => {
     openModal('default', ModalTypes.CREATE)
@@ -47,7 +43,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       <div className="flex w-[864px] items-center justify-between self-stretch px-4">
         <div className="flex items-center gap-[16px]">
           <p className="w-[140px] text-h3">
-            {year}년 {month}월
+            {year}년 {month.toString().padStart(2, '0')}월
           </p>
           <Button
             onClick={onPrev}
