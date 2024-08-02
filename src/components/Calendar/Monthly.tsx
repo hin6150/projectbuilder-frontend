@@ -21,7 +21,7 @@ export function Monthly({ date }: MonthlyProps) {
 
   const { data } = useSchedulesQuery()
   const year = date.getFullYear()
-  const month = date.getMonth() + 1 // month는 숫자
+  const month = date.getMonth() + 1
 
   const getSchedulesForDay = (day: number, isThisMonth: boolean) => {
     if (isThisMonth && data?.result[year]?.[month]) {
@@ -77,11 +77,7 @@ export function Monthly({ date }: MonthlyProps) {
         ))}
       </div>
       <div className="h-[1px] w-[832px] bg-gray-300" />
-      <div
-        className={
-          'flex h-[764px] flex-shrink-0 flex-col items-start self-stretch rounded-[4px] border-r border-t border-gray-200'
-        }
-      >
+      <div className="flex h-[764px] flex-shrink-0 flex-col items-start self-stretch rounded-[4px] border-r border-t border-gray-200">
         {weeks.map((week, weekIndex) => (
           <div className={weekClass} key={weekIndex}>
             {week.map(({ day, isThisMonth }, dayIndex) => {
@@ -92,7 +88,7 @@ export function Monthly({ date }: MonthlyProps) {
                   key={dayIndex}
                 >
                   <div className="flex h-6 w-full flex-col">
-                    {day !== null && (
+                    {day !== undefined && (
                       <>
                         <p className="p-2">{day}</p>
                         <div className="flex flex-col gap-[2px]">

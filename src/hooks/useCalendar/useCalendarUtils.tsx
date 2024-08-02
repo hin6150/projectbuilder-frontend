@@ -4,6 +4,7 @@ import {
   startOfWeek,
   endOfWeek,
   addDays,
+  addMonths,
 } from 'date-fns'
 
 export const daysInMonth = (year: number, month: number) => {
@@ -25,33 +26,27 @@ export const formatDate = (date: number) => {
 }
 
 export const generateCalendar = (date: Date) => {
-  const startDate = startOfMonth(date)
-  const endDate = endOfMonth(date)
+  const month = date.getMonth()
+  const year = date.getFullYear()
 
-  const startWeek = startOfWeek(startDate)
-  const endWeek = endOfWeek(endDate)
+  const firstDayOfMonth = startOfMonth(date)
+  const startOfCalendar = startOfWeek(firstDayOfMonth)
+  const endOfCalendar = endOfWeek(addMonths(firstDayOfMonth, 1))
 
   const weeks = []
-  let currentWeek = []
+  let currentDay = startOfCalendar
 
-  let currentDate = startWeek
-
-  while (currentDate <= endWeek) {
-    currentWeek.push({
-      day: currentDate.getDate(),
-      isThisMonth: currentDate >= startDate && currentDate <= endDate,
-    })
-
-    if (currentDate.getDay() === 6) {
-      weeks.push(currentWeek)
-      currentWeek = []
+  while (currentDay <= endOfCalendar) {
+    const week = []
+    for (let i = 0; i < 7; i++) {
+      week.push({
+        day: currentDay.getDate(),
+        isThisMonth: currentDay.getMonth() === month,
+      })
+      currentDay = addMonths(currentDay, 0)
+      currentDay.setDate(currentDay.getDate() + 1)
     }
-
-    currentDate = addDays(currentDate, 1)
-  }
-
-  if (currentWeek.length > 0) {
-    weeks.push(currentWeek)
+    weeks.push(week)
   }
 
   return weeks
