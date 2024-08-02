@@ -839,12 +839,7 @@ export const ParticipateForm = ({
   )
 }
 
-export const EndDateForm = ({
-  form,
-  name,
-  label,
-  ...rest
-}: defaultFormType) => {
+export const EndDateForm = ({ form, ...rest }: formType) => {
   const formatDate = (date: Date) => {
     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
     return `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
@@ -853,11 +848,10 @@ export const EndDateForm = ({
   return (
     <FormField
       control={form.control}
-      name={name}
+      name="cycle"
       render={({ field }) => (
-        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-          <FormLabel className="text-p">{label}</FormLabel>
-          <FormControl className="flex items-start gap-[8px] self-stretch">
+        <FormItem className="flex-[1_0_0]">
+          <FormControl>
             <Popover>
               <PopoverTrigger asChild>
                 <Input
@@ -867,6 +861,7 @@ export const EndDateForm = ({
                     field.value ? formatDate(new Date(field.value)) : '없음'
                   }
                   readOnly
+                  className="text-left"
                 />
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -896,6 +891,21 @@ export function DateTimePickerForm({
   const [startDate, setStartDate] = React.useState<Date | undefined>(undefined)
   const [endDate, setEndDate] = React.useState<Date | undefined>(undefined)
 
+  // Default time range of 1 hour if no date is selected
+  const getDefaultStartDate = () => {
+    const now = new Date()
+    const defaultStartDate = new Date(now)
+    defaultStartDate.setMinutes(Math.floor(now.getMinutes() / 60) * 60) // Round down to the nearest hour
+    defaultStartDate.setSeconds(0, 0) // Reset seconds and milliseconds
+    return defaultStartDate
+  }
+
+  const getDefaultEndDate = (start: Date) => {
+    const end = new Date(start)
+    end.setHours(end.getHours() + 1) // Default end time is 1 hour after start time
+    return end
+  }
+
   const formatDate = (
     date: Date,
     start: Date | undefined,
@@ -904,8 +914,16 @@ export function DateTimePickerForm({
     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
     const datePart = `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
 
-    const formattedStartTime = start ? format(start, 'a h:mm') : ''
-    const formattedEndTime = end ? format(end, 'a h:mm') : ''
+    const formatTime = (date: Date) => {
+      const hours = date.getHours()
+      const minutes = date.getMinutes().toString().padStart(2, '0')
+      const period = hours >= 12 ? '오후' : '오전'
+      const adjustedHours = hours % 12 === 0 ? 12 : hours % 12 // Convert 0 to 12 for display
+      return `${period} ${adjustedHours}:${minutes}`
+    }
+
+    const formattedStartTime = start ? formatTime(start) : ''
+    const formattedEndTime = end ? formatTime(end) : ''
 
     return formattedStartTime && formattedEndTime
       ? `${datePart} ${formattedStartTime} ~ ${formattedEndTime}`
@@ -918,48 +936,64 @@ export function DateTimePickerForm({
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
-        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-          <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Input
-                  placeholder="일정 시간"
-                  className="text-left"
-                  {...rest}
-                  {...field}
-                  value={
-                    field.value
-                      ? formatDate(new Date(field.value), startDate, endDate)
-                      : '일정 시간'
-                  }
-                  readOnly
-                />
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={field.value ? new Date(field.value) : undefined}
-                  onSelect={(selectedDate) => {
-                    setDate(selectedDate)
-                    field.onChange(selectedDate)
-                  }}
-                  initialFocus
-                />
-                <div className="border-t border-border p-3">
-                  <TimePickerDemo
-                    startDate={startDate}
-                    setStartDate={setStartDate}
-                    endDate={endDate}
-                    setEndDate={setEndDate}
+      render={({ field }) => {
+        const selectedDate = field.value ? new Date(field.value) : undefined
+
+        React.useEffect(() => {
+          if (!field.value) {
+            const defaultStart = getDefaultStartDate()
+            const defaultEnd = getDefaultEndDate(defaultStart)
+            setStartDate(defaultStart)
+            setEndDate(defaultEnd)
+          }
+        }, [field.value])
+
+        return (
+          <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+            <FormLabel>{label}</FormLabel>
+            <FormControl>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Input
+                    placeholder="일정 시간"
+                    className="text-left"
+                    {...rest}
+                    {...field}
+                    value={
+                      field.value
+                        ? formatDate(new Date(field.value), startDate, endDate)
+                        : formatDate(getDefaultStartDate(), startDate, endDate)
+                    }
+                    readOnly
                   />
-                </div>
-              </PopoverContent>
-            </Popover>
-          </FormControl>
-        </FormItem>
-      )}
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(selectedDate) => {
+                      setDate(selectedDate)
+                      const start = selectedDate || getDefaultStartDate()
+                      setStartDate(start)
+                      setEndDate(getDefaultEndDate(start))
+                      field.onChange(start)
+                    }}
+                    initialFocus
+                  />
+                  <div className="border-t border-border p-3">
+                    <TimePickerDemo
+                      startDate={startDate}
+                      setStartDate={setStartDate}
+                      endDate={endDate}
+                      setEndDate={setEndDate}
+                    />
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </FormControl>
+          </FormItem>
+        )
+      }}
     />
   )
 }

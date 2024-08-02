@@ -39,6 +39,33 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Modal, ScheduleModal } from './Modal'
 import { ProfileAvatar } from '../Avatar/Avatar'
 import { DropdownForm, SelectForm } from '../InputForm/InputForm'
+import { Input } from '../ui/input'
+import { getDay } from 'date-fns'
+
+const getRepeatOptions = (date: Date) => {
+  const dayOfWeekNames = [
+    '일요일',
+    '월요일',
+    '화요일',
+    '수요일',
+    '목요일',
+    '금요일',
+    '토요일',
+  ]
+  const dayOfWeek = dayOfWeekNames[getDay(date)]
+
+  const monthDay = date.getDate()
+  const month = date.getMonth() + 1
+
+  return [
+    '반복 안함',
+    '매일',
+    `매주 ${dayOfWeek}`,
+    `매월 ${monthDay}일`,
+    `매년 ${month}월 ${monthDay}일`,
+    '맞춤 설정',
+  ]
+}
 
 export const ScheduleCreateModal = () => {
   const { closeModal, openModal } = useModal()
@@ -51,10 +78,11 @@ export const ScheduleCreateModal = () => {
   >([])
 
   const teamOptions = ['프로젝트 팀A', '프로젝트 팀B', '프로젝트 팀C']
-  const repeatOptions = ['매일', '매주', '매월', '반복 안함', '맞춤 설정']
   const typeOptions = ['개인 일정', '팀 일정']
   const publicOptions = ['내용 비공개', '공개']
-  const cycleOptions = ['일(Day)', '주(Week)', '월(Month)', '년(Year)']
+
+  const currentDate = new Date()
+  const repeatOptions = getRepeatOptions(currentDate)
 
   const formSchema =
     selectedType === '개인 일정'
@@ -151,17 +179,25 @@ export const ScheduleCreateModal = () => {
                 />
               )}
             </div>
-            <div className="flex w-full flex-col gap-[14px]">
-              <Label>반복 여부</Label>
-              <SelectForm
-                form={form}
-                value={selectedRepeat}
-                setValue={setSelectedRepeat}
-                options={repeatOptions}
-                defaultValue="반복 안함"
-                name="repeat"
-                className=""
-              />
+            <div className="flex items-start gap-4">
+              <div className="flex w-full flex-col gap-4">
+                <Label>반복 여부</Label>
+                <SelectForm
+                  form={form}
+                  value={selectedRepeat}
+                  setValue={setSelectedRepeat}
+                  options={repeatOptions}
+                  defaultValue="반복 안함"
+                  name="repeat"
+                  className=""
+                />
+              </div>
+              {selectedRepeat !== '반복 안함' && (
+                <div className="flex w-full flex-col gap-4">
+                  <Label>종료 일자</Label>
+                  <EndDateForm form={form} />
+                </div>
+              )}
             </div>
             <TextAreaForm form={form} name="description" label="일정 내용" />
           </div>
@@ -429,8 +465,9 @@ export const ScheduleCheckModal = () => {
 
 export const ScheduleRepeatModal = () => {
   const { closeModal } = useModal()
-  const [cycle, setCycle] = React.useState<string>('')
+  const [selectedCycle, setSelectedCycle] = React.useState<string>('')
   const [day, setDay] = React.useState<string>('')
+  const cycleOptions = ['일(Day)', '주(Week)', '월(Month)', '년(Year)']
 
   const form = useForm({
     resolver: zodResolver(formSchemaRepeatSchedule),
@@ -449,10 +486,43 @@ export const ScheduleRepeatModal = () => {
         <form className="flex w-[384px] flex-col gap-6">
           <div className="flex items-end gap-2">
             <DefaultInputForm form={form} name="repeat" label="반복 주기" />
-            {/* <CycleForm form={form} value={cycle} setValue={setCycle} /> */}
+
+            <SelectForm
+              form={form}
+              value={selectedCycle}
+              setValue={setSelectedCycle}
+              options={cycleOptions}
+              defaultValue="일(Day)"
+              name="cycle"
+              className="w-[200px]"
+            />
           </div>
-          <RepeatDayForm form={form} value={day} setValue={setDay} />
-          <EndDateForm form={form} name="endDate" label="종료 날짜" />
+          {selectedCycle === '주(Week)' && (
+            <RepeatDayForm form={form} value={day} setValue={setDay} />
+          )}
+
+          <Label>종료</Label>
+          <RadioGroup defaultValue="none">
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="none" id="r1" />
+              <Label htmlFor="r1">없음</Label>
+            </div>
+            <div className="flex items-center gap-9 self-stretch">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="date" id="r2" />
+                <Label htmlFor="r2">날짜</Label>
+              </div>
+
+              <EndDateForm form={form} />
+            </div>
+            <div className="self-stertch flex items-center gap-9">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="times" id="r3" />
+                <Label htmlFor="r3">횟수</Label>
+              </div>
+              <Input placeholder="0회 반복" className="flex-[1_0_0]" />
+            </div>
+          </RadioGroup>
           <div className="flex w-full items-start justify-end gap-[12px] self-stretch">
             <Button
               title="취소"
