@@ -147,6 +147,11 @@ interface SelectFormProps {
   className: string
 }
 
+interface EndDateFormProps {
+  form: UseFormReturn<z.infer<any>>
+  disabled: boolean
+}
+
 export const ToolInfoForm = ({ form, entries, setEntries }: infoFormType) => {
   const [addTool, setAddTool] = React.useState<string>('')
   const [toolEmail, setToolEmail] = React.useState<string>('')
@@ -793,12 +798,14 @@ export const ParticipateForm = ({
               onChange={handleSearchChange}
             />
           </FormControl>
+
           <div className="webkit-scrollbar-display-none max-h-[150px] w-full overflow-y-auto">
             {searchResults.length > 0 && (
-              <ul className="z-10 w-[384px] rounded-[8px] border-slate-100 bg-white px-1 py-1 text-small shadow">
+              <ul className="z-10 w-[384px] rounded-[8px] border border-slate-100 bg-white px-1 py-1 text-small shadow">
                 {searchResults.map((participant, index) => (
                   <li
                     key={index}
+                    value={index.toString()}
                     className="cursor-pointer p-2 hover:bg-gray-100"
                     onClick={() => handleAddParticipant(participant)}
                   >
@@ -807,7 +814,6 @@ export const ParticipateForm = ({
                 ))}
               </ul>
             )}
-
             {participates.map((participant, index) => (
               <div
                 key={index}
@@ -839,7 +845,7 @@ export const ParticipateForm = ({
   )
 }
 
-export const EndDateForm = ({ form, ...rest }: formType) => {
+export const EndDateForm = ({ form, disabled, ...rest }: EndDateFormProps) => {
   const formatDate = (date: Date) => {
     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
     return `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
@@ -862,6 +868,7 @@ export const EndDateForm = ({ form, ...rest }: formType) => {
                   }
                   readOnly
                   className="text-left"
+                  disabled={disabled}
                 />
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -891,18 +898,17 @@ export function DateTimePickerForm({
   const [startDate, setStartDate] = React.useState<Date | undefined>(undefined)
   const [endDate, setEndDate] = React.useState<Date | undefined>(undefined)
 
-  // Default time range of 1 hour if no date is selected
   const getDefaultStartDate = () => {
     const now = new Date()
     const defaultStartDate = new Date(now)
-    defaultStartDate.setMinutes(Math.floor(now.getMinutes() / 60) * 60) // Round down to the nearest hour
-    defaultStartDate.setSeconds(0, 0) // Reset seconds and milliseconds
+    defaultStartDate.setMinutes(Math.floor(now.getMinutes() / 60) * 60)
+    defaultStartDate.setSeconds(0, 0)
     return defaultStartDate
   }
 
   const getDefaultEndDate = (start: Date) => {
     const end = new Date(start)
-    end.setHours(end.getHours() + 1) // Default end time is 1 hour after start time
+    end.setHours(end.getHours() + 1)
     return end
   }
 
@@ -918,7 +924,7 @@ export function DateTimePickerForm({
       const hours = date.getHours()
       const minutes = date.getMinutes().toString().padStart(2, '0')
       const period = hours >= 12 ? '오후' : '오전'
-      const adjustedHours = hours % 12 === 0 ? 12 : hours % 12 // Convert 0 to 12 for display
+      const adjustedHours = hours % 12 === 0 ? 12 : hours % 12
       return `${period} ${adjustedHours}:${minutes}`
     }
 

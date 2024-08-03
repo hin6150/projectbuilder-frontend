@@ -8,7 +8,6 @@ import {
   ScheduleCheckModal,
   ScheduleCreateModal,
   ScheduleDeleteModal,
-  ScheduleEditModal,
   ScheduleRepeatModal,
 } from '../Modal/ScheduleModal'
 import { Button } from '../ui/button'
@@ -82,13 +81,13 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         </div>
       </div>
       {modals.default.open && modals.default.type == ModalTypes.CREATE && (
-        <ScheduleCreateModal />
+        <ScheduleCreateModal modalType={ModalTypes.CREATE} />
       )}
       {modals.default.open && modals.default.type == ModalTypes.CHECK && (
         <ScheduleCheckModal />
       )}
       {modals.default.open && modals.default.type == ModalTypes.EDIT && (
-        <ScheduleEditModal />
+        <ScheduleCreateModal modalType={ModalTypes.EDIT} />
       )}
       {modals.dimed.type && modals.dimed.type == ModalTypes.REPEAT && (
         <ScheduleRepeatModal />
