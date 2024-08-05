@@ -122,6 +122,7 @@ export const formSchemaPersonalSchedule = z.object({
   allday: alldayField,
   repeat: repeatField,
   publicContent: publicField,
+  endDate: endDate,
 })
 
 export const formSchemaTeamSchedule = z.object({
@@ -132,13 +133,14 @@ export const formSchemaTeamSchedule = z.object({
   allday: alldayField,
   repeat: repeatField,
   participate: participate,
+  endDate: endDate,
 })
 
 export const formSchemaRepeatSchedule = z.object({
   repeat: repeatField,
   cycle: cycleField,
   day: repeatDay,
-  end: endDate,
+  endDate: endDate,
 })
 
 export const formSchemaCheckSchedule = z.object({

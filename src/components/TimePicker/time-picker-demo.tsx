@@ -9,6 +9,7 @@ interface TimePickerDemoProps {
   setStartDate: (date: Date | undefined) => void
   endDate: Date | undefined
   setEndDate: (date: Date | undefined) => void
+  allDay: boolean
 }
 
 export function TimePickerDemo({
@@ -16,6 +17,7 @@ export function TimePickerDemo({
   setStartDate,
   endDate,
   setEndDate,
+  allDay,
 }: TimePickerDemoProps) {
   const minuteRef1 = React.useRef<HTMLInputElement>(null)
   const hourRef1 = React.useRef<HTMLInputElement>(null)
@@ -34,6 +36,7 @@ export function TimePickerDemo({
             setDate={setStartDate}
             ref={hourRef1}
             onRightFocus={() => minuteRef1.current?.focus()}
+            disabled={allDay}
           />
         </div>
         <p className="mt-2">:</p>
@@ -45,6 +48,7 @@ export function TimePickerDemo({
             ref={minuteRef1}
             onLeftFocus={() => hourRef1.current?.focus()}
             onRightFocus={() => secondRef1.current?.focus()}
+            disabled={allDay}
           />
         </div>
 
@@ -61,6 +65,7 @@ export function TimePickerDemo({
             setDate={setEndDate}
             ref={hourRef2}
             onRightFocus={() => minuteRef2.current?.focus()}
+            disabled={allDay}
           />
         </div>
         <p className="mt-2">:</p>
@@ -72,6 +77,7 @@ export function TimePickerDemo({
             ref={minuteRef2}
             onLeftFocus={() => hourRef2.current?.focus()}
             onRightFocus={() => secondRef2.current?.focus()}
+            disabled={allDay}
           />
         </div>
 

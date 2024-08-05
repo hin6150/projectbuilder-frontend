@@ -32,13 +32,7 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { CommandList } from 'cmdk'
-import {
-  CalendarIcon,
-  Check,
-  ChevronDown,
-  ChevronsUpDown,
-  XIcon,
-} from 'lucide-react'
+import { Check, ChevronDown, ChevronsUpDown, XIcon } from 'lucide-react'
 import * as React from 'react'
 import { z } from 'zod'
 
@@ -115,12 +109,6 @@ interface mbtiFormType {
   setValue: React.Dispatch<React.SetStateAction<string>>
 }
 
-interface cycleFormType {
-  form: UseFormReturn<z.infer<any>>
-  value: string
-  setValue: React.Dispatch<React.SetStateAction<string>>
-}
-
 interface repeatDayFormType {
   form: UseFormReturn<z.infer<any>>
   value: string
@@ -150,6 +138,8 @@ interface SelectFormProps {
 interface EndDateFormProps {
   form: UseFormReturn<z.infer<any>>
   disabled: boolean
+  minDate: Date
+  setSelectedEndDate: React.Dispatch<React.SetStateAction<Date | undefined>>
 }
 
 export const ToolInfoForm = ({ form, entries, setEntries }: infoFormType) => {
@@ -753,6 +743,12 @@ export const ParticipateForm = ({
           participant.email.toLowerCase().includes(filterTerm),
       )
       setSearchResults(results)
+    } else if (searchTerm.trim() !== '') {
+      const filterTerm = searchTerm.trim().toLowerCase()
+      const results = defaultParticipants.filter((participant) =>
+        participant.email.toLowerCase().includes(filterTerm),
+      )
+      setSearchResults(results)
     } else {
       setSearchResults([])
     }
@@ -845,7 +841,13 @@ export const ParticipateForm = ({
   )
 }
 
-export const EndDateForm = ({ form, disabled, ...rest }: EndDateFormProps) => {
+export const EndDateForm = ({
+  form,
+  disabled,
+  minDate,
+  setSelectedEndDate,
+  ...rest
+}: EndDateFormProps) => {
   const formatDate = (date: Date) => {
     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
     return `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
@@ -875,9 +877,12 @@ export const EndDateForm = ({ form, disabled, ...rest }: EndDateFormProps) => {
                 <Calendar
                   initialFocus
                   mode="single"
-                  disabled={(date) => date <= new Date()}
+                  disabled={(date) => date < minDate}
                   selected={field.value ? new Date(field.value) : undefined}
-                  onSelect={field.onChange}
+                  onSelect={(date) => {
+                    field.onChange(date)
+                    setSelectedEndDate(date)
+                  }}
                 />
               </PopoverContent>
             </Popover>
@@ -892,6 +897,10 @@ export function DateTimePickerForm({
   form,
   name,
   label,
+  allDay,
+  setAllDay,
+  setSelectedDate,
+  maxDate,
   ...rest
 }: defaultFormType) {
   const [date, setDate] = React.useState<Date | undefined>(undefined)
@@ -916,9 +925,14 @@ export function DateTimePickerForm({
     date: Date,
     start: Date | undefined,
     end: Date | undefined,
+    allDay: boolean,
   ) => {
-    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
-    const datePart = `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
+    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()]
+    const datePart = `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getDate().toString().padStart(2, '0')} (${dayOfWeek})`
+
+    if (allDay) {
+      return datePart
+    }
 
     const formatTime = (date: Date) => {
       const hours = date.getHours()
@@ -967,8 +981,18 @@ export function DateTimePickerForm({
                     {...field}
                     value={
                       field.value
-                        ? formatDate(new Date(field.value), startDate, endDate)
-                        : formatDate(getDefaultStartDate(), startDate, endDate)
+                        ? formatDate(
+                            new Date(field.value),
+                            startDate,
+                            endDate,
+                            allDay,
+                          )
+                        : formatDate(
+                            getDefaultStartDate(),
+                            startDate,
+                            endDate,
+                            allDay,
+                          )
                     }
                     readOnly
                   />
@@ -983,15 +1007,19 @@ export function DateTimePickerForm({
                       setStartDate(start)
                       setEndDate(getDefaultEndDate(start))
                       field.onChange(start)
+                      setSelectedDate(start)
                     }}
+                    disabled={(date) => date > maxDate}
                     initialFocus
                   />
+
                   <div className="border-t border-border p-3">
                     <TimePickerDemo
                       startDate={startDate}
                       setStartDate={setStartDate}
                       endDate={endDate}
                       setEndDate={setEndDate}
+                      allDay={allDay}
                     />
                   </div>
                 </PopoverContent>
