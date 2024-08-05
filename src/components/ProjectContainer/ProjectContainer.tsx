@@ -10,13 +10,36 @@ interface TeamCheckboxProps {
   name: string
 }
 
+interface TimeSlot {
+  time: string
+  attendance: string
+}
+
+interface ScheduleItemProps {
+  date: string
+  timeslots: TimeSlot[]
+}
+
+export interface BoardItem {
+  type: string
+  title: string
+  assignee: string
+  createdDate: string
+  status: string
+  statusColor: string
+}
+
+export interface BoardProps {
+  items: BoardItem[]
+}
+
 const TeamCheckbox: React.FC<TeamCheckboxProps> = ({ id, name }) => {
   return (
     <div className="flex items-center space-x-2">
       <input
         id={id}
         type="checkbox"
-        className="form-checkbox h-0.875 rounded text-blue-600 focus:ring-2 focus:ring-blue-500"
+        className="rounded-[2px] border border-gray-200 bg-white"
       />
       <label htmlFor={id} className="text-[14px]">
         {name}
@@ -24,6 +47,122 @@ const TeamCheckbox: React.FC<TeamCheckboxProps> = ({ id, name }) => {
     </div>
   )
 }
+
+const ScheduleItem: React.FC<ScheduleItemProps> = ({ date, timeslots }) => {
+  return (
+    <div>
+      <div className="text-h5 pw-2 mb-2 mt-1 p-1">
+        {date}
+        {timeslots.map((slot, index) => (
+          <div key={index} className="mb-1 flex justify-between p-1">
+            <span>{slot.time}</span>
+            <span>{slot.attendance}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const scheduleData = {
+  date: '2024년 07월 14일',
+  timeslots: [
+    { time: '08:00 ~ 09:00', attendance: '5/6인 참석' },
+    { time: '08:00 ~ 09:00', attendance: '5/6인 참석' },
+  ],
+} // api 연동시 수정해야함!
+
+const Board: React.FC<BoardProps> = ({ items }) => {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white">
+        <thead>
+          <tr>
+            <th className="border-b px-4 py-2">
+              <input type="checkbox" />
+            </th>
+            <th className="border-b px-4 py-2">종류</th>
+            <th className="border-b px-4 py-2">제목</th>
+            <th className="border-b px-4 py-2">담당자</th>
+            <th className="border-b px-4 py-2">생성일자</th>
+            <th className="border-b px-4 py-2">진행 상태</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, index) => (
+            <tr key={index}>
+              <td className="border-b px-4 py-2">
+                <input type="checkbox" />
+              </td>
+              <td className="border-b px-4 py-2">{item.type}</td>
+              <td className="border-b px-4 py-2">{item.title}</td>
+              <td className="border-b px-4 py-2">{item.assignee}</td>
+              <td className="border-b px-4 py-2">{item.createdDate}</td>
+              <td className="border-b px-4 py-2">
+                <span
+                  className={`inline-block rounded-full px-2 py-1 text-white ${item.statusColor}`}
+                >
+                  {item.status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+} // api 연동해서 꼭 수정하기
+
+const items: BoardItem[] = [
+  {
+    type: '이슈',
+    title: '긴급 배포 이슈',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '긴급',
+    statusColor: 'bg-red-500',
+  },
+  {
+    type: '피드백',
+    title: '스프린트 3 디자인 A안 B안 비교',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '진행중',
+    statusColor: 'bg-blue-500',
+  },
+  {
+    type: '이슈',
+    title: 'AWS 배포 비용 문제',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '진행중',
+    statusColor: 'bg-blue-500',
+  },
+  {
+    type: '이슈',
+    title: '프론트엔드 개발자 필요@@',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '진행중',
+    statusColor: 'bg-blue-500',
+  },
+  {
+    type: '피드백',
+    title: '스프린트 3 기획 리뷰',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '진행중',
+    statusColor: 'bg-blue-500',
+  },
+  {
+    type: '이슈',
+    title: '긴급 배포 이슈',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '완료',
+    statusColor: 'bg-green-500',
+  },
+]
 
 const ProjectContainer = () => {
   const [date, setDate] = React.useState<Date | undefined>(new Date())
@@ -65,6 +204,10 @@ const ProjectContainer = () => {
         프로젝트개요입니다
       </div>
       <hr className="mb-3.5 border-t border-gray-300" />
+      <div className="container mx-auto p-4">
+        <h1 className="mb-4 text-2xl font-bold">보드</h1>
+        <Board items={items} />
+      </div>
       <div className="flex">
         <Calendar
           mode="single"
@@ -75,7 +218,7 @@ const ProjectContainer = () => {
         />
         <div>asdasd</div>
       </div>
-      <div className="mt-3 p-1">
+      <div className="mt-4 gap-1">
         프로젝트 팀원
         <TeamCheckbox id="1" name="팀원 A"></TeamCheckbox>
         <TeamCheckbox id="2" name="팀원 B"></TeamCheckbox>
@@ -83,7 +226,17 @@ const ProjectContainer = () => {
         <TeamCheckbox id="4" name="팀원 내 개인 캘린더"></TeamCheckbox>
         <TeamCheckbox id="5" name="팀원 프로젝트 회의"></TeamCheckbox>
       </div>
-      <div className="p-0.625 mt-1.5">회의 추천 일정</div>
+      <div className="mt-3.5 w-80 p-1">
+        회의 추천 일정
+        <ScheduleItem
+          date={scheduleData.date}
+          timeslots={scheduleData.timeslots}
+        />
+        <ScheduleItem
+          date={scheduleData.date}
+          timeslots={scheduleData.timeslots}
+        />
+      </div>
     </div>
   )
 }
