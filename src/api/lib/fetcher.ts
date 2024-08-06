@@ -41,6 +41,7 @@ export class Fetcher {
       }
 
       const response = await fetch(`${this.baseUrl}${url}`, fetchOptions)
+      // const response = await fetch(url, fetchOptions)
 
       if (response.ok) {
         data = (await response.json()) as Promise<ResponseType>
@@ -68,6 +69,7 @@ export class Fetcher {
     const access = client.getQueryData<string>(['access'])
     const refresh = client.getQueryData<string>(['refresh'])
 
+    console.log(access, refresh)
     if (!access && !refresh && location) {
       location.href = '/login'
     }
@@ -80,13 +82,14 @@ export class Fetcher {
       const fetchOptions: RequestInit = {
         ...options,
         headers: {
-          [ACCESS_TOKEN_HEADER_KEY]: client.getQueryData<string>(['access'])!,
+          [ACCESS_TOKEN_HEADER_KEY]: `Bearer ${client.getQueryData<string>(['access'])!}`,
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
       }
 
       const response = await fetch(`${this.baseUrl}${url}`, fetchOptions)
+      // const response = await fetch(url, fetchOptions)
 
       if (response.status === 401) {
         if (retry) {
@@ -118,13 +121,20 @@ export class Fetcher {
     client: QueryClient,
   ) => {
     try {
-      const res = await fetch(`${API_URL}/auth/refresh`, {
+      const res = await fetch(`${API_URL}/oauth/token/refresh`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
           [REFRESH_TOKEN_HEADER_KEY]: refresh,
         },
       })
+      // const res = await fetch(`oauth/token/refresh`, {
+      //   headers: {
+      //     Accept: 'application/json',
+      //     'Content-Type': 'application/json',
+      //     [REFRESH_TOKEN_HEADER_KEY]: refresh,
+      //   },
+      // })
 
       const newAccessToken = res.headers.get(ACCESS_TOKEN_HEADER_KEY)
       const newRefreshToken = res.headers.get(REFRESH_TOKEN_HEADER_KEY)

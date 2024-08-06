@@ -9,30 +9,30 @@ import { useEffect } from 'react'
 
 interface AuthCallbackQueryParams {
   searchParams: {
-    access: string
-    refresh: string
+    accessToken: string
+    refreshToken: string
   }
 }
 
 const AuthCallbackPage = ({
-  searchParams: { access, refresh },
+  searchParams: { accessToken, refreshToken },
 }: AuthCallbackQueryParams) => {
   const router = useRouter()
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    Cookies.set('access', access, {
+    Cookies.set('access', accessToken, {
       secure: true,
     })
-    Cookies.set('refresh', refresh, {
+    Cookies.set('refresh', refreshToken, {
       secure: true,
     })
-    queryClient.setQueryData(['access'], access)
-    queryClient.setQueryData(['refresh'], refresh)
+    queryClient.setQueryData(['access'], accessToken)
+    queryClient.setQueryData(['refresh'], refreshToken)
 
     const checkUserRegistered = async () => {
       const userInfo = await userService.userInfo(queryClient)
-      const isRegistered = userInfo.result.status === UserStatus.Registered
+      const isRegistered = userInfo.result.status === UserStatus.JOIN
 
       if (isRegistered) {
         router.push('/workspace')
@@ -42,7 +42,7 @@ const AuthCallbackPage = ({
     }
 
     checkUserRegistered()
-  }, [access, queryClient, refresh, router])
+  }, [accessToken, queryClient, refreshToken, router])
 
   return null
 }

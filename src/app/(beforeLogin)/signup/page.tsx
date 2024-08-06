@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { useUserSignUpMutation } from '@/api'
+import { useUserInfoQuery, useUserSignUpMutation } from '@/api'
 import {
   CheckBoxForm,
   DefaultInputForm,
@@ -15,16 +15,27 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Form } from '@/components/ui/form'
 import { formSchemaSignUp } from '@/hooks/useVaild'
 import { useRouter } from 'next/navigation'
+import React from 'react'
 
 const JoinForm = () => {
   const router = useRouter()
+  const { data, isLoading } = useUserInfoQuery()
+
+  React.useEffect(() => {
+    if (data !== undefined) {
+      console.log(data)
+      form.setValue('email', data.result.socialId + '@test.com')
+      form.setValue('name', data.result.name)
+      form.setValue('contact', data.result.contact)
+    }
+  }, [data])
 
   const form = useForm<z.infer<typeof formSchemaSignUp>>({
     resolver: zodResolver(formSchemaSignUp),
     defaultValues: {
       name: '',
-      email: 'hin6150@gmail.com',
-      phonenumber: '',
+      email: '',
+      contact: '',
       use: false,
       privacy: false,
       marketing: false,
@@ -43,16 +54,18 @@ const JoinForm = () => {
 
   const userSignUpMutation = useUserSignUpMutation(
     {
+      email: form.watch('email'),
       name: form.watch('name'),
-      phone: form.watch('phonenumber'),
+      contact: form.watch('contact'),
       requiredTermsAgree: form.watch('privacy') && form.watch('use'),
       marketingEmailOptIn: !!form.watch('marketing'),
     },
     {
       onSuccess: () => {
         console.log('Success:', {
+          email: form.watch('email'),
           name: form.watch('name'),
-          phone: form.watch('phonenumber'),
+          contact: form.watch('contact'),
           requiredTermsAgree: form.watch('privacy') && form.watch('use'),
           marketingEmailOptIn: !!form.watch('marketing'),
         })
