@@ -1,7 +1,7 @@
 export enum UserStatus {
-  SocialLoginCompleted = 'SOCIAL_LOGIN_COMPLETED',
-  Registered = 'REGISTERED',
-  Withdrawn = 'WITHDRAWN',
+  LOGIN = 'LOGIN',
+  JOIN = 'JOIN',
+  WITHDRAW = 'WITHDRAW',
 }
 
 export const mbtiOptions = [
@@ -30,30 +30,32 @@ export interface UserInfoResponse {
   result: {
     id: string
     email: string
+    socialId: string
     status: UserStatus
     onboardingCompleted: boolean
     name: string
-    phone: string
-    address: string
-    tool: {}
-    stack: string[]
-    MBTI: string
+    contact: string
+    location: string
+    tools: {}
+    stackNames: string[]
+    mbti: string
     imageUrl: string
   }
 }
 
 export interface UserSignUpDTO {
   name: string
-  phone: string
+  email: string
+  contact: string
   requiredTermsAgree: boolean
   marketingEmailOptIn: boolean
 }
 
 export interface UserOptionalInfoDTO {
-  tool: {}
-  address: string
-  stack: string[]
-  MBTI: string
+  tools: {}
+  location: string
+  stacks: string[]
+  mbti: string
 }
 
 export interface EditUserInfoDTO {

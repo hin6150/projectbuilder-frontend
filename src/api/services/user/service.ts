@@ -12,28 +12,22 @@ import {
 
 export const userService = {
   async userInfo(client: QueryClient) {
-    return (
-      APIBuilder.get('/user/info')
-        // .withCredentials(client)
-        .build()
-        .call<UserInfoResponse>()
-    )
+    return APIBuilder.get('/user/info')
+      .withCredentials(client)
+      .build()
+      .call<UserInfoResponse>()
   },
   async userSignUp(client: QueryClient, dto: UserSignUpDTO) {
-    return (
-      APIBuilder.post('/user/signup')
-        // .withCredentials(client)
-        .build()
-        .call<DefaultResponse>({ body: JSON.stringify(dto) })
-    )
+    return APIBuilder.post('/user')
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
   async userOptionalInfo(client: QueryClient, dto: UserOptionalInfoDTO) {
-    return (
-      APIBuilder.post('/user/optional')
-        // .withCredentials(client)
-        .build()
-        .call<DefaultResponse>({ body: JSON.stringify(dto) })
-    )
+    return APIBuilder.post('/user/info')
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
   async userEdit(client: QueryClient, dto: EditUserInfoDTO) {
     return (
