@@ -109,16 +109,9 @@ interface mbtiFormType {
   setValue: React.Dispatch<React.SetStateAction<string>>
 }
 
-interface repeatDayFormType {
-  form: UseFormReturn<z.infer<any>>
-  value: string
-  setValue: React.Dispatch<React.SetStateAction<string>>
-}
-
 interface DropdownFormProps {
   form: UseFormReturn<z.infer<any>>
   value: string
-  setValue: React.Dispatch<React.SetStateAction<string>>
   options: string[]
   defaultValue: string
   label: string
@@ -555,7 +548,7 @@ export const CheckBoxForm = ({ form, name }: checkBoxFormType) => (
   />
 )
 
-export const SelectForm: React.FC<SelectFormProps> = ({
+export const SelectForm = ({
   form,
   value,
   setValue,
@@ -563,14 +556,10 @@ export const SelectForm: React.FC<SelectFormProps> = ({
   defaultValue,
   name,
   className,
-}) => {
-  const [selectedValue, setSelectedValue] = React.useState<string>(
-    value || defaultValue,
-  )
+}: SelectFormProps) => {
   const { openModal } = useModal()
 
   const handleSelect = (selected: string) => {
-    setSelectedValue(selected)
     setValue(selected)
 
     if (selected === '맞춤 설정' && openModal) {
@@ -585,12 +574,7 @@ export const SelectForm: React.FC<SelectFormProps> = ({
       render={({ field }) => (
         <FormItem>
           <FormControl>
-            <Select
-              value={selectedValue}
-              onValueChange={(value) => {
-                handleSelect(value)
-              }}
-            >
+            <Select value={value} onValueChange={handleSelect}>
               <SelectTrigger className={className}>
                 <SelectValue placeholder={defaultValue} />
               </SelectTrigger>
@@ -611,24 +595,13 @@ export const SelectForm: React.FC<SelectFormProps> = ({
   )
 }
 
-export const DropdownForm: React.FC<DropdownFormProps> = ({
+export const DropdownForm = ({
   form,
-  value,
-  setValue,
   options,
   defaultValue,
   label,
   name,
-}) => {
-  const [selectedValue, setSelectedValue] = React.useState<string>(
-    value || defaultValue,
-  )
-
-  const handleSelect = (selected: string) => {
-    setSelectedValue(selected)
-    setValue(selected)
-  }
-
+}: DropdownFormProps) => {
   return (
     <FormField
       control={form.control}
@@ -638,7 +611,7 @@ export const DropdownForm: React.FC<DropdownFormProps> = ({
           <FormControl>
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-1">
-                <p className="text-small">{selectedValue || defaultValue}</p>
+                <p className="text-small">{field.value || defaultValue}</p>
                 <ChevronDown className="h-4 w-4" />
               </DropdownMenuTrigger>
 
@@ -646,8 +619,10 @@ export const DropdownForm: React.FC<DropdownFormProps> = ({
                 <DropdownMenuLabel>{label}</DropdownMenuLabel>
                 {options.map((item, index) => (
                   <DropdownMenuItem
+                    {...field}
                     key={index}
-                    onClick={() => handleSelect(item)}
+                    onClick={() => field.onChange(item)}
+                    className="justify-center"
                   >
                     {item}
                   </DropdownMenuItem>
@@ -661,7 +636,7 @@ export const DropdownForm: React.FC<DropdownFormProps> = ({
   )
 }
 
-export const RepeatDayForm = ({ form, value, setValue }: repeatDayFormType) => {
+export const RepeatDayForm = ({ form }: formType) => {
   const days = ['일', '월', '화', '수', '목', '금', '토']
   const [selectedDays, setSelectedDays] = React.useState<string[]>(['일'])
 
@@ -757,6 +732,7 @@ export const ParticipateForm = ({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
   }
+
   const handleAddParticipant = (participant: participate) => {
     setParticipates((prev) => [...prev, participant])
     setSearchTerm('')
@@ -846,7 +822,6 @@ export const EndDateForm = ({
   disabled,
   minDate,
   setSelectedEndDate,
-  ...rest
 }: EndDateFormProps) => {
   const formatDate = (date: Date) => {
     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
@@ -856,14 +831,13 @@ export const EndDateForm = ({
   return (
     <FormField
       control={form.control}
-      name="cycle"
+      name="endDate"
       render={({ field }) => (
         <FormItem className="flex-[1_0_0]">
           <FormControl>
             <Popover>
               <PopoverTrigger asChild>
                 <Input
-                  {...rest}
                   {...field}
                   value={
                     field.value ? formatDate(new Date(field.value)) : '없음'
@@ -957,8 +931,6 @@ export function DateTimePickerForm({
       control={form.control}
       name={name}
       render={({ field }) => {
-        const selectedDate = field.value ? new Date(field.value) : undefined
-
         React.useEffect(() => {
           if (!field.value) {
             const defaultStart = getDefaultStartDate()
@@ -1000,7 +972,7 @@ export function DateTimePickerForm({
                 <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
-                    selected={selectedDate}
+                    selected={field.value}
                     onSelect={(selectedDate) => {
                       setDate(selectedDate)
                       const start = selectedDate || getDefaultStartDate()

@@ -38,6 +38,13 @@ import { Modal, ScheduleModal } from './Modal'
 import { ProfileAvatar } from '../Avatar/Avatar'
 import { Input } from '../ui/input'
 
+interface Participate {
+  imageUrl: string
+  name: string
+  email: string
+  attend: string
+}
+
 const getRepeatOptions = (date: Date) => {
   const dayOfWeekNames = [
     '일요일',
@@ -65,24 +72,16 @@ const getRepeatOptions = (date: Date) => {
 
 export const ScheduleCreateModal = () => {
   const { closeModal, openModal } = useModal()
-  const [selectedType, setSelectedType] = React.useState<string>('개인 일정')
-  const [selectedTeam, setSelectedTeam] = React.useState<string>('')
-  const [selectedRepeat, setSelectedRepeat] =
-    React.useState<string>('반복 안함')
-  const [selectedPublic, setSelectedPublic] = React.useState<string>('')
-  const [participates, setParticipates] = React.useState<
-    { imageUrl: string; name: string; email: string; attend: string }[]
-  >([])
+  const [selectedType, setSelectedType] = React.useState('개인 일정')
   const [allDay, setAllDay] = React.useState(false)
+  const [participates, setParticipates] = React.useState<Participate[]>([])
   const [selectedDate, setSelectedDate] = React.useState(new Date())
-  const [selecteEndDate, setSelectedEndDate] = React.useState<Date | undefined>(
-    undefined,
-  )
+  const [selectedEndDate, setSelectedEndDate] = React.useState<
+    Date | undefined
+  >(undefined)
+  const [selectedRepeat, setSelectedRepeat] = React.useState('반복 안함')
 
   const teamOptions = ['프로젝트 팀A', '프로젝트 팀B', '프로젝트 팀C']
-  const typeOptions = ['개인 일정', '팀 일정']
-  const publicOptions = ['내용 비공개', '공개']
-
   const repeatOptions = getRepeatOptions(selectedDate)
 
   const formSchema =
@@ -93,25 +92,30 @@ export const ScheduleCreateModal = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      type: '',
+      type: '개인 일정',
       title: '',
       period: { from: new Date(), to: new Date() },
       description: '',
       allday: false,
-      repeat: '',
-      publicContent: '',
+      repeat: '반복 안함',
+      publicContent: '내용 비공개',
+      team: '',
       participate: [],
-      endDate: new Date(),
+      endDate: undefined,
     },
   })
 
-  React.useEffect(() => {
-    setSelectedEndDate(selecteEndDate)
-  }, [selecteEndDate])
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date)
+    setSelectedRepeat('반복 안함')
+  }
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = () => {
     closeModal('default')
   }
+
+  const selectedPublic = form.watch('publicContent')
+  const selectedTeam = form.watch('team')
 
   return (
     <ScheduleModal>
@@ -122,14 +126,12 @@ export const ScheduleCreateModal = () => {
         >
           <div className="flex items-center justify-between self-stretch">
             <p className="text-h4">일정 생성</p>
-
             <div className="flex items-center gap-[6px]">
               <CalendarIcon className="h-4 w-4" />
               <DropdownForm
                 form={form}
                 value={selectedType}
-                setValue={setSelectedType}
-                options={typeOptions}
+                options={['개인 일정', '팀 일정']}
                 defaultValue="개인 일정"
                 label="일정 유형"
                 name="type"
@@ -146,8 +148,8 @@ export const ScheduleCreateModal = () => {
                 label="일정 시간"
                 allDay={allDay}
                 setAllDay={setAllDay}
-                setSelectedDate={setSelectedDate}
-                maxDate={selecteEndDate}
+                setSelectedDate={handleDateChange}
+                maxDate={selectedEndDate}
               />
               <div className="flex items-center justify-between self-stretch">
                 <div className="flex items-center gap-2">
@@ -160,15 +162,13 @@ export const ScheduleCreateModal = () => {
                     하루 종일
                   </label>
                 </div>
-
-                {selectedType === '개인 일정' ? (
+                {form.watch('type') === '개인 일정' ? (
                   <div className="flex items-center gap-1">
                     <LockIcon className="h-4 w-4" />
                     <DropdownForm
                       form={form}
                       value={selectedPublic}
-                      setValue={setSelectedPublic}
-                      options={publicOptions}
+                      options={['내용 비공개', '내용 공개']}
                       defaultValue="내용 비공개"
                       label="공개 여부"
                       name="public"
@@ -178,7 +178,6 @@ export const ScheduleCreateModal = () => {
                   <DropdownForm
                     form={form}
                     value={selectedTeam}
-                    setValue={setSelectedTeam}
                     options={teamOptions}
                     defaultValue="프로젝트 팀"
                     label="프로젝트 팀"
@@ -187,6 +186,7 @@ export const ScheduleCreateModal = () => {
                 )}
               </div>
             </div>
+
             <div className="flex items-start gap-4">
               <div className="flex w-full flex-col gap-4">
                 <Label>반복 여부</Label>
@@ -197,7 +197,7 @@ export const ScheduleCreateModal = () => {
                   options={repeatOptions}
                   defaultValue="반복 안함"
                   name="repeat"
-                  className=""
+                  className="w-full"
                 />
               </div>
               {selectedRepeat !== '반복 안함' && (
@@ -212,7 +212,8 @@ export const ScheduleCreateModal = () => {
                 </div>
               )}
             </div>
-            {selectedType === '팀 일정' && (
+
+            {form.watch('type') === '팀 일정' && (
               <ParticipateForm
                 form={form}
                 participates={participates}
@@ -234,9 +235,7 @@ export const ScheduleCreateModal = () => {
             <Button
               title="생성"
               className="flex flex-[1_0_0] gap-[10px]"
-              onClick={() => {
-                openModal('default', ModalTypes.CHECK)
-              }}
+              onClick={() => openModal('default', ModalTypes.CHECK)}
               disabled={!form.formState.isValid}
               variant={form.formState.isValid ? 'default' : 'disabled'}
             >
@@ -251,24 +250,16 @@ export const ScheduleCreateModal = () => {
 
 export const ScheduleEditModal = () => {
   const { closeModal, openModal } = useModal()
-  const [selectedType, setSelectedType] = React.useState<string>('개인 일정')
-  const [selectedTeam, setSelectedTeam] = React.useState<string>('')
-  const [selectedRepeat, setSelectedRepeat] =
-    React.useState<string>('반복 안함')
-  const [selectedPublic, setSelectedPublic] = React.useState<string>('')
-  const [participates, setParticipates] = React.useState<
-    { imageUrl: string; name: string; email: string; attend: string }[]
-  >([])
+  const [selectedType, setSelectedType] = React.useState('개인 일정')
   const [allDay, setAllDay] = React.useState(false)
+  const [participates, setParticipates] = React.useState<Participate[]>([])
   const [selectedDate, setSelectedDate] = React.useState(new Date())
-  const [selecteEndDate, setSelectedEndDate] = React.useState<Date | undefined>(
-    undefined,
-  )
+  const [selectedEndDate, setSelectedEndDate] = React.useState<
+    Date | undefined
+  >(undefined)
+  const [selectedRepeat, setSelectedRepeat] = React.useState('반복 안함')
 
   const teamOptions = ['프로젝트 팀A', '프로젝트 팀B', '프로젝트 팀C']
-  const typeOptions = ['개인 일정', '팀 일정']
-  const publicOptions = ['내용 비공개', '공개']
-
   const repeatOptions = getRepeatOptions(selectedDate)
 
   const formSchema =
@@ -284,20 +275,20 @@ export const ScheduleEditModal = () => {
       period: { from: new Date(), to: new Date() },
       description: '',
       allday: false,
-      repeat: '',
-      publicContent: '',
+      repeat: '반복 안함',
+      publicContent: '내용 비공개',
+      team: '',
       participate: [],
-      endDate: new Date(),
+      endDate: undefined,
     },
   })
 
-  React.useEffect(() => {
-    setSelectedEndDate(selecteEndDate)
-  }, [selecteEndDate])
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = () => {
     closeModal('default')
   }
+
+  const selectedPublic = form.watch('publicContent')
+  const selectedTeam = form.watch('team')
 
   return (
     <ScheduleModal>
@@ -308,14 +299,12 @@ export const ScheduleEditModal = () => {
         >
           <div className="flex items-center justify-between self-stretch">
             <p className="text-h4">일정 수정</p>
-
             <div className="flex items-center gap-[6px]">
               <CalendarIcon className="h-4 w-4" />
               <DropdownForm
                 form={form}
                 value={selectedType}
-                setValue={setSelectedType}
-                options={typeOptions}
+                options={['개인 일정', '팀 일정']}
                 defaultValue="개인 일정"
                 label="일정 유형"
                 name="type"
@@ -333,7 +322,7 @@ export const ScheduleEditModal = () => {
                 allDay={allDay}
                 setAllDay={setAllDay}
                 setSelectedDate={setSelectedDate}
-                maxDate={selecteEndDate}
+                maxDate={selectedEndDate}
               />
               <div className="flex items-center justify-between self-stretch">
                 <div className="flex items-center gap-2">
@@ -346,15 +335,13 @@ export const ScheduleEditModal = () => {
                     하루 종일
                   </label>
                 </div>
-
-                {selectedType === '개인 일정' ? (
+                {form.watch('type') === '개인 일정' ? (
                   <div className="flex items-center gap-1">
                     <LockIcon className="h-4 w-4" />
                     <DropdownForm
                       form={form}
                       value={selectedPublic}
-                      setValue={setSelectedPublic}
-                      options={publicOptions}
+                      options={['내용 비공개', '내용 공개']}
                       defaultValue="내용 비공개"
                       label="공개 여부"
                       name="public"
@@ -364,7 +351,6 @@ export const ScheduleEditModal = () => {
                   <DropdownForm
                     form={form}
                     value={selectedTeam}
-                    setValue={setSelectedTeam}
                     options={teamOptions}
                     defaultValue="프로젝트 팀"
                     label="프로젝트 팀"
@@ -373,6 +359,7 @@ export const ScheduleEditModal = () => {
                 )}
               </div>
             </div>
+
             <div className="flex items-start gap-4">
               <div className="flex w-full flex-col gap-4">
                 <Label>반복 여부</Label>
@@ -383,7 +370,7 @@ export const ScheduleEditModal = () => {
                   options={repeatOptions}
                   defaultValue="반복 안함"
                   name="repeat"
-                  className=""
+                  className="w-full"
                 />
               </div>
               {selectedRepeat !== '반복 안함' && (
@@ -398,7 +385,8 @@ export const ScheduleEditModal = () => {
                 </div>
               )}
             </div>
-            {selectedType === '팀 일정' && (
+
+            {form.watch('type') === '팀 일정' && (
               <ParticipateForm
                 form={form}
                 participates={participates}
@@ -420,9 +408,7 @@ export const ScheduleEditModal = () => {
             <Button
               title="생성"
               className="flex flex-[1_0_0] gap-[10px]"
-              onClick={() => {
-                openModal('default', ModalTypes.CHECK)
-              }}
+              onClick={() => openModal('default', ModalTypes.CHECK)}
               disabled={!form.formState.isValid}
               variant={form.formState.isValid ? 'default' : 'disabled'}
             >
@@ -463,10 +449,8 @@ export const ScheduleCheckModal = () => {
   const periodTo = form.watch('period.to')
   const description = form.watch('description')
   const publicContent = form.watch('publicContent')
-  const allday = form.watch('allday')
   const repeat = form.watch('repeat')
   const participate = form.watch('participate')
-  const team = form.watch('team')
 
   const attendClass =
     participate.attend === '참석'
@@ -553,7 +537,6 @@ export const ScheduleRepeatModal = () => {
   const [selecteEndDate, setSelectedEndDate] = React.useState<Date | undefined>(
     new Date(),
   )
-  const [day, setDay] = React.useState<string>('')
 
   const cycleOptions = ['일(Day)', '주(Week)', '월(Month)', '년(Year)']
 
@@ -563,7 +546,7 @@ export const ScheduleRepeatModal = () => {
       repeat: '1',
       cycle: '',
       day: '',
-      endDate: new Date(),
+      endDate: undefined,
     },
   })
 
@@ -596,9 +579,7 @@ export const ScheduleRepeatModal = () => {
                 className="w-[200px]"
               />
             </div>
-            {selectedCycle === '주(Week)' && (
-              <RepeatDayForm form={form} value={day} setValue={setDay} />
-            )}
+            {selectedCycle === '주(Week)' && <RepeatDayForm form={form} />}
 
             <Label>종료</Label>
             <RadioGroup
@@ -647,6 +628,7 @@ export const ScheduleRepeatModal = () => {
             </Button>
             <Button
               title="확인"
+              type="button"
               onClick={() => closeModal('dimed')}
               className="flex flex-[1_0_0] gap-[10px]"
             >

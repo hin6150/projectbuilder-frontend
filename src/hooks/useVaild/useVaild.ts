@@ -67,13 +67,14 @@ const cycleField = z.string()
 
 const repeatDay = z.string()
 
-const endDate = z.date()
+const endDate = z.date().optional()
 
 const teamName = z.string()
 
 const participate = z.object({
   imageUrl: imageUrlField,
   name: nameField,
+  email: emailField,
   attend: attend,
 })
 
@@ -132,6 +133,7 @@ export const formSchemaTeamSchedule = z.object({
   description: description,
   allday: alldayField,
   repeat: repeatField,
+  team: teamName,
   participate: participate,
   endDate: endDate,
 })
