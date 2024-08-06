@@ -139,6 +139,7 @@ export const formSchemaTeamSchedule = z.object({
 })
 
 export const formSchemaRepeatSchedule = z.object({
+  period: period,
   repeat: repeatField,
   cycle: cycleField,
   day: repeatDay,

@@ -104,18 +104,26 @@ export const ScheduleCreateModal = () => {
       endDate: undefined,
     },
   })
+  const selectedPublic = form.watch('publicContent')
+  const selectedTeam = form.watch('team')
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date)
     setSelectedRepeat('반복 안함')
+    setSelectedEndDate(undefined)
+    form.setValue('endDate', undefined)
   }
+
+  React.useEffect(() => {
+    if (selectedRepeat === '맞춤 설정') {
+      form.setValue('period.from', selectedDate)
+      console.log('일정시간:', form.getValues('period.from'))
+    }
+  }, [selectedRepeat, selectedDate, form])
 
   const onSubmit = () => {
     closeModal('default')
   }
-
-  const selectedPublic = form.watch('publicContent')
-  const selectedTeam = form.watch('team')
 
   return (
     <ScheduleModal>
@@ -543,6 +551,7 @@ export const ScheduleRepeatModal = () => {
   const form = useForm({
     resolver: zodResolver(formSchemaRepeatSchedule),
     defaultValues: {
+      period: { from: new Date(), to: new Date() },
       repeat: '1',
       cycle: '',
       day: '',
@@ -554,18 +563,18 @@ export const ScheduleRepeatModal = () => {
     setSelectedOption(value)
   }
 
-  function onSubmit(values: z.infer<typeof formSchemaRepeatSchedule>) {
-    closeModal('default')
+  const handleSubmit = () => {
+    form.getValues('endDate')
+    console.log('endDate:', form.getValues('endDate'))
+
+    closeModal('dimed')
   }
 
   return (
     <Modal>
       <p className="text-h4">반복 맞춤 설정</p>
       <Form {...form}>
-        <form
-          // onClick={form.handleSubmit(onSubmit)}
-          className="flex w-[384px] shrink-0 flex-col items-start gap-6"
-        >
+        <form className="flex w-[384px] shrink-0 flex-col items-start gap-6">
           <div className="flex flex-col gap-2 self-stretch">
             <div className="flex items-end gap-2">
               <DefaultInputForm form={form} name="repeat" label="반복 주기" />
@@ -629,7 +638,7 @@ export const ScheduleRepeatModal = () => {
             <Button
               title="확인"
               type="button"
-              onClick={() => closeModal('dimed')}
+              onClick={handleSubmit}
               className="flex flex-[1_0_0] gap-[10px]"
             >
               <p className="text-body">확인</p>
