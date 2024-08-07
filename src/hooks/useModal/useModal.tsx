@@ -8,56 +8,86 @@ import {
   useState,
 } from 'react'
 
-interface ModalValues {
+interface ModalState {
   open: boolean
-  closing: boolean
-  toggleModal: VoidFunction
-  setModal: (newType: ModalTypes) => void
   type: ModalTypes
+}
+
+interface ModalValues {
+  modals: {
+    dimed: ModalState
+    default: ModalState
+  }
+  openModal: (key: ModalKey, type: ModalTypes) => void
+  closeModal: (key: ModalKey) => void
+  closing: { dimed: boolean; default: boolean }
 }
 
 export enum ModalTypes {
   CREATE,
   EDIT,
   DELETE,
+  DELETE_REPEAT,
   INVITE,
+  REPEAT,
+  CHECK,
   NULL,
 }
+
+type ModalKey = 'dimed' | 'default'
 
 const ModalContext = createContext<ModalValues | undefined>(undefined)
 
 export const ModalContextProvider = ({ children }: PropsWithChildren) => {
-  const [open, setOpen] = useState<boolean>(false)
-  const [closing, setClosing] = useState<boolean>(false)
-  const [type, setType] = useState<ModalTypes>(ModalTypes.NULL)
+  const [modals, setModals] = useState<{
+    dimed: ModalState
+    default: ModalState
+  }>({
+    dimed: { open: false, type: ModalTypes.NULL },
+    default: { open: false, type: ModalTypes.NULL },
+  })
+  const [closing, setClosing] = useState<{ dimed: boolean; default: boolean }>({
+    dimed: false,
+    default: false,
+  })
 
-  const setModal = useCallback((newType: ModalTypes) => {
-    setType(newType)
+  const openModal = useCallback((key: ModalKey, type: ModalTypes) => {
+    if (key == 'dimed') document.body.classList.add('scroll-locked')
+
+    setModals((prevModals) => ({
+      ...prevModals,
+      [key]: {
+        ...prevModals[key],
+        open: true,
+        type: type,
+      },
+    }))
   }, [])
 
-  const toggleModal = useCallback(() => {
-    document.body.classList.toggle('scroll-locked')
+  const closeModal = useCallback((key: ModalKey) => {
+    if (key == 'dimed') document.body.classList.remove('scroll-locked')
 
-    if (open) {
-      setClosing(true)
-      setTimeout(() => {
-        setType(ModalTypes.NULL)
-        setOpen(false)
-        setClosing(false)
-      }, 500)
-    } else {
-      setOpen(true)
-    }
-  }, [open])
+    setClosing((prev) => ({ ...prev, [key]: true }))
+    setTimeout(() => {
+      setModals((prevModals) => ({
+        ...prevModals,
+        [key]: {
+          ...prevModals[key],
+          open: false,
+          type: ModalTypes.NULL,
+        },
+      }))
+      setClosing((prev) => ({ ...prev, [key]: false }))
+    }, 500)
+  }, [])
 
   return (
     <ModalContext.Provider
       value={{
-        open,
-        toggleModal,
-        setModal,
+        modals,
+        openModal,
+        closeModal,
         closing,
-        type,
       }}
     >
       {children}

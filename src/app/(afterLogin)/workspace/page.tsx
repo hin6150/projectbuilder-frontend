@@ -1,6 +1,6 @@
 'use client'
 
-import { useProjectInfoQuery } from '@/api'
+import { ProjectInfo, useProjectInfoQuery } from '@/api'
 import Card from '@/components/Card/Card'
 import {
   ProjectCreateModal,
@@ -12,22 +12,48 @@ import { Button } from '@/components/ui/button'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import { PlusIcon } from 'lucide-react'
+import { useState } from 'react'
 
-const workspace = () => {
+const Workspace = () => {
   const { data, isLoading } = useProjectInfoQuery()
 
-  const { open, toggleModal, setModal, type } = useModal()
+  const { openModal, modals } = useModal()
+
+  const [selectedProject, setSelectedProject] = useState<ProjectInfo | null>(
+    null,
+  )
 
   const handleClick = () => {
-    setModal(ModalTypes.CREATE)
-    toggleModal()
+    openModal('dimed', ModalTypes.CREATE)
   }
 
   if (isLoading) {
     return null
   }
 
-  console.log(data)
+  const renderModal = () => {
+    if (!modals.dimed.open) return null
+
+    switch (modals.dimed.type) {
+      case ModalTypes.CREATE:
+        return <ProjectCreateModal />
+      case ModalTypes.EDIT:
+        if (selectedProject != null) {
+          return <ProjectEditeModal project={selectedProject} />
+        }
+      case ModalTypes.DELETE:
+        if (selectedProject != null) {
+          return <ProjectDeleteModal uid={selectedProject.uid} />
+        }
+      case ModalTypes.INVITE:
+        if (selectedProject != null) {
+          return <ProjectInviteModal uid={selectedProject.uid} />
+        }
+
+      default:
+        return null
+    }
+  }
 
   return (
     <main className="mt-5">
@@ -41,16 +67,17 @@ const workspace = () => {
       </div>
 
       <div className="flex flex-wrap gap-5">
-        {data?.result.map((data) => {
-          return <Card data={data} />
-        })}
+        {data?.result.map((projectData) => (
+          <Card
+            key={projectData.uid}
+            data={projectData}
+            setSelectedProject={setSelectedProject}
+          />
+        ))}
       </div>
 
-      {open && type == ModalTypes.CREATE && <ProjectCreateModal />}
-      {open && type == ModalTypes.EDIT && <ProjectEditeModal />}
-      {open && type == ModalTypes.DELETE && <ProjectDeleteModal />}
-      {open && type == ModalTypes.INVITE && <ProjectInviteModal />}
+      {renderModal()}
     </main>
   )
 }
-export default workspace
+export default Workspace
