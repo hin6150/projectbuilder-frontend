@@ -1,9 +1,11 @@
 import React from 'react'
 import { Calendar } from '@/components/ui/calendar'
+import { Checkbox } from '@/components/ui/checkbox'
 import { ko } from 'date-fns/locale'
 import { ProjectInfo } from '@/api'
 import { format } from 'date-fns'
 import { useState } from 'react'
+import { Check } from 'lucide-react'
 
 interface TeamCheckboxProps {
   id: string
@@ -26,7 +28,6 @@ export interface BoardItem {
   assignee: string
   createdDate: string
   status: string
-  statusColor: string
 }
 
 export interface BoardProps {
@@ -36,9 +37,8 @@ export interface BoardProps {
 const TeamCheckbox: React.FC<TeamCheckboxProps> = ({ id, name }) => {
   return (
     <div className="flex items-center space-x-2">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
         className="rounded-[2px] border border-gray-200 bg-white"
       />
       <label htmlFor={id} className="text-[14px]">
@@ -51,10 +51,10 @@ const TeamCheckbox: React.FC<TeamCheckboxProps> = ({ id, name }) => {
 const ScheduleItem: React.FC<ScheduleItemProps> = ({ date, timeslots }) => {
   return (
     <div>
-      <div className="text-h5 pw-2 mb-2 mt-1 p-1">
+      <div className="text-h5 py-[6px]">
         {date}
         {timeslots.map((slot, index) => (
-          <div key={index} className="mb-1 flex justify-between p-1">
+          <div className="pw-[32px] mt-[8px]" key={index}>
             <span>{slot.time}</span>
             <span>{slot.attendance}</span>
           </div>
@@ -73,45 +73,73 @@ const scheduleData = {
 } // api 연동시 수정해야함!
 
 const Board: React.FC<BoardProps> = ({ items }) => {
+  const renderStatus = (status: string) => {
+    if (status === '긴급') {
+      return (
+        <div className="flex w-[75px] items-center rounded-[15px] bg-red-200 px-[8px]">
+          <span className="h-2.5 w-2.5 rounded-full bg-red-500"></span>
+          <span className="w-full text-center">긴급</span>
+        </div>
+      )
+    } else if (status === '진행중') {
+      return (
+        <div className="flex w-[75px] items-center rounded-[15px] bg-blue-200 px-[8px]">
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+          <span className="w-full text-center">진행중</span>
+        </div>
+      )
+    } else if (status === '완료') {
+      return (
+        <div className="flex w-[75px] items-center rounded-[15px] bg-green-200 px-[8px]">
+          <span className="h-2.5 w-2.5 rounded-full bg-green-500"></span>
+          <span className="w-full text-center">완료</span>
+        </div>
+      )
+    }
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white">
-        <thead>
-          <tr>
-            <th className="border-b px-4 py-2">
-              <input type="checkbox" />
-            </th>
-            <th className="border-b px-4 py-2">종류</th>
-            <th className="border-b px-4 py-2">제목</th>
-            <th className="border-b px-4 py-2">담당자</th>
-            <th className="border-b px-4 py-2">생성일자</th>
-            <th className="border-b px-4 py-2">진행 상태</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, index) => (
-            <tr key={index}>
-              <td className="border-b px-4 py-2">
-                <input type="checkbox" />
-              </td>
-              <td className="border-b px-4 py-2">{item.type}</td>
-              <td className="border-b px-4 py-2">{item.title}</td>
-              <td className="border-b px-4 py-2">{item.assignee}</td>
-              <td className="border-b px-4 py-2">{item.createdDate}</td>
-              <td className="border-b px-4 py-2">
-                <span
-                  className={`inline-block rounded-full px-2 py-1 text-white ${item.statusColor}`}
-                >
-                  {item.status}
-                </span>
-              </td>
+    <div>
+      <div>
+        <table className="w-full bg-white">
+          <thead className="text-left">
+            <tr>
+              <th className="border-b px-5 py-2">
+                <Checkbox />
+              </th>
+              <th className="border-b px-4 py-2">종류</th>
+              <th className="border-b px-4 py-2">제목</th>
+              <th className="border-b px-4 py-2">담당자</th>
+              <th className="border-b px-4 py-2">생성일자</th>
+              <th className="border-b px-4 py-2">진행 상태</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+        </table>
+      </div>
+      <div className="max-h-[300px] overflow-y-auto">
+        <table className="w-full bg-white">
+          <tbody>
+            {items.map((item, index) => (
+              <tr key={index}>
+                <td className="border-b px-5 py-2">
+                  <Checkbox />
+                </td>
+                <td className="border-b px-4 py-2">{item.type}</td>
+                <td className="border-b px-4 py-2">{item.title}</td>
+                <td className="border-b px-4 py-2">{item.assignee}</td>
+                <td className="border-b px-4 py-2">{item.createdDate}</td>
+                <td className="border-b px-4 py-2">
+                  {renderStatus(item.status)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
-} // api 연동해서 꼭 수정하기
+}
+// api 연동해서 꼭 수정하기
 
 const items: BoardItem[] = [
   {
@@ -120,7 +148,6 @@ const items: BoardItem[] = [
     assignee: 'CN +2',
     createdDate: '2024. 07. 19',
     status: '긴급',
-    statusColor: 'bg-red-500',
   },
   {
     type: '피드백',
@@ -128,7 +155,6 @@ const items: BoardItem[] = [
     assignee: 'CN +2',
     createdDate: '2024. 07. 19',
     status: '진행중',
-    statusColor: 'bg-blue-500',
   },
   {
     type: '이슈',
@@ -136,7 +162,6 @@ const items: BoardItem[] = [
     assignee: 'CN +2',
     createdDate: '2024. 07. 19',
     status: '진행중',
-    statusColor: 'bg-blue-500',
   },
   {
     type: '이슈',
@@ -144,7 +169,6 @@ const items: BoardItem[] = [
     assignee: 'CN +2',
     createdDate: '2024. 07. 19',
     status: '진행중',
-    statusColor: 'bg-blue-500',
   },
   {
     type: '피드백',
@@ -152,7 +176,6 @@ const items: BoardItem[] = [
     assignee: 'CN +2',
     createdDate: '2024. 07. 19',
     status: '진행중',
-    statusColor: 'bg-blue-500',
   },
   {
     type: '이슈',
@@ -160,7 +183,20 @@ const items: BoardItem[] = [
     assignee: 'CN +2',
     createdDate: '2024. 07. 19',
     status: '완료',
-    statusColor: 'bg-green-500',
+  },
+  {
+    type: '이슈',
+    title: '긴급 배포 이슈',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '완료',
+  },
+  {
+    type: '이슈',
+    title: '긴급 배포 이슈',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '완료',
   },
 ]
 
@@ -169,10 +205,10 @@ const ProjectContainer = () => {
 
   return (
     <div className="Container">
-      <div className="flex justify-between pt-9">
+      <div className="flex justify-between pt-[90px]">
         <div className="flex">
           <div className="text-h1">프로젝트 이름</div>
-          <div className="self-end pl-24 text-h3">프로젝트 기간 </div>
+          <div className="self-end pl-[24px] text-h3">프로젝트 기간 </div>
         </div>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -198,16 +234,17 @@ const ProjectContainer = () => {
           />
         </svg>
       </div>
-      <div className="py-3.5">
+      <div className="py-[36px] text-h3">
         프로젝트개요입니다프로젝트개요입니다프로젝트개요입니다프로젝트개요입니다
-        프로젝트개요입니다 프로젝트개요입니다 프로젝트개요입니다
-        프로젝트개요입니다
+        프로젝트개요입니다 프로젝트개요입니다
       </div>
-      <hr className="mb-3.5 border-t border-gray-300" />
-      <div className="container mx-auto p-4">
-        <h1 className="mb-4 text-2xl font-bold">보드</h1>
+      <hr className="mb-[36px] border-t border-gray-300" />
+      <h1 className="text-2xl font-bold">보드</h1>
+      <div className="container p-[24px]">
         <Board items={items} />
       </div>
+      <hr className="border-t border-gray-300" />
+      <div className="py-[36px] text-h3">캘린더</div>
       <div className="flex">
         <Calendar
           mode="single"
@@ -216,9 +253,8 @@ const ProjectContainer = () => {
           className="rounded-md border"
           locale={ko}
         />
-        <div>asdasd</div>
       </div>
-      <div className="mt-4 gap-1">
+      <div className="mt-[32px] flex flex-col gap-[12px] p-[1px]">
         프로젝트 팀원
         <TeamCheckbox id="1" name="팀원 A"></TeamCheckbox>
         <TeamCheckbox id="2" name="팀원 B"></TeamCheckbox>
@@ -226,7 +262,7 @@ const ProjectContainer = () => {
         <TeamCheckbox id="4" name="팀원 내 개인 캘린더"></TeamCheckbox>
         <TeamCheckbox id="5" name="팀원 프로젝트 회의"></TeamCheckbox>
       </div>
-      <div className="mt-3.5 w-80 p-1">
+      <div className="mt-[24px] w-[300px]">
         회의 추천 일정
         <ScheduleItem
           date={scheduleData.date}
