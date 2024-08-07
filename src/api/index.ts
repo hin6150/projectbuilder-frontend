@@ -6,7 +6,7 @@ export {
 
 // USER
 export { UserStatus } from './services/user/model'
-export type { UserInfoResponse } from './services/user/model'
+export type { UserInfo, UserInfoResponse } from './services/user/model'
 export {
   useEditUserMutation,
   useUserInfoQuery,
@@ -18,23 +18,22 @@ export { userService } from './services/user/service'
 //Project
 export { ProjectInviteStatus } from './services/project/model'
 export type {
+  AddProjectDTO,
+  DeleteTeamDto,
+  EditProjectDTO,
+  InviteTeamDto,
   ProjectInfo,
   ProjectInfoResponse,
-  AddProjectDTO,
-  EditProjectDTO,
-  TeamInfo,
   TeamInfoResponse,
-  InviteTeamDto,
-  DeleteTeamDto,
 } from './services/project/model'
 export {
+  useAddProjectInfo,
+  useDeleteProjectInfo,
+  useDeleteTeamInfo,
+  useEditProjectInfo,
+  useInviteTeamInfo,
   useProjectInfoQuery,
   useTeamInfoQuery,
-  useAddProjectInfo,
-  useEditProjectInfo,
-  useDeleteProjectInfo,
-  useInviteTeamInfo,
-  useDeleteTeamInfo,
 } from './services/project/quries'
 
 //Schedule

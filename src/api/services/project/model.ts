@@ -1,3 +1,5 @@
+import { UserInfo } from '../user/model'
+
 export const enum ProjectInviteStatus {
   Invited = '초대완료',
   Acceped = '수락',
@@ -27,22 +29,22 @@ export interface ProjectInfoResponse {
 
 export interface TeamInfoResponse {
   code: string
-  result: TeamInfo[]
+  result: UserInfo[]
 }
 
-export interface TeamInfo {
-  email: string
-  state: ProjectInviteStatus
-}
+// export interface TeamInfo {
+//   email: string
+//   state: ProjectInviteStatus
+// }
 
 export interface InviteTeamDto {
-  id: string
-  email: string
+  projectId: string
+  userEmails: string[]
 }
 
 export interface DeleteTeamDto {
-  id: string
-  email: string
+  projectId: string
+  userEmails: string[]
 }
 
 export interface AddProjectDTO {

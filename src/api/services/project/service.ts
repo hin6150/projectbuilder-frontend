@@ -40,29 +40,23 @@ export const projectService = {
   },
 
   async teamInfo(client: QueryClient, uid: string) {
-    return (
-      APIBuilder.get(`/project/info/${uid}/TeamInfo`)
-        // .withCredentials(client)
-        .build()
-        .call<TeamInfoResponse>()
-    )
+    return APIBuilder.get(`/workspace/project/users?key=${uid}`)
+      .withCredentials(client)
+      .build()
+      .call<TeamInfoResponse>()
   },
 
   async inviteTeamInfo(client: QueryClient, dto: InviteTeamDto) {
-    return (
-      APIBuilder.post(`/project/info/${dto.id}/TeamInfo`)
-        // .withCredentials(client)
-        .build()
-        .call<DefaultResponse>({ body: JSON.stringify(dto) })
-    )
+    return APIBuilder.post(`/workspace/project`)
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
 
   async deleteTeamInfo(client: QueryClient, dto: DeleteTeamDto) {
-    return (
-      APIBuilder.delete(`/project/info/${dto.id}/TeamInfo`)
-        // .withCredentials(client)
-        .build()
-        .call<DefaultResponse>({ body: JSON.stringify(dto) })
-    )
+    return APIBuilder.delete(`/workspace/project/user`)
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
 }

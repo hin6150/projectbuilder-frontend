@@ -27,20 +27,22 @@ export const toolList = ['Github', 'Figma', 'Notion']
 
 export interface UserInfoResponse {
   code: string
-  result: {
-    id: string
-    email: string
-    socialId: string
-    status: UserStatus
-    onboardingCompleted: boolean
-    name: string
-    contact: string
-    location: string
-    tools: {}
-    stackNames: string[]
-    mbti: string
-    imageUrl: string
-  }
+  result: UserInfo
+}
+
+export interface UserInfo {
+  id: string
+  email: string
+  socialId: string
+  status: UserStatus
+  onboardingCompleted: boolean
+  name: string
+  contact: string
+  location: string
+  tools: {}
+  stackNames: string[]
+  mbti: string
+  imageUrl: string
 }
 
 export interface UserSignUpDTO {

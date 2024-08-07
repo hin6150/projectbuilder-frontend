@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
 import {
   MoreVertical,
@@ -32,8 +32,6 @@ const Card = ({
   const remainingMemberCount = data.users?.length - MAX_VISIBLE_MEMBERS
 
   const { openModal } = useModal()
-
-  const date = parseISO(data.startDate)
 
   return (
     <Link href={`/project/${data.id}`}>
