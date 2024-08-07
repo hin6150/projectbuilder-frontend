@@ -28,6 +28,7 @@ export interface BoardItem {
   assignee: string
   createdDate: string
   status: string
+  [key: string]: string
 }
 
 export interface BoardProps {
@@ -72,7 +73,101 @@ const scheduleData = {
   ],
 } // api 연동시 수정해야함!
 
+const FilterBar = () => {
+  const [search, setSearch] = useState('')
+  const [showSearchInput, setShowSearchInput] = useState(false)
+
+  return (
+    <div className="flex items-center space-x-2 p-2">
+      {showSearchInput ? (
+        <input
+          type="text"
+          placeholder="제목으로 검색하기"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-[384px] flex-grow rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      ) : (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          onClick={() => setShowSearchInput(true)}
+          className="cursor-pointer"
+        >
+          <path
+            d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
+            stroke="black"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M21.0004 21.0004L16.6504 16.6504"
+            stroke="black"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path
+          d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z"
+          stroke="black"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <button className="rounded-[6px] border-[1px] px-4 py-2 transition duration-200 hover:bg-blue-600 hover:text-white">
+        + 게시글 작성
+      </button>
+    </div>
+  )
+}
+
 const Board: React.FC<BoardProps> = ({ items }) => {
+  const [sortConfig, setSortConfig] = useState<{
+    key: string
+    direction: string
+  } | null>(null)
+
+  const sortedItems = React.useMemo(() => {
+    if (sortConfig !== null) {
+      return [...items].sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? -1 : 1
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? 1 : -1
+        }
+        return 0
+      })
+    }
+    return items
+  }, [items, sortConfig])
+
+  const requestSort = (key: string) => {
+    let direction = 'ascending'
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === 'ascending'
+    ) {
+      direction = 'descending'
+    }
+    setSortConfig({ key, direction })
+  }
+
   const renderStatus = (status: string) => {
     if (status === '긴급') {
       return (
@@ -107,11 +202,36 @@ const Board: React.FC<BoardProps> = ({ items }) => {
               <th className="border-b px-5 py-2">
                 <Checkbox />
               </th>
-              <th className="border-b px-4 py-2">종류</th>
-              <th className="border-b px-4 py-2">제목</th>
-              <th className="border-b px-4 py-2">담당자</th>
-              <th className="border-b px-4 py-2">생성일자</th>
-              <th className="border-b px-4 py-2">진행 상태</th>
+              <th
+                className="cursor-pointer border-b px-4 py-2"
+                onClick={() => requestSort('type')}
+              >
+                종류
+              </th>
+              <th
+                className="cursor-pointer border-b px-4 py-2"
+                onClick={() => requestSort('title')}
+              >
+                제목
+              </th>
+              <th
+                className="cursor-pointer border-b px-4 py-2"
+                onClick={() => requestSort('assignee')}
+              >
+                담당자
+              </th>
+              <th
+                className="cursor-pointer border-b px-4 py-2"
+                onClick={() => requestSort('createdDate')}
+              >
+                생성일자
+              </th>
+              <th
+                className="cursor-pointer border-b px-4 py-2"
+                onClick={() => requestSort('status')}
+              >
+                진행 상태
+              </th>
             </tr>
           </thead>
         </table>
@@ -119,7 +239,7 @@ const Board: React.FC<BoardProps> = ({ items }) => {
       <div className="max-h-[300px] overflow-y-auto">
         <table className="w-full bg-white">
           <tbody>
-            {items.map((item, index) => (
+            {sortedItems.map((item, index) => (
               <tr key={index}>
                 <td className="border-b px-5 py-2">
                   <Checkbox />
@@ -139,7 +259,6 @@ const Board: React.FC<BoardProps> = ({ items }) => {
     </div>
   )
 }
-// api 연동해서 꼭 수정하기
 
 const items: BoardItem[] = [
   {
@@ -242,7 +361,10 @@ const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
       </div>
       <div className="py-[36px] text-h3">{data.subTitle}</div>
       <hr className="mb-[36px] border-t border-gray-300" />
-      <h1 className="text-2xl font-bold">보드</h1>
+      <div className="flex justify-between">
+        <h1 className="text-2xl font-bold">보드</h1>
+        <FilterBar />
+      </div>
       <div className="container p-[24px]">
         <Board items={items} />
       </div>
