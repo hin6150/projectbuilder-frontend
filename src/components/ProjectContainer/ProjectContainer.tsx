@@ -200,15 +200,21 @@ const items: BoardItem[] = [
   },
 ]
 
-const ProjectContainer = () => {
+const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
+  if (!data) {
+    return <div>Loading...</div> // 데이터가 없는 경우를 처리합니다.
+  }
+
   const [date, setDate] = React.useState<Date | undefined>(new Date())
 
   return (
     <div className="Container">
       <div className="flex justify-between pt-[90px]">
         <div className="flex">
-          <div className="text-h1">프로젝트 이름</div>
-          <div className="self-end pl-[24px] text-h3">프로젝트 기간 </div>
+          <div className="text-h1">{data.title}</div>
+          <div className="self-end pl-[24px] text-h3">
+            {data.startDate}~{data.endDate}
+          </div>
         </div>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -234,10 +240,7 @@ const ProjectContainer = () => {
           />
         </svg>
       </div>
-      <div className="py-[36px] text-h3">
-        프로젝트개요입니다프로젝트개요입니다프로젝트개요입니다프로젝트개요입니다
-        프로젝트개요입니다 프로젝트개요입니다
-      </div>
+      <div className="py-[36px] text-h3">{data.subTitle}</div>
       <hr className="mb-[36px] border-t border-gray-300" />
       <h1 className="text-2xl font-bold">보드</h1>
       <div className="container p-[24px]">
