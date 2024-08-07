@@ -1,7 +1,6 @@
 import {
   ProjectInfo,
-  ProjectInviteStatus,
-  TeamInfo,
+  UserInfo,
   useAddProjectInfo,
   useDeleteProjectInfo,
   useDeleteTeamInfo,
@@ -14,7 +13,6 @@ import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
-import { MailIcon, XIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -241,7 +239,7 @@ export const ProjectDeleteModal = ({ uid }: { uid: string }) => {
 
 export const ProjectInviteModal = ({ uid }: { uid: string }) => {
   const { data } = useTeamInfoQuery({}, uid)
-  const [inviteEmailList, setInviteEmailList] = useState<TeamInfo[]>([])
+  const [inviteEmailList, setInviteEmailList] = useState<UserInfo[]>([])
 
   useEffect(() => {
     if (data != null) {
@@ -261,14 +259,14 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
 
   const inviteTeamInfo = useInviteTeamInfo(
     {
-      id: uid,
-      email: form.watch('email'),
+      projectId: uid,
+      userEmails: [form.watch('email')],
     },
     {
       onSuccess: () => {
         console.log('Success:', {
           uid: uid,
-          email: form.watch('email'),
+          email: [form.watch('email')],
         })
       },
       onError: (e) => {
@@ -279,8 +277,8 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
 
   const deleteTeamInfo = useDeleteTeamInfo(
     {
-      id: uid,
-      email: form.watch('email'),
+      projectId: uid,
+      userEmails: [form.watch('email')],
     },
     {
       onSuccess: () => {
@@ -309,7 +307,7 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
   function onSubmit(values: z.infer<typeof formEmailProject>) {
     setInviteEmailList([
       ...inviteEmailList,
-      { email: form.watch('email') ?? '', state: ProjectInviteStatus.Invited },
+      // { email: form.watch('email') ?? '', state: ProjectInviteStatus.Invited },
     ])
     inviteTeamInfo.mutate()
     form.reset()
@@ -340,7 +338,7 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
             </Button>
           </form>
         </Form>
-        <div className="flex flex-col gap-2">
+        {/* <div className="flex flex-col gap-2">
           {inviteEmailList.map((data, index) => {
             const color =
               data.state == ProjectInviteStatus.Invited
@@ -371,7 +369,7 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
           {inviteEmailList.length == 0 && (
             <p className="text-subtle text-slate-400">초대된 팀원이 없어요!</p>
           )}
-        </div>
+        </div> */}
         <Button
           title="닫기"
           variant="secondary"
