@@ -6,26 +6,64 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { scheduleService } from './service'
-import { AddScheduleDTO, ScheduleResponse } from './model'
+import {
+  AddScheduleDTO,
+  DeleteScheduleType,
+  EditScheduleDTO,
+  ScheduleDetailResponse,
+  ScheduleListResponse,
+} from './model'
 import { CustomQueryOptions } from '@/api/type'
 
 export const scheduleOptions = {
-  getSchedules: (client: QueryClient) => ({
-    queryKey: ['schedule'],
-    queryFn: () => scheduleService.getSchedules(client),
+  getScheduleList: (
+    client: QueryClient,
+    startDate: string,
+    endDate: string,
+  ) => ({
+    queryKey: ['schedules', startDate, endDate],
+    queryFn: () => scheduleService.getScheduleList(client, startDate, endDate),
   }),
-  addSchedule: (client: QueryClient, dto: AddScheduleDTO) => ({
+  getScheduleDetail: (client: QueryClient, id: string) => ({
+    queryKey: ['schedule', id],
+    queryFn: () => scheduleService.getScheduleDtail(client, id),
+  }),
+  useAddSchedule: (client: QueryClient, dto: AddScheduleDTO) => ({
     mutationFn: () => scheduleService.addSchedule(client, dto),
+  }),
+  useEditSchedule: (client: QueryClient, id: string, dto: EditScheduleDTO) => ({
+    mutationFn: () => scheduleService.editSchedule(client, id, dto),
+  }),
+  useDeleteSchedule: (
+    client: QueryClient,
+    id: string,
+    deleteType: DeleteScheduleType,
+  ) => ({
+    mutationFn: () => scheduleService.deleteSchedule(client, id, deleteType),
   }),
 }
 
-export const useSchedulesQuery = (
-  options: CustomQueryOptions<ScheduleResponse> = {},
+export const useScheduleListQuery = (
+  startDate: string,
+  endDate: string,
+  options: CustomQueryOptions<ScheduleListResponse> = {},
 ) => {
   const queryClient = useQueryClient()
 
-  return useQuery<ScheduleResponse>({
-    ...scheduleOptions.getSchedules(queryClient),
+  return useQuery<ScheduleListResponse>({
+    ...scheduleOptions.getScheduleList(queryClient, startDate, endDate),
+    ...options,
+  })
+}
+
+export const useScheduleDetailQuery = (
+  id: string,
+  options: CustomQueryOptions<ScheduleDetailResponse> = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useQuery<ScheduleDetailResponse>({
+    ...scheduleOptions.getScheduleDetail(queryClient, id),
     ...options,
   })
 }
@@ -37,7 +75,33 @@ export const useAddScheduleMutation = (
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...scheduleOptions.addSchedule(queryClient, dto),
+    ...scheduleOptions.useAddSchedule(queryClient, dto),
+    ...options,
+  })
+}
+
+export const useEditScheduleMutation = (
+  id: string,
+  dto: EditScheduleDTO,
+  options: MutationOptions = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    ...scheduleOptions.useEditSchedule(queryClient, id, dto),
+    ...options,
+  })
+}
+
+export const useDeleteScheduleMutation = (
+  id: string,
+  deleteType: DeleteScheduleType,
+  options: MutationOptions = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    ...scheduleOptions.useDeleteSchedule(queryClient, id, deleteType),
     ...options,
   })
 }
