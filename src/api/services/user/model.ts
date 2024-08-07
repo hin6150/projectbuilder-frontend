@@ -55,7 +55,7 @@ export interface UserOptionalInfoDTO {
   tools: {}
   location: string
   stacks: string[]
-  mbti: string
+  mbti: string | null
 }
 
 export interface EditUserInfoDTO {
