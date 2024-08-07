@@ -1,50 +1,42 @@
 import { APIBuilder } from '@/api/lib/fetcher'
 import { QueryClient } from '@tanstack/react-query'
 import {
-  ProjectInfoResponse,
-  TeamInfoResponse,
-  DefaultResponse,
   AddProjectDTO,
+  DefaultResponse,
+  DeleteTeamDto,
   EditProjectDTO,
   InviteTeamDto,
-  DeleteTeamDto,
+  ProjectInfoResponse,
+  TeamInfoResponse,
 } from './model'
 
 export const projectService = {
   async projectInfo(client: QueryClient) {
-    return (
-      APIBuilder.get('/project/info')
-        // .withCredentials(client)
-        .build()
-        .call<ProjectInfoResponse>()
-    )
+    return APIBuilder.get('/workspace')
+      .withCredentials(client)
+      .build()
+      .call<ProjectInfoResponse>()
   },
 
   async addProjectInfo(client: QueryClient, dto: AddProjectDTO) {
-    return (
-      APIBuilder.post('/project/info')
-        // .withCredentials(client)
-        .build()
-        .call<DefaultResponse>({ body: JSON.stringify(dto) })
-    )
+    return APIBuilder.post('/workspace')
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
 
-  async editProjectInfo(client: QueryClient, dto: EditProjectDTO) {
-    return (
-      APIBuilder.post('/project/info')
-        // .withCredentials(client)
-        .build()
-        .call<DefaultResponse>({ body: JSON.stringify(dto) })
-    )
+  async editProjectInfo(client: QueryClient, dto: EditProjectDTO, uid: string) {
+    return APIBuilder.put(`/workspace/project?key=${uid}`)
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
 
   async deleteProjectInfo(client: QueryClient, uid: string) {
-    return (
-      APIBuilder.delete(`/project/info/${uid}`)
-        // .withCredentials(client)
-        .build()
-        .call<DefaultResponse>()
-    )
+    return APIBuilder.delete(`/workspace/project?key=${uid}`)
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>()
   },
 
   async teamInfo(client: QueryClient, uid: string) {
@@ -58,7 +50,7 @@ export const projectService = {
 
   async inviteTeamInfo(client: QueryClient, dto: InviteTeamDto) {
     return (
-      APIBuilder.post(`/project/info/${dto.uid}/TeamInfo`)
+      APIBuilder.post(`/project/info/${dto.id}/TeamInfo`)
         // .withCredentials(client)
         .build()
         .call<DefaultResponse>({ body: JSON.stringify(dto) })
@@ -67,7 +59,7 @@ export const projectService = {
 
   async deleteTeamInfo(client: QueryClient, dto: DeleteTeamDto) {
     return (
-      APIBuilder.delete(`/project/info/${dto.uid}/TeamInfo`)
+      APIBuilder.delete(`/project/info/${dto.id}/TeamInfo`)
         // .withCredentials(client)
         .build()
         .call<DefaultResponse>({ body: JSON.stringify(dto) })

@@ -4,10 +4,7 @@ import { QueryClient } from '@tanstack/react-query'
 
 import Cookies from 'js-cookie'
 
-import {
-  ACCESS_TOKEN_HEADER_KEY,
-  REFRESH_TOKEN_HEADER_KEY,
-} from '../constants/header-key'
+import { ACCESS_TOKEN_HEADER_KEY } from '../constants/header-key'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080'
 
@@ -69,7 +66,6 @@ export class Fetcher {
     const access = client.getQueryData<string>(['access'])
     const refresh = client.getQueryData<string>(['refresh'])
 
-    console.log(access, refresh)
     if (!access && !refresh && location) {
       location.href = '/login'
     }
@@ -90,6 +86,8 @@ export class Fetcher {
 
       const response = await fetch(`${this.baseUrl}${url}`, fetchOptions)
       // const response = await fetch(url, fetchOptions)
+
+      console.log(`Bearer ${client.getQueryData<string>(['access'])!}`)
 
       if (response.status === 401) {
         if (retry) {
@@ -120,37 +118,40 @@ export class Fetcher {
     refresh: string,
     client: QueryClient,
   ) => {
+    let data = null
+
     try {
       const res = await fetch(`${API_URL}/oauth/token/refresh`, {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
-          [REFRESH_TOKEN_HEADER_KEY]: refresh,
+          [ACCESS_TOKEN_HEADER_KEY]: `Bearer ${refresh}`,
         },
       })
-      // const res = await fetch(`oauth/token/refresh`, {
-      //   headers: {
-      //     Accept: 'application/json',
-      //     'Content-Type': 'application/json',
-      //     [REFRESH_TOKEN_HEADER_KEY]: refresh,
-      //   },
-      // })
 
-      const newAccessToken = res.headers.get(ACCESS_TOKEN_HEADER_KEY)
-      const newRefreshToken = res.headers.get(REFRESH_TOKEN_HEADER_KEY)
+      if (res.ok) {
+        data = await res.json()
+      } else {
+        const error = await res.json()
+        throw new Error(error.code)
+      }
 
-      if (!newAccessToken || !newRefreshToken) {
+      const newAccessToken = data?.result?.accessToken
+      // const newAccessToken = res.headers.get(ACCESS_TOKEN_HEADER_KEY)
+      // const newRefreshToken = res.headers.get(REFRESH_TOKEN_HEADER_KEY)
+
+      if (!newAccessToken) {
         throw new Error('토큰 갱신에 실패하였습니다.')
       }
 
       Cookies.set('access', newAccessToken)
-      Cookies.set('refresh', newRefreshToken)
+      // Cookies.set('refresh', newRefreshToken)
 
       client.setQueryData(['access'], newAccessToken)
-      client.setQueryData(['refresh'], newRefreshToken)
+      // client.setQueryData(['refresh'], newRefreshToken)
     } catch {
       if (global.location) {
-        global.location.href = '/login'
+        // global.location.href = '/login'
       }
       throw new Error('토큰 갱신에 실패하였습니다.')
     }

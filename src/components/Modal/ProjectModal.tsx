@@ -13,6 +13,7 @@ import { useModal } from '@/hooks/useModal'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { MailIcon, XIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -28,6 +29,7 @@ import { Modal } from './Modal'
 
 export const ProjectCreateModal = () => {
   const { closeModal } = useModal()
+  const queryClient = useQueryClient()
 
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
@@ -41,18 +43,15 @@ export const ProjectCreateModal = () => {
   const addProjectInfo = useAddProjectInfo(
     {
       title: form.watch('title'),
-      subTitle: form.watch('description'),
+      overview: form.watch('description'),
       startDate: form.watch('period').from.toISOString(),
       endDate: form.watch('period').to.toISOString(),
     },
     {
       onSuccess: () => {
-        console.log('Success:', {
-          title: form.watch('title'),
-          subTitle: form.watch('description'),
-          startDate: form.watch('period').from.toISOString(),
-          endDate: form.watch('period').to.toISOString(),
-        })
+        queryClient.invalidateQueries({ queryKey: ['projectList'] })
+
+        closeModal('dimed')
       },
       onError: (e) => {
         console.log(e)
@@ -62,7 +61,6 @@ export const ProjectCreateModal = () => {
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
     addProjectInfo.mutate()
-    closeModal('dimed')
   }
 
   return (
@@ -115,6 +113,8 @@ export const ProjectCreateModal = () => {
 export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
   const { closeModal } = useModal()
 
+  const queryClient = useQueryClient()
+
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
     defaultValues: {
@@ -123,24 +123,23 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
         from: new Date(project.startDate),
         to: new Date(project.endDate),
       },
-      description: project.subTitle || '',
+      description: project.overview || '',
     },
   })
+
   const editProjectInfo = useEditProjectInfo(
     {
       title: form.watch('title'),
-      subTitle: form.watch('description'),
+      overview: form.watch('description'),
       startDate: form.watch('period').from.toISOString(),
       endDate: form.watch('period').to.toISOString(),
     },
+    project.id,
     {
       onSuccess: () => {
-        console.log('Success:', {
-          title: form.watch('title'),
-          subTitle: form.watch('description'),
-          startDate: form.watch('period').from.toISOString(),
-          endDate: form.watch('period').to.toISOString(),
-        })
+        queryClient.invalidateQueries({ queryKey: ['projectList'] })
+
+        closeModal('dimed')
       },
       onError: (e) => {
         console.log(e)
@@ -149,7 +148,6 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
   )
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
-    closeModal('dimed')
     editProjectInfo.mutate()
   }
 
@@ -202,10 +200,12 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
 
 export const ProjectDeleteModal = ({ uid }: { uid: string }) => {
   const { closeModal } = useModal()
+  const queryClient = useQueryClient()
 
   const deleteProjectInfo = useDeleteProjectInfo(uid, {
     onSuccess: () => {
-      console.log('프로젝트 삭제 성공:', uid)
+      queryClient.invalidateQueries({ queryKey: ['projectList'] })
+
       closeModal('dimed')
     },
     onError: (err: Error) => {
@@ -261,7 +261,7 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
 
   const inviteTeamInfo = useInviteTeamInfo(
     {
-      uid: uid,
+      id: uid,
       email: form.watch('email'),
     },
     {
@@ -279,13 +279,13 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
 
   const deleteTeamInfo = useDeleteTeamInfo(
     {
-      uid: uid,
+      id: uid,
       email: form.watch('email'),
     },
     {
       onSuccess: () => {
         console.log('Success:', {
-          uid: uid,
+          id: uid,
           email: form.watch('email'),
         })
       },

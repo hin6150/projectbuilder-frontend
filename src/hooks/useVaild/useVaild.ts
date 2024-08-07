@@ -74,7 +74,7 @@ const teamName = z.string()
 export const formSchemaUserEdit = z.object({
   name: nameField,
   email: emailField,
-  phonenumber: phonenumberField,
+  contact: phonenumberField,
   address: addressField,
   stack: stackField,
   MBTI: mbtiField,
@@ -85,7 +85,7 @@ export const formSchemaUserEdit = z.object({
 export const formSchemaSignUp = z.object({
   name: nameField,
   email: emailField,
-  phonenumber: phonenumberField,
+  contact: phonenumberField,
   use: useField,
   privacy: privacyField,
   marketing: marketingField,

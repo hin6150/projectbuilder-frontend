@@ -43,11 +43,11 @@ const Workspace = () => {
         }
       case ModalTypes.DELETE:
         if (selectedProject != null) {
-          return <ProjectDeleteModal uid={selectedProject.uid} />
+          return <ProjectDeleteModal uid={selectedProject.id} />
         }
       case ModalTypes.INVITE:
         if (selectedProject != null) {
-          return <ProjectInviteModal uid={selectedProject.uid} />
+          return <ProjectInviteModal uid={selectedProject.id} />
         }
 
       default:
@@ -69,7 +69,7 @@ const Workspace = () => {
       <div className="flex flex-wrap gap-5">
         {data?.result.map((projectData) => (
           <Card
-            key={projectData.uid}
+            key={projectData.id}
             data={projectData}
             setSelectedProject={setSelectedProject}
           />

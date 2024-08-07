@@ -32,13 +32,7 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { CommandList } from 'cmdk'
-import {
-  CalendarIcon,
-  Check,
-  ChevronDown,
-  ChevronsUpDown,
-  XIcon,
-} from 'lucide-react'
+import { CalendarIcon, Check, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import * as React from 'react'
 import { z } from 'zod'
 
@@ -51,6 +45,7 @@ import { ModalTypes } from '@/hooks/useModal/useModal'
 import { formatPhoneNumber } from '@/hooks/useVaild'
 import { format, getDay } from 'date-fns'
 import { UseFormReturn } from 'react-hook-form'
+import { TimePickerDemo } from '../TimePicker/time-picker-demo'
 import { Calendar } from '../ui/calendar'
 import { Checkbox } from '../ui/checkbox'
 import {
@@ -61,7 +56,6 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { Textarea } from '../ui/textarea'
-import { TimePickerDemo } from '../TimePicker/time-picker-demo'
 
 interface entry {
   tool: string
@@ -156,22 +150,22 @@ export const ToolInfoForm = ({ form, entries, setEntries }: infoFormType) => {
 
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
-    const entrySchema = z.object({
-      tool: z.string().nonempty({ message: '협업 툴을 선택하세요.' }),
-      email: z.string().email({ message: '유효한 이메일을 입력하세요.' }),
-    })
+    // const entrySchema = z.object({
+    //   tool: z.string().nonempty({ message: '협업 툴을 선택하세요.' }),
+    //   email: z.string().email({ message: '유효한 이메일을 입력하세요.' }),
+    // })
 
-    const result = entrySchema.safeParse({ tool: addTool, email: toolEmail })
+    // const result = entrySchema.safeParse({ tool: addTool, email: toolEmail })
 
-    if (result.success) {
-      setEntries([...entries, { tool: addTool, email: toolEmail }])
-      setAddTool('')
-      setToolEmail('')
-    } else {
-      result.error.errors.forEach((error) => {
-        alert(error.message)
-      })
-    }
+    // if (result.success) {
+    setEntries([...entries, { tool: addTool, email: toolEmail }])
+    setAddTool('')
+    setToolEmail('')
+    // } else {
+    //   result.error.errors.forEach((error) => {
+    //     alert(error.message)
+    //   })
+    // }
   }
 
   const handleRemove = (index: number) => {
@@ -331,7 +325,7 @@ export const AddressInfoForm = ({ form }: formType) => (
 export const PhoneInfoForm = ({ form }: formType) => (
   <FormField
     control={form.control}
-    name="phonenumber"
+    name="contact"
     render={({ field }) => (
       <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
         <FormLabel className="text-p">전화번호</FormLabel>

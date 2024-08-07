@@ -1,5 +1,3 @@
-import { StringDecoder } from 'string_decoder'
-
 export const enum ProjectInviteStatus {
   Invited = '초대완료',
   Acceped = '수락',
@@ -7,17 +5,17 @@ export const enum ProjectInviteStatus {
 }
 
 interface ProjectUserInfo {
-  uid: string
+  id: string
   avatar: string | undefined
   name: string
   email: string
 }
 
 export interface ProjectInfo {
-  uid: string
+  id: string
   title: string
-  subTitle: string
-  user: ProjectUserInfo[]
+  overview: string
+  users: ProjectUserInfo[]
   startDate: string
   endDate: string
 }
@@ -38,25 +36,25 @@ export interface TeamInfo {
 }
 
 export interface InviteTeamDto {
-  uid: string
+  id: string
   email: string
 }
 
 export interface DeleteTeamDto {
-  uid: string
+  id: string
   email: string
 }
 
 export interface AddProjectDTO {
   title: string
-  subTitle: string
+  overview: string
   startDate: string
   endDate: string
 }
 
 export interface EditProjectDTO {
   title: string
-  subTitle: string
+  overview: string
   startDate: string
   endDate: string
 }
