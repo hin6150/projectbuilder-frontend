@@ -7,18 +7,18 @@ export const userHandlers = [
       code: 'SUCCESS',
       result: {
         id: 'c57a1af5-ccde-4a16-86d0-ad202e1c91f0',
+        socialId: '12408124812',
         email: 'HongGildong@gmail.com',
-        status: UserStatus.SocialLoginCompleted,
-        onboardingCompleted: false,
+        status: UserStatus.LOGIN,
         name: '홍길동',
-        phone: '010-1234-5678',
-        address: '서울특별시',
-        tool: {
+        contact: '010-1234-5678',
+        location: '서울특별시',
+        tools: {
           Figma: 'HongGildong@naver.com',
           Notion: 'HongGildong@gmail.com',
         },
-        stack: ['리엑트', 'ㅇㅇ'],
-        MBTI: 'ESTJ',
+        stacks: ['리엑트', 'ㅇㅇ'],
+        mbti: 'ESTJ',
         imageUrl: 'https://avatars.githubusercontent.com/u/145416041?v=4',
       },
     })

@@ -35,7 +35,6 @@ export interface UserInfo {
   email: string
   socialId: string
   status: UserStatus
-  onboardingCompleted: boolean
   name: string
   contact: string
   location: string
