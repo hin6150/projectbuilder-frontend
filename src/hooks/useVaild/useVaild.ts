@@ -75,9 +75,9 @@ export const formSchemaUserEdit = z.object({
   name: nameField,
   email: emailField,
   contact: phonenumberField,
-  address: addressField,
-  stack: stackField,
-  MBTI: mbtiField,
+  location: addressField,
+  stacks: stackField,
+  mbti: mbtiField,
   entries: entriesField,
   imageUrl: imageUrlField,
 })

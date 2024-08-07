@@ -30,11 +30,9 @@ export const userService = {
       .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
   async userEdit(client: QueryClient, dto: EditUserInfoDTO) {
-    return (
-      APIBuilder.post('/user/info')
-        // .withCredentials(client)
-        .build()
-        .call<DefaultResponse>({ body: JSON.stringify(dto) })
-    )
+    return APIBuilder.put('/user/info/optional')
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
 }

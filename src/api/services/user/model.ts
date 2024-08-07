@@ -23,7 +23,7 @@ export const mbtiOptions = [
   'ENTJ',
 ].map((value) => ({ value, label: value }))
 
-export const toolList = ['Github', 'Figma', 'Notion']
+export const toolList = ['GITHUB', 'FIGMA', 'NOTION']
 
 export interface UserInfoResponse {
   code: string
@@ -38,7 +38,7 @@ export interface UserInfo {
   name: string
   contact: string
   location: string
-  tools: {}
+  tools: [{ toolName: string; email: string }]
   stackNames: string[]
   mbti: string
   imageUrl: string
@@ -62,12 +62,13 @@ export interface UserOptionalInfoDTO {
 export interface EditUserInfoDTO {
   email: string
   name: string
-  phone: string
-  address: string
-  tool: {}
-  stack: string[]
-  MBTI: string
+  contact: string
+  location: string
+  tools: {}
+  stacks: string[]
+  mbti: string | null
   imageUrl: string
+  // marketingEmailOptIn: false,
 }
 
 export interface DefaultResponse {

@@ -275,7 +275,7 @@ export const MBITInfoForm = ({ form, value, setValue }: mbtiFormType) => {
                     {mbtiOptions.map((mbtiOption) => (
                       <CommandItem
                         key={mbtiOption.value}
-                        value={mbtiOption.value}
+                        value={mbtiOption.value || ''}
                         onSelect={(currentValue) => {
                           setValue(currentValue === value ? '' : currentValue)
                           setMbtiOpen(false)
@@ -313,7 +313,7 @@ export const AddressInfoForm = ({ form }: formType) => (
         <FormControl>
           <Input
             placeholder="거주지역"
-            value={field.value}
+            value={field.value || ''}
             onChange={(e) => field.onChange(e.target.value)}
           />
         </FormControl>
@@ -332,7 +332,7 @@ export const PhoneInfoForm = ({ form }: formType) => (
         <FormControl>
           <Input
             placeholder="전화번호"
-            value={formatPhoneNumber(field.value)}
+            value={formatPhoneNumber(field.value) || ''}
             onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
           />
         </FormControl>
