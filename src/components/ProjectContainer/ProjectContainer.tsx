@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { ko } from 'date-fns/locale'
 import { ProjectInfo } from '@/api'
 import { format } from 'date-fns'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Check } from 'lucide-react'
 
 interface TeamCheckboxProps {
@@ -125,23 +125,84 @@ const scheduleData = {
   ],
 } // api 연동시 수정해야함!
 
-const FilterBar = () => {
-  const [isDropdownVisible, setDropdownVisible] = useState(false)
-  const [selectedItems, setSelectedItems] = useState({
-    status: '',
-    assignee: '',
-  })
-  const [search, setSearch] = useState('')
-  const [showSearchInput, setShowSearchInput] = useState(false)
+const items: BoardItem[] = [
+  {
+    type: '이슈',
+    title: '긴급 배포 이슈',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '긴급',
+  },
+  {
+    type: '피드백',
+    title: '스프린트 3 디자인 A안 B안 비교',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '진행중',
+  },
+  {
+    type: '이슈',
+    title: 'AWS 배포 비용 문제',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '진행중',
+  },
+  {
+    type: '이슈',
+    title: '프론트엔드 개발자 필요@@',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '진행중',
+  },
+  {
+    type: '피드백',
+    title: '스프린트 3 기획 리뷰',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '진행중',
+  },
+  {
+    type: '이슈',
+    title: '긴급 배포 이슈',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '완료',
+  },
+  {
+    type: '이슈',
+    title: '긴급 배포 이슈',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '완료',
+  },
+  {
+    type: '이슈',
+    title: '긴급 배포 이슈',
+    assignee: 'CN +2',
+    createdDate: '2024. 07. 19',
+    status: '완료',
+  },
+]
 
+type FilterChangeProps = {
+  statuses: string[]
+  assignees: string[]
+  search: string
+}
+interface FilterBarProps {
+  onFilterChange: (filters: FilterChangeProps) => void
+}
+
+const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
+  const [isDropdownVisible, setDropdownVisible] = useState(false)
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
+  const [search, setSearch] = useState('')
+  const [showSearchInput, setShowSearchInput] = useState(false)
 
   const handleToggleDropdown = () => {
     setDropdownVisible(!isDropdownVisible)
   }
-
-  type Category = 'status' | 'assignee'
 
   const handleSelectItem = (category: 'status' | 'assignee', value: string) => {
     if (category === 'status') {
@@ -159,8 +220,16 @@ const FilterBar = () => {
     }
   }
 
+  useEffect(() => {
+    onFilterChange({
+      statuses: selectedStatuses,
+      assignees: selectedAssignees,
+      search,
+    })
+  }, [selectedStatuses, selectedAssignees, search, onFilterChange])
+
   return (
-    <div className="flex items-center space-x-2 p-2">
+    <div className="relative flex items-center space-x-2 p-2">
       {showSearchInput ? (
         <input
           type="text"
@@ -195,92 +264,89 @@ const FilterBar = () => {
           />
         </svg>
       )}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        onClick={handleToggleDropdown}
-      >
-        <path
-          d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z"
-          stroke="black"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      {isDropdownVisible && (
-        <div className="absolute bottom-[5px] z-30 w-48 rounded-md bg-white shadow-lg">
-          <div
-            className="py-1"
-            role="menu"
-            aria-orientation="vertical"
-            aria-labelledby="options-menu"
-          >
-            <div className="px-4 py-2 text-sm text-gray-700">상태</div>
-            {['긴급', '진행중', '완료'].map((status) => (
-              <div
-                key={status}
-                className="flex cursor-pointer items-center gap-[8px] px-4 py-2 text-sm text-gray-700"
-                onClick={() => handleSelectItem('status', status)}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  className={`${
-                    selectedStatuses.includes(status) ? 'visible' : 'invisible'
-                  }`}
+      <div className="relative">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          onClick={handleToggleDropdown}
+          className="cursor-pointer"
+        >
+          <path
+            d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z"
+            stroke="black"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        {isDropdownVisible && (
+          <div className="absolute left-0 top-full z-10 mt-2 w-48 rounded-md bg-white shadow-lg">
+            <div
+              className="py-1"
+              role="menu"
+              aria-orientation="vertical"
+              aria-labelledby="options-menu"
+            >
+              <div className="px-4 py-2 text-sm text-gray-700">상태</div>
+              {['긴급', '진행중', '완료'].map((status) => (
+                <div
+                  key={status}
+                  className="flex cursor-pointer items-center gap-[8px] px-4 py-2 text-sm text-gray-700"
+                  onClick={() => handleSelectItem('status', status)}
                 >
-                  <path
-                    d="M13.3337 4L6.00033 11.3333L2.66699 8"
-                    stroke="#334155"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                {status}
-              </div>
-            ))}
-            <div className="border-t border-gray-200"></div>
-            <div className="px-4 py-2 text-sm text-gray-700">담당자</div>
-            {['사람 A', '사람 B', '사람 C'].map((assignee) => (
-              <div
-                key={assignee}
-                className="flex cursor-pointer items-center gap-[8px] px-4 py-2 text-sm text-gray-700"
-                onClick={() => handleSelectItem('assignee', assignee)}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  className={`${
-                    selectedAssignees.includes(assignee)
-                      ? 'visible'
-                      : 'invisible'
-                  }`}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    className={`${selectedStatuses.includes(status) ? 'visible' : 'invisible'}`}
+                  >
+                    <path
+                      d="M13.3337 4L6.00033 11.3333L2.66699 8"
+                      stroke="#334155"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  {status}
+                </div>
+              ))}
+              <div className="border-t border-gray-200"></div>
+              <div className="px-4 py-2 text-sm text-gray-700">담당자</div>
+              {['사람 A', '사람 B', '사람 C'].map((assignee) => (
+                <div
+                  key={assignee}
+                  className="flex cursor-pointer items-center gap-[8px] px-4 py-2 text-sm text-gray-700"
+                  onClick={() => handleSelectItem('assignee', assignee)}
                 >
-                  <path
-                    d="M13.3337 4L6.00033 11.3333L2.66699 8"
-                    stroke="#334155"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                {assignee}
-              </div>
-            ))}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    className={`${selectedAssignees.includes(assignee) ? 'visible' : 'invisible'}`}
+                  >
+                    <path
+                      d="M13.3337 4L6.00033 11.3333L2.66699 8"
+                      stroke="#334155"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  {assignee}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <button className="rounded-[6px] border-[1px] px-4 py-2 transition duration-200 hover:bg-blue-600 hover:text-white">
         + 게시글 작성
       </button>
@@ -436,7 +502,7 @@ const Board: React.FC<BoardProps> = ({ items }) => {
   }
 
   return (
-    <div>
+    <div className="h-[356px]">
       <div>
         <table className="w-full">
           <thead className="text-left">
@@ -521,69 +587,26 @@ const Board: React.FC<BoardProps> = ({ items }) => {
   )
 }
 
-const items: BoardItem[] = [
-  {
-    type: '이슈',
-    title: '긴급 배포 이슈',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '긴급',
-  },
-  {
-    type: '피드백',
-    title: '스프린트 3 디자인 A안 B안 비교',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '진행중',
-  },
-  {
-    type: '이슈',
-    title: 'AWS 배포 비용 문제',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '진행중',
-  },
-  {
-    type: '이슈',
-    title: '프론트엔드 개발자 필요@@',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '진행중',
-  },
-  {
-    type: '피드백',
-    title: '스프린트 3 기획 리뷰',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '진행중',
-  },
-  {
-    type: '이슈',
-    title: '긴급 배포 이슈',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '완료',
-  },
-  {
-    type: '이슈',
-    title: '긴급 배포 이슈',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '완료',
-  },
-  {
-    type: '이슈',
-    title: '긴급 배포 이슈',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '완료',
-  },
-]
-
 const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
   if (!data) {
     return <div>Loading...</div>
   }
+
+  const [filters, setFilters] = useState<FilterChangeProps>({
+    statuses: [],
+    assignees: [],
+    search: '',
+  })
+
+  const filteredItems = items.filter((item) => {
+    const matchesStatus =
+      filters.statuses.length === 0 || filters.statuses.includes(item.status)
+    const matchesAssignee =
+      filters.assignees.length === 0 ||
+      filters.assignees.includes(item.assignee)
+    const matchesSearch = item.title.includes(filters.search)
+    return matchesStatus && matchesAssignee && matchesSearch
+  })
 
   const [date, setDate] = React.useState<Date | undefined>(new Date())
 
@@ -624,10 +647,10 @@ const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
       <hr className="mb-[36px] border-t border-gray-300" />
       <div className="flex justify-between">
         <h1 className="text-2xl font-bold">보드</h1>
-        <FilterBar />
+        <FilterBar onFilterChange={setFilters} />
       </div>
       <div className="container p-[24px]">
-        <Board items={items} />
+        <Board items={filteredItems} />
       </div>
       <hr className="border-t border-gray-300" />
       <div className="py-[36px] text-h3">캘린더</div>
