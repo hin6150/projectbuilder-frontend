@@ -1,3 +1,4 @@
+'use client'
 import { addDays, subDays, subMonths, addMonths } from 'date-fns'
 import * as React from 'react'
 

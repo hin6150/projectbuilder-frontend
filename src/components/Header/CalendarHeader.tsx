@@ -12,6 +12,17 @@ import {
   ScheduleEditModal,
   ScheduleRepeatModal,
 } from '../Modal/ScheduleModal'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 type ViewType = 'month' | 'week' | 'day'
 interface CalendarHeaderProps {
@@ -66,15 +77,25 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             <p className="text-body">오늘</p>
           </Button>
         </div>
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleClick}
-          >
+        <div className="flex items-center gap-4">
+          <Button variant="outline" className="gap-2" onClick={handleClick}>
             <PlusIcon className="h-4 w-4" />
+            <p className="text-subtle">일정 추가</p>
           </Button>
+          <Select>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="주(Weekly)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>캘린더 타입</SelectLabel>
+                <SelectItem value="Daily">일(Daily)</SelectItem>
+                <SelectItem value="Weekly">주(Weekly)</SelectItem>
+                <SelectItem value="Monthly">월(Monthly)</SelectItem>
+                <SelectItem value="List">일정(List)</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       </div>
       {modals.default.open && modals.default.type == ModalTypes.CREATE && (

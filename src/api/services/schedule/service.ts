@@ -17,7 +17,7 @@ export const scheduleService = {
     endDate: string,
   ) {
     return (
-      APIBuilder.get(`/schedules?startDate=${startDate}&endDate=${endDate}`)
+      APIBuilder.get(`/schedule/info`)
         // .withCredentials(client)
         .build()
         .call<ScheduleListResponse>()

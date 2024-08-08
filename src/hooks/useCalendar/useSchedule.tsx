@@ -1,55 +1,52 @@
 import * as React from 'react'
-import { useSchedulesQuery } from '@/api'
-import { Schedule, Schedules } from '@/api/services/schedule/model'
+
+import { ScheduleInfo } from '@/api/services/schedule/model'
+import { useScheduleListQuery } from '@/api'
 
 const iterateSchedules = (
-  schedules: Schedules,
-  callback: (year: number, month: number, schedule: Schedule) => void,
+  schedules: ScheduleInfo[],
+  callback: (date: Date, schedule: ScheduleInfo) => void,
 ) => {
-  Object.keys(schedules)
-    .map(Number)
-    .sort((a, b) => a - b)
-    .forEach((year) => {
-      Object.keys(schedules[year])
-        .map(Number)
-        .sort((a, b) => a - b)
-        .forEach((month) => {
-          schedules[year][month].forEach((schedule) => {
-            callback(year, month, schedule)
-          })
-        })
-    })
+  schedules.forEach((schedule) => {
+    const startDate = new Date(schedule.startDate)
+    callback(startDate, schedule)
+  })
 }
 
 const getAllFutureSchedules = (
-  schedules: Schedules,
+  schedules: ScheduleInfo[],
   year: number,
   month: number,
   today: number,
 ) => {
-  const futureSchedules: { [year: number]: { [month: number]: Schedule[] } } =
-    {}
+  const futureSchedules: {
+    [year: number]: { [month: number]: ScheduleInfo[] }
+  } = {}
 
-  iterateSchedules(schedules, (y, m, schedule) => {
-    if (y > year || (y === year && m > month)) {
+  iterateSchedules(schedules, (date, schedule) => {
+    const y = date.getFullYear()
+    const m = date.getMonth() + 1
+    const d = date.getDate()
+
+    if (
+      y > year ||
+      (y === year && m > month) ||
+      (y === year && m === month && d >= today)
+    ) {
       if (!futureSchedules[y]) futureSchedules[y] = {}
       if (!futureSchedules[y][m]) futureSchedules[y][m] = []
       futureSchedules[y][m].push(schedule)
-    } else if (y === year && m === month) {
-      if (!futureSchedules[y]) futureSchedules[y] = {}
-      if (!futureSchedules[y][m]) futureSchedules[y][m] = []
-      if (schedule.date >= today) futureSchedules[y][m].push(schedule)
     }
   })
 
   return futureSchedules
 }
 
-const groupSchedulesByDate = (schedules: Schedules) => {
-  const groupedSchedules: { [key: string]: Schedule[] } = {}
+const groupSchedulesByDate = (schedules: ScheduleInfo[]) => {
+  const groupedSchedules: { [key: string]: ScheduleInfo[] } = {}
 
-  iterateSchedules(schedules, (year, month, schedule) => {
-    const key = `${year}-${month}-${schedule.date}`
+  iterateSchedules(schedules, (date, schedule) => {
+    const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
     if (!groupedSchedules[key]) groupedSchedules[key] = []
     groupedSchedules[key].push(schedule)
   })
@@ -67,15 +64,19 @@ export const useFutureSchedules = () => {
     }
   })
 
-  const { data } = useSchedulesQuery()
-  const [currentSchedules, setCurrentSchedules] = React.useState<Schedules>({})
+  const startDate = `${date.year}-${String(date.month).padStart(2, '0')}-01`
+  const endDate = `${date.year}-${String(date.month + 1).padStart(2, '0')}-01`
+
+  const { data } = useScheduleListQuery(startDate, endDate)
+  const [currentSchedules, setCurrentSchedules] = React.useState<{
+    [year: number]: { [month: number]: ScheduleInfo[] }
+  }>({})
   const [groupedSchedules, setGroupedSchedules] = React.useState<{
-    [key: string]: Schedule[]
+    [key: string]: ScheduleInfo[]
   }>({})
 
   React.useEffect(() => {
     if (data && data.result) {
-      console.log('Fetched schedules:', data.result)
       const { year, month, today } = date
       const futureSchedules = getAllFutureSchedules(
         data.result,
@@ -84,7 +85,7 @@ export const useFutureSchedules = () => {
         today,
       )
       setCurrentSchedules(futureSchedules)
-      setGroupedSchedules(groupSchedulesByDate(futureSchedules))
+      setGroupedSchedules(groupSchedulesByDate(data.result))
     }
   }, [data, date])
 
