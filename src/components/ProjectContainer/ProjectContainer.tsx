@@ -283,7 +283,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
           />
         </svg>
         {isDropdownVisible && (
-          <div className="absolute left-0 top-full z-10 mt-2 w-48 rounded-md bg-white shadow-lg">
+          <div className="absolute left-0 top-full z-10 mt-4 w-48 rounded-md bg-white shadow-lg">
             <div
               className="py-1"
               role="menu"
