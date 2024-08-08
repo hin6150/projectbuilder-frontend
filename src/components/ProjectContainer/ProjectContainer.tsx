@@ -168,6 +168,49 @@ const Board: React.FC<BoardProps> = ({ items }) => {
     setSortConfig({ key, direction })
   }
 
+  const renderSortIcon = (key: string) => {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        className="ml-1"
+        style={{ visibility: sortConfig?.key === key ? 'visible' : 'hidden' }}
+      >
+        <path
+          d="M8 3.33398V12.6673"
+          stroke="black"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{
+            transform:
+              sortConfig?.key === key && sortConfig.direction === 'descending'
+                ? 'rotate(180deg)'
+                : 'none',
+            transition: 'transform 0.2s ease',
+          }}
+        />
+        <path
+          d="M12.6663 8L7.99967 12.6667L3.33301 8"
+          stroke="black"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{
+            transform:
+              sortConfig?.key === key && sortConfig.direction === 'descending'
+                ? 'rotate(180deg)'
+                : 'none',
+            transition: 'transform 0.2s ease',
+          }}
+        />
+      </svg>
+    )
+  }
+
   const renderStatus = (status: string) => {
     if (status === '긴급') {
       return (
@@ -199,38 +242,53 @@ const Board: React.FC<BoardProps> = ({ items }) => {
         <table className="w-full bg-white">
           <thead className="text-left">
             <tr>
-              <th className="border-b px-5 py-2">
+              <th className="w-[50px] border-b px-5 py-2">
                 <Checkbox />
               </th>
               <th
-                className="cursor-pointer border-b px-4 py-2"
+                className="w-[100px] cursor-pointer border-b px-4 py-2"
                 onClick={() => requestSort('type')}
               >
-                종류
+                <div className="flex items-center justify-start">
+                  종류
+                  {renderSortIcon('type')}
+                </div>
               </th>
               <th
-                className="cursor-pointer border-b px-4 py-2"
+                className="w-[200px] cursor-pointer border-b px-4 py-2"
                 onClick={() => requestSort('title')}
               >
-                제목
+                <div className="flex items-center justify-start">
+                  제목
+                  {renderSortIcon('title')}
+                </div>
               </th>
               <th
-                className="cursor-pointer border-b px-4 py-2"
+                className="w-[150px] cursor-pointer border-b px-4 py-2"
                 onClick={() => requestSort('assignee')}
               >
-                담당자
+                <div className="flex items-center justify-start">
+                  담당자
+                  {renderSortIcon('assignee')}
+                </div>
               </th>
               <th
-                className="cursor-pointer border-b px-4 py-2"
+                className="w-[150px] cursor-pointer border-b px-4 py-2"
                 onClick={() => requestSort('createdDate')}
               >
-                생성일자
+                <div className="flex items-center">
+                  생성일자
+                  {renderSortIcon('createdDate')}
+                </div>
               </th>
               <th
-                className="cursor-pointer border-b px-4 py-2"
+                className="w-[100px] cursor-pointer border-b px-4 py-2"
                 onClick={() => requestSort('status')}
               >
-                진행 상태
+                <div className="flex items-center">
+                  진행 상태
+                  {renderSortIcon('status')}
+                </div>
               </th>
             </tr>
           </thead>
@@ -241,14 +299,18 @@ const Board: React.FC<BoardProps> = ({ items }) => {
           <tbody>
             {sortedItems.map((item, index) => (
               <tr key={index}>
-                <td className="border-b px-5 py-2">
+                <td className="w-[50px] border-b px-5 py-2">
                   <Checkbox />
                 </td>
-                <td className="border-b px-4 py-2">{item.type}</td>
-                <td className="border-b px-4 py-2">{item.title}</td>
-                <td className="border-b px-4 py-2">{item.assignee}</td>
-                <td className="border-b px-4 py-2">{item.createdDate}</td>
-                <td className="border-b px-4 py-2">
+                <td className="w-[100px] border-b px-4 py-2">{item.type}</td>
+                <td className="w-[200px] border-b px-4 py-2">{item.title}</td>
+                <td className="w-[150px] border-b px-4 py-2">
+                  {item.assignee}
+                </td>
+                <td className="w-[150px] border-b px-4 py-2">
+                  {item.createdDate}
+                </td>
+                <td className="w-[100px] border-b px-4 py-2">
                   {renderStatus(item.status)}
                 </td>
               </tr>
@@ -321,7 +383,7 @@ const items: BoardItem[] = [
 
 const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
   if (!data) {
-    return <div>Loading...</div> // 데이터가 없는 경우를 처리합니다.
+    return <div>Loading...</div>
   }
 
   const [date, setDate] = React.useState<Date | undefined>(new Date())
