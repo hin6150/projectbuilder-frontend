@@ -126,8 +126,38 @@ const scheduleData = {
 } // api 연동시 수정해야함!
 
 const FilterBar = () => {
+  const [isDropdownVisible, setDropdownVisible] = useState(false)
+  const [selectedItems, setSelectedItems] = useState({
+    status: '',
+    assignee: '',
+  })
   const [search, setSearch] = useState('')
   const [showSearchInput, setShowSearchInput] = useState(false)
+
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
+  const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
+
+  const handleToggleDropdown = () => {
+    setDropdownVisible(!isDropdownVisible)
+  }
+
+  type Category = 'status' | 'assignee'
+
+  const handleSelectItem = (category: 'status' | 'assignee', value: string) => {
+    if (category === 'status') {
+      setSelectedStatuses((prevSelectedStatuses) =>
+        prevSelectedStatuses.includes(value)
+          ? prevSelectedStatuses.filter((item) => item !== value)
+          : [...prevSelectedStatuses, value],
+      )
+    } else {
+      setSelectedAssignees((prevSelectedAssignees) =>
+        prevSelectedAssignees.includes(value)
+          ? prevSelectedAssignees.filter((item) => item !== value)
+          : [...prevSelectedAssignees, value],
+      )
+    }
+  }
 
   return (
     <div className="flex items-center space-x-2 p-2">
@@ -171,6 +201,7 @@ const FilterBar = () => {
         height="24"
         viewBox="0 0 24 24"
         fill="none"
+        onClick={handleToggleDropdown}
       >
         <path
           d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z"
@@ -180,6 +211,76 @@ const FilterBar = () => {
           strokeLinejoin="round"
         />
       </svg>
+      {isDropdownVisible && (
+        <div className="absolute bottom-[5px] z-30 w-48 rounded-md bg-white shadow-lg">
+          <div
+            className="py-1"
+            role="menu"
+            aria-orientation="vertical"
+            aria-labelledby="options-menu"
+          >
+            <div className="px-4 py-2 text-sm text-gray-700">상태</div>
+            {['긴급', '진행중', '완료'].map((status) => (
+              <div
+                key={status}
+                className="flex cursor-pointer items-center gap-[8px] px-4 py-2 text-sm text-gray-700"
+                onClick={() => handleSelectItem('status', status)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  className={`${
+                    selectedStatuses.includes(status) ? 'visible' : 'invisible'
+                  }`}
+                >
+                  <path
+                    d="M13.3337 4L6.00033 11.3333L2.66699 8"
+                    stroke="#334155"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {status}
+              </div>
+            ))}
+            <div className="border-t border-gray-200"></div>
+            <div className="px-4 py-2 text-sm text-gray-700">담당자</div>
+            {['사람 A', '사람 B', '사람 C'].map((assignee) => (
+              <div
+                key={assignee}
+                className="flex cursor-pointer items-center gap-[8px] px-4 py-2 text-sm text-gray-700"
+                onClick={() => handleSelectItem('assignee', assignee)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  className={`${
+                    selectedAssignees.includes(assignee)
+                      ? 'visible'
+                      : 'invisible'
+                  }`}
+                >
+                  <path
+                    d="M13.3337 4L6.00033 11.3333L2.66699 8"
+                    stroke="#334155"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {assignee}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <button className="rounded-[6px] border-[1px] px-4 py-2 transition duration-200 hover:bg-blue-600 hover:text-white">
         + 게시글 작성
       </button>
