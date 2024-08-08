@@ -35,6 +35,58 @@ export interface BoardProps {
   items: BoardItem[]
 }
 
+interface StatusDropdownProps {
+  currentStatus: string
+  onChangeStatus: (newStatus: string) => void
+  onClose: () => void
+}
+
+const StatusDropdown: React.FC<StatusDropdownProps> = ({
+  currentStatus,
+  onChangeStatus,
+  onClose,
+}) => {
+  const statuses = ['긴급', '진행중', '완료']
+
+  return (
+    <div className="absolute top-4 z-10 mt-2 w-[130px] overflow-hidden rounded-md border bg-white shadow-lg">
+      {statuses.map((status) => (
+        <div
+          key={status}
+          className={`flex cursor-pointer items-center px-4 py-2 text-center hover:bg-gray-100 ${
+            status === currentStatus ? 'font-bold text-blue-600' : ''
+          }`}
+          onClick={() => {
+            onChangeStatus(status)
+            onClose()
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            className="mr-2"
+            style={{
+              visibility: status === currentStatus ? 'visible' : 'hidden',
+            }}
+          >
+            <path
+              d="M13.3332 4L5.99984 11.3333L2.6665 8"
+              stroke="#334155"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          {status}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 const TeamCheckbox: React.FC<TeamCheckboxProps> = ({ id, name }) => {
   return (
     <div className="flex items-center space-x-2">
@@ -140,6 +192,7 @@ const Board: React.FC<BoardProps> = ({ items }) => {
     key: string
     direction: string
   } | null>(null)
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
 
   const sortedItems = React.useMemo(() => {
     if (sortConfig !== null) {
@@ -211,26 +264,71 @@ const Board: React.FC<BoardProps> = ({ items }) => {
     )
   }
 
-  const renderStatus = (status: string) => {
+  const handleStatusClick = (index: number) => {
+    setActiveDropdown(activeDropdown === index ? null : index)
+  }
+
+  const handleChangeStatus = (index: number, newStatus: string) => {
+    // Replace this with your method of updating the item status in state or backend
+    items[index].status = newStatus
+  }
+
+  const renderStatus = (status: string, index: number) => {
     if (status === '긴급') {
       return (
-        <div className="flex w-[75px] items-center rounded-[15px] bg-red-200 px-[8px]">
+        <div
+          className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-red-200 px-[8px]"
+          onClick={() => handleStatusClick(index)}
+        >
           <span className="h-2.5 w-2.5 rounded-full bg-red-500"></span>
           <span className="w-full text-center">긴급</span>
+          {activeDropdown === index && (
+            <StatusDropdown
+              currentStatus={status}
+              onChangeStatus={(newStatus) =>
+                handleChangeStatus(index, newStatus)
+              }
+              onClose={() => setActiveDropdown(null)}
+            />
+          )}
         </div>
       )
     } else if (status === '진행중') {
       return (
-        <div className="flex w-[75px] items-center rounded-[15px] bg-blue-200 px-[8px]">
+        <div
+          className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-blue-200 px-[8px]"
+          onClick={() => handleStatusClick(index)}
+        >
           <span className="h-2.5 w-2.5 rounded-full bg-blue-500"></span>
           <span className="w-full text-center">진행중</span>
+          {activeDropdown === index && (
+            <StatusDropdown
+              currentStatus={status}
+              onChangeStatus={(newStatus) =>
+                handleChangeStatus(index, newStatus)
+              }
+              onClose={() => setActiveDropdown(null)}
+            />
+          )}
         </div>
       )
     } else if (status === '완료') {
       return (
-        <div className="flex w-[75px] items-center rounded-[15px] bg-green-200 px-[8px]">
+        <div
+          className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-green-200 px-[8px]"
+          onClick={() => handleStatusClick(index)}
+        >
           <span className="h-2.5 w-2.5 rounded-full bg-green-500"></span>
           <span className="w-full text-center">완료</span>
+          {activeDropdown === index && (
+            <StatusDropdown
+              currentStatus={status}
+              onChangeStatus={(newStatus) =>
+                handleChangeStatus(index, newStatus)
+              }
+              onClose={() => setActiveDropdown(null)}
+            />
+          )}
         </div>
       )
     }
@@ -239,7 +337,7 @@ const Board: React.FC<BoardProps> = ({ items }) => {
   return (
     <div>
       <div>
-        <table className="w-full bg-white">
+        <table className="w-full">
           <thead className="text-left">
             <tr>
               <th className="w-[50px] border-b px-5 py-2">
@@ -310,8 +408,8 @@ const Board: React.FC<BoardProps> = ({ items }) => {
                 <td className="w-[150px] border-b px-4 py-2">
                   {item.createdDate}
                 </td>
-                <td className="w-[100px] border-b px-4 py-2">
-                  {renderStatus(item.status)}
+                <td className="relative w-[100px] border-b px-4 py-2">
+                  {renderStatus(item.status, index)}
                 </td>
               </tr>
             ))}
