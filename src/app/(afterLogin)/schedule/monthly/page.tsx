@@ -5,8 +5,7 @@ import { Monthly } from '@/components/Calendar/Monthly'
 import { useCalendar } from '@/hooks/useCalendar'
 
 export default function Page() {
-  const { state, handlePrev, handleNext, handleToday, formatMonth } =
-    useCalendar()
+  const { state, handlePrev, handleNext, handleToday } = useCalendar()
 
   return (
     <div>

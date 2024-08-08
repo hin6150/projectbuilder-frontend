@@ -8,15 +8,15 @@ export const scheduleHandlers = [
       result: [
         {
           id: '1',
-          title: '프로젝트 킥오프',
-          startDate: '2024-08-11',
-          endDate: '2024-08-11',
+          title: '데모데모 데이',
+          startDate: '2024-08-18',
+          endDate: '2024-08-18',
           visible: ScheduleVisibility.PUBLIC,
           projectId: '123',
         },
         {
           id: '2',
-          title: '디자인 회의',
+          title: '일정이름 입니다',
           startDate: '2024-08-18',
           endDate: '2024-08-18',
           visible: ScheduleVisibility.PRIVATE,
@@ -24,7 +24,7 @@ export const scheduleHandlers = [
         },
         {
           id: '3',
-          title: '개발 스프린트',
+          title: '일정이름 입니다',
           startDate: '2024-08-31',
           endDate: '2024-08-31',
           visible: ScheduleVisibility.PUBLIC,
@@ -39,15 +39,15 @@ export const scheduleHandlers = [
       code: 200,
       msg: 'SUCCESS',
       result: {
-        title: '프로젝트 킥오프',
-        content: '프로젝트 킥오프 회의 내용',
+        title: '데모데모 데이',
+        content: '일정내용입니다일정내용입니다',
         visible: ScheduleVisibility.PUBLIC,
         startDate: '2024-01-10',
         endDate: '2024-01-10',
         repeat: {
           gap: 1,
           cycleType: 'DAY',
-          days: ['Monday'],
+          days: ['월'],
           cnt: 10,
         },
         projectId: '123',

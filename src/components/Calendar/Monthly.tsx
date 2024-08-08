@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useSchedulesQuery } from '@/api'
+import { useScheduleListQuery } from '@/api/services/schedule/quries'
 import { generateCalendar } from '@/hooks/useCalendar'
 import {
   weekClass,
@@ -10,6 +10,7 @@ import {
   getDotColorClass,
   getProjectColorClass,
 } from './style'
+import { ScheduleInfo } from '@/api/services/schedule/model'
 
 interface MonthlyProps {
   date: Date
@@ -19,49 +20,54 @@ export function Monthly({ date }: MonthlyProps) {
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
   const weeks = generateCalendar(date)
 
-  const { data } = useSchedulesQuery()
   const year = date.getFullYear()
   const month = date.getMonth() + 1
 
-  const getSchedulesForDay = (day: number, isThisMonth: boolean) => {
-    if (isThisMonth && data?.result[year]?.[month]) {
-      return data.result[year][month].filter(
-        (schedule) => schedule.date === day,
-      )
+  const startDate = `${year}-${String(month).padStart(2, '0')}-01`
+  const endDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
+
+  const { data } = useScheduleListQuery(startDate, endDate)
+
+  const getSchedulesForDay = (day: Date, isThisMonth: boolean) => {
+    if (!data?.result) {
+      return []
     }
 
-    if (!isThisMonth) {
-      const prevMonth = month === 1 ? 12 : month - 1
-      const prevYear = month === 1 ? year - 1 : year
-      const nextMonth = month === 12 ? 1 : month + 1
-      const nextYear = month === 12 ? year + 1 : year
+    const schedules = data.result as ScheduleInfo[]
 
-      if (data?.result[prevYear]?.[prevMonth] && day > 15) {
-        return data.result[prevYear][prevMonth].filter(
-          (schedule) => schedule.date === day,
-        )
-      } else if (data?.result[nextYear]?.[nextMonth] && day < 15) {
-        return data.result[nextYear][nextMonth].filter(
-          (schedule) => schedule.date === day,
-        )
+    return schedules.filter((schedule) => {
+      const scheduleDate = new Date(schedule.startDate).getDate()
+      const scheduleMonth = new Date(schedule.startDate).getMonth() + 1
+      const scheduleYear = new Date(schedule.startDate).getFullYear()
+
+      if (
+        isThisMonth &&
+        scheduleYear === day.getFullYear() &&
+        scheduleMonth === day.getMonth() + 1 &&
+        scheduleDate === day.getDate()
+      ) {
+        return true
       }
-    }
-    return []
+
+      return false
+    })
   }
 
-  const formatTime = (time: string) => {
+  const formatTime = (time: string | undefined) => {
     if (!time) return ''
 
     const [startTime] = time.split('~')
     const [period, timePart] = startTime.trim().split(' ')
-    let [hour, minute] = timePart.split(':')
+    // let [hour, minute] = timePart.split(':')
 
-    if (period === '오후') {
-      hour = String(parseInt(hour) + 12)
-    }
-    minute = minute || '00'
+    // if (period === '오후' && parseInt(hour) !== 12) {
+    //   hour = String(parseInt(hour) + 12)
+    // } else if (period === '오전' && parseInt(hour) === 12) {
+    //   hour = '00'
+    // }
+    // minute = minute || '00'
 
-    return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
+    // return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
   }
 
   return (
@@ -80,31 +86,31 @@ export function Monthly({ date }: MonthlyProps) {
       <div className="flex h-[764px] flex-shrink-0 flex-col items-start self-stretch rounded-[4px] border-r border-t border-gray-200">
         {weeks.map((week, weekIndex) => (
           <div className={weekClass} key={weekIndex}>
-            {week.map(({ day, isThisMonth }, dayIndex) => {
-              const schedules = getSchedulesForDay(day, isThisMonth)
+            {week.map(({ day, isThisMonth, date }, dayIndex) => {
+              const schedules = getSchedulesForDay(date, isThisMonth)
               return (
                 <div
                   className={`${dayClass} ${isThisMonth ? '' : 'text-gray-300'}`}
                   key={dayIndex}
                 >
                   <div className="flex h-6 w-full flex-col">
-                    {day !== undefined && (
+                    {day !== null && (
                       <>
                         <p className="p-2">{day}</p>
                         <div className="flex flex-col gap-[2px]">
                           {schedules.map((schedule, index) => (
                             <div
                               key={index}
-                              className={`flex h-[25px] items-center gap-[5px] overflow-hidden text-ellipsis rounded-[5px] pl-1 ${getProjectColorClass(schedule.project)}`}
+                              className={`flex h-[25px] items-center gap-[5px] overflow-hidden text-ellipsis rounded-[5px] pl-1 ${getProjectColorClass(schedule.projectId ?? '')}`}
                             >
                               <div
-                                className={`h-1 w-1 rounded-full ${getDotColorClass(schedule.project)}`}
+                                className={`h-1 w-1 rounded-full ${getDotColorClass(schedule.projectId ?? '')}`}
                               />
                               <p className="display-webkit-box box-orient-vertical line-clamp-2 text-center text-detail">
-                                {formatTime(schedule.time)}
+                                {formatTime(schedule.startDate)}
                               </p>
                               <p className="display-webkit-box box-orient-vertical line-clamp-1 text-center text-detail">
-                                {schedule.description}
+                                {schedule.title}
                               </p>
                             </div>
                           ))}

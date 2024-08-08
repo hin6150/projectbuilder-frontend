@@ -33,14 +33,14 @@ export function List() {
                   >
                     <div className="flex items-center gap-2 self-stretch">
                       <div
-                        className={`h-2 w-2 rounded-full ${getDotColorClass(schedule.project)}`}
+                        className={`h-2 w-2 rounded-full ${getDotColorClass(schedule.projectId ?? '')}`}
                       />
                       <p className="display-webkit-box webkit-box-orient-vertical webkit-line-clamp-2 w-[130px] text-body">
-                        {schedule.isAllday ? '하루종일' : schedule.time}
+                        {schedule.endDate ? '하루종일' : schedule.startDate}
                       </p>
                     </div>
                     <p className="display-webkit-box webkit-box-orient-vertical webkit-line-clamp-1 flex-[1_0_0]">
-                      {schedule.description}
+                      {schedule.title}
                     </p>
                   </div>
                 ))}

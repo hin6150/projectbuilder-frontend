@@ -1,19 +1,62 @@
 'use client'
 import * as React from 'react'
 import { yoilClass } from './style'
-import { format, addDays, startOfWeek } from 'date-fns'
+import {
+  format,
+  addDays,
+  startOfWeek,
+  getHours,
+  getMinutes,
+  isSameDay,
+} from 'date-fns'
 
 const TimeSlot: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
-  <div className="flex h-[48px] flex-[1_0_0] items-center justify-center border-b border-l border-gray-200">
+  <div className="relative flex h-[48px] flex-[1_0_0] items-center justify-center border-b border-l border-gray-200">
     {children}
   </div>
 )
 
-interface WeeklyProps {
-  week: Date
+interface Event {
+  title: string
+  start: Date
+  end: Date
 }
 
-export const Weekly: React.FC<WeeklyProps> = ({ week }) => {
+interface WeeklyProps {
+  week: Date
+  events?: Event[]
+}
+
+export const Weekly: React.FC<WeeklyProps> = ({
+  week,
+  events = [
+    {
+      title: '일정이름1',
+      start: new Date(2024, 7, 7, 5, 0),
+      end: new Date(2024, 7, 7, 11, 0),
+    },
+    {
+      title: '일정이름2',
+      start: new Date(2024, 7, 7, 5, 0),
+      end: new Date(2024, 7, 7, 8, 0),
+    },
+    {
+      title: '일정이름3',
+      start: new Date(2024, 7, 9, 5, 0),
+      end: new Date(2024, 7, 9, 11, 0),
+    },
+    {
+      title: '일정이름4',
+      start: new Date(2024, 7, 9, 5, 0),
+      end: new Date(2024, 7, 9, 11, 0),
+    },
+    {
+      title: '일정이름5',
+      start: new Date(2024, 7, 7, 12, 0),
+      end: new Date(2024, 7, 7, 13, 0),
+    },
+  ],
+}) => {
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
   const weekStart = startOfWeek(week, { weekStartsOn: 0 })
 
@@ -49,6 +92,49 @@ export const Weekly: React.FC<WeeklyProps> = ({ week }) => {
     '',
   ]
 
+  const renderEvents = (dayIndex: number, hour: number) => {
+    const dayEvents = events.filter(
+      (event) =>
+        isSameDay(addDays(weekStart, dayIndex), event.start) &&
+        getHours(event.start) === hour,
+    )
+
+    dayEvents.sort((a, b) => a.start.getTime() - b.start.getTime())
+
+    return dayEvents.map((event, index) => {
+      const totalEvents = dayEvents.length
+      let leftOffset: number
+      let width: number
+
+      if (totalEvents <= 4) {
+        leftOffset = 20 * index
+        width = 100 - leftOffset
+      } else {
+        const totalSpace = 100 - 10
+        const spacing = totalSpace / totalEvents
+        leftOffset = spacing * index
+        width = spacing - 10
+      }
+
+      return (
+        <div
+          key={index}
+          className="absolute z-10 rounded-r-md rounded-br-md border-l-[3px] border-red-300 bg-red-100 p-2"
+          style={{
+            top: `${(getMinutes(event.start) / 60) * 48}px`,
+            height: `${(((getHours(event.end) - getHours(event.start)) * 60 + (getMinutes(event.end) - getMinutes(event.start))) / 60) * 48}px`,
+            left: `${leftOffset}px`,
+            width: `${width}px`,
+          }}
+        >
+          <p className="display-webkit-box webkit-box-orient-vertical webkit-line-clamp-1 self-stretch text-body">
+            {event.title}
+          </p>
+        </div>
+      )
+    })
+  }
+
   return (
     <div className="flex h-full w-[864px] shrink-0 flex-col items-start gap-[10px] p-4">
       <div className="flex items-center justify-between self-stretch">
@@ -82,9 +168,10 @@ export const Weekly: React.FC<WeeklyProps> = ({ week }) => {
             <div className="absolute bottom-[-10px] left-[15px] text-subtle">
               {hour}
             </div>
-
             {yoils.map((_, dayIndex) => (
-              <TimeSlot key={dayIndex} />
+              <TimeSlot key={dayIndex}>
+                {renderEvents(dayIndex, index)}
+              </TimeSlot>
             ))}
           </div>
         ))}

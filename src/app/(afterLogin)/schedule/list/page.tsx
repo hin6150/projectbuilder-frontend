@@ -5,17 +5,16 @@ import { CalendarHeader } from '@/components/Header/CalendarHeader'
 import { useCalendar } from '@/hooks/useCalendar'
 
 export default function page() {
-  const { state, formatMonth } = useCalendar()
+  const { state, handlePrev, handleNext, handleToday } = useCalendar()
 
   return (
     <div>
       <CalendarHeader
         view="month"
-        month={formatMonth(state.month)}
-        year={state.year}
-        onPrev={() => {}}
-        onNext={() => {}}
-        onToday={() => {}}
+        date={state.date}
+        onPrev={() => handlePrev('month')}
+        onNext={() => handleNext('month')}
+        onToday={handleToday}
       />
       <List />
     </div>
