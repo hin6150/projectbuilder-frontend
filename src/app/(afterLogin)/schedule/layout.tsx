@@ -1,5 +1,6 @@
 import { CalendarHeader } from '@/components/Header/CalendarHeader'
 import Header from '@/components/Header/Header'
+import { Calendar } from '@/components/ui/calendar'
 import { useCalendar } from '@/hooks/useCalendar'
 import { ReactNode } from 'react'
 
@@ -7,7 +8,7 @@ const layout = ({ children }: { children: ReactNode }) => {
   // const { state, handlePrev, handleNext, handleToday } = useCalendar()
 
   return (
-    <div className="m-auto h-screen w-[1180px]">
+    <div className="m-auto flex h-screen w-[1180px]">
       {/* <CalendarHeader
         view="month"
         date={state.date}
@@ -15,6 +16,8 @@ const layout = ({ children }: { children: ReactNode }) => {
         onNext={() => handleNext('month')}
         onToday={handleToday}
       /> */}
+
+      <Calendar />
       {children}
     </div>
   )

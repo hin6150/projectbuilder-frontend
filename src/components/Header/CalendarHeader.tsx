@@ -1,5 +1,5 @@
 'use client'
-import { ChevronLeft, ChevronRight, PlusIcon } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
 import React from 'react'
 import { Button } from '../ui/button'
 import { useModal } from '@/hooks/useModal'
@@ -21,8 +21,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 type ViewType = 'month' | 'week' | 'day'
 interface CalendarHeaderProps {
@@ -33,6 +40,8 @@ interface CalendarHeaderProps {
   onToday: () => void
 }
 
+type Checked = DropdownMenuCheckboxItemProps['checked']
+
 export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   view,
   date,
@@ -41,6 +50,10 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onToday,
 }) => {
   const { modals, openModal } = useModal()
+  const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true)
+  const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
+  const [showPanel, setShowPanel] = React.useState<Checked>(false)
+
   const year = date.getFullYear()
   const month = date.getMonth() + 1
 
@@ -77,13 +90,41 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             <p className="text-body">오늘</p>
           </Button>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">필터</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>필터</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem
+                checked={showStatusBar}
+                onCheckedChange={setShowStatusBar}
+              >
+                Status Bar
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={showActivityBar}
+                onCheckedChange={setShowActivityBar}
+                disabled
+              >
+                Activity Bar
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={showPanel}
+                onCheckedChange={setShowPanel}
+              >
+                Panel
+              </DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu> */}
           <Button variant="outline" className="gap-2" onClick={handleClick}>
             <PlusIcon className="h-4 w-4" />
             <p className="text-subtle">일정 추가</p>
           </Button>
           <Select>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="주(Weekly)" />
             </SelectTrigger>
             <SelectContent>
