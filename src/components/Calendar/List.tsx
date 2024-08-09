@@ -7,6 +7,40 @@ import { getDotColorClass } from './style'
 export function List() {
   const { groupedSchedules } = useFutureSchedules()
 
+  const formatTime = (start: string, end?: string): string => {
+    const formatSingleTime = (
+      time: string,
+    ): { period: string; hour12: number } => {
+      const [datePart, timePart] = time.split(' ')
+      if (!timePart) return { period: '', hour12: 0 }
+
+      const [hourString] = timePart.split(':')
+      const hour = parseInt(hourString)
+
+      if (isNaN(hour)) return { period: '', hour12: 0 }
+
+      const period = hour < 12 ? '오전' : '오후'
+      const hour12 = hour % 12 || 12
+      return { period, hour12 }
+    }
+
+    const { period: startPeriod, hour12: startHour12 } = formatSingleTime(start)
+    const { period: endPeriod, hour12: endHour12 } = end
+      ? formatSingleTime(end)
+      : { period: '', hour12: 0 }
+
+    if (!end || start === end) {
+      return '하루 종일'
+    }
+
+    const endTime =
+      endPeriod === startPeriod
+        ? `${endHour12}시`
+        : `${endPeriod} ${endHour12}시`
+
+    return `${startPeriod} ${startHour12}시 ~ ${endTime}`
+  }
+
   return (
     <div className="flex h-full w-[864px] flex-shrink-0 flex-col items-start gap-[10px] p-4">
       <div className="h-[1px] w-[832px] bg-gray-300" />
@@ -36,7 +70,7 @@ export function List() {
                         className={`h-2 w-2 rounded-full ${getDotColorClass(schedule.projectId ?? '')}`}
                       />
                       <p className="display-webkit-box webkit-box-orient-vertical webkit-line-clamp-2 w-[130px] text-body">
-                        {schedule.endDate ? '하루종일' : schedule.startDate}
+                        {formatTime(schedule.startDate, schedule.endDate)}
                       </p>
                     </div>
                     <p className="display-webkit-box webkit-box-orient-vertical webkit-line-clamp-1 flex-[1_0_0]">

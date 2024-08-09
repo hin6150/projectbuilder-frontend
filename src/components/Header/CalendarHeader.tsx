@@ -30,8 +30,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useScheduleListQuery } from '@/api'
 
-type ViewType = 'month' | 'week' | 'day'
+type ViewType = 'monthly' | 'weekly' | 'list'
 interface CalendarHeaderProps {
   view: ViewType
   date: Date
@@ -50,6 +51,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onToday,
 }) => {
   const { modals, openModal } = useModal()
+  const { data } = useScheduleListQuery('', '')
   const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true)
   const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
   const [showPanel, setShowPanel] = React.useState<Checked>(false)
@@ -91,34 +93,17 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           </Button>
         </div>
         <div className="flex items-center gap-3">
-          {/* <DropdownMenu>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">필터</Button>
+              <Button variant="outline" className="gap-2">
+                <FilterIcon className="h-4 w-4" />
+                <p>필터</p>
+              </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
+            <DropdownMenuContent className="w-[160px] items-start">
               <DropdownMenuLabel>필터</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem
-                checked={showStatusBar}
-                onCheckedChange={setShowStatusBar}
-              >
-                Status Bar
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={showActivityBar}
-                onCheckedChange={setShowActivityBar}
-                disabled
-              >
-                Activity Bar
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={showPanel}
-                onCheckedChange={setShowPanel}
-              >
-                Panel
-              </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
-          </DropdownMenu> */}
+          </DropdownMenu>
           <Button variant="outline" className="gap-2" onClick={handleClick}>
             <PlusIcon className="h-4 w-4" />
             <p className="text-subtle">일정 추가</p>

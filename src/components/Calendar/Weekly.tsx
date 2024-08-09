@@ -9,6 +9,7 @@ import {
   getMinutes,
   isSameDay,
 } from 'date-fns'
+import { ScheduleInfo, useScheduleListQuery } from '@/api'
 
 const TimeSlot: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
   <div className="relative flex h-[48px] flex-[1_0_0] items-center justify-center border-b border-l border-gray-200">
@@ -16,50 +17,13 @@ const TimeSlot: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
   </div>
 )
 
-interface Event {
-  title: string
-  start: Date
-  end: Date
-}
-
 interface WeeklyProps {
   week: Date
-  events?: Event[]
 }
 
-export const Weekly: React.FC<WeeklyProps> = ({
-  week,
-  events = [
-    {
-      title: '일정이름1',
-      start: new Date(2024, 7, 7, 5, 0),
-      end: new Date(2024, 7, 7, 11, 0),
-    },
-    {
-      title: '일정이름2',
-      start: new Date(2024, 7, 7, 5, 0),
-      end: new Date(2024, 7, 7, 8, 0),
-    },
-    {
-      title: '일정이름3',
-      start: new Date(2024, 7, 9, 5, 0),
-      end: new Date(2024, 7, 9, 11, 0),
-    },
-    {
-      title: '일정이름4',
-      start: new Date(2024, 7, 9, 5, 0),
-      end: new Date(2024, 7, 9, 11, 0),
-    },
-    {
-      title: '일정이름5',
-      start: new Date(2024, 7, 7, 12, 0),
-      end: new Date(2024, 7, 7, 13, 0),
-    },
-  ],
-}) => {
+export const Weekly: React.FC<WeeklyProps> = ({ week }) => {
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
   const weekStart = startOfWeek(week, { weekStartsOn: 0 })
-
   const weekDates = yoils.map((_, index) => {
     const date = addDays(weekStart, index)
     return format(date, 'd') + ' ' + yoils[index]
@@ -91,6 +55,17 @@ export const Weekly: React.FC<WeeklyProps> = ({
     '오후 11시',
     '',
   ]
+
+  const startDate = format(weekStart, 'yyyy-MM-dd')
+  const endDate = format(addDays(weekStart, 6), 'yyyy-MM-dd')
+  const { data } = useScheduleListQuery(startDate, endDate)
+
+  const events =
+    data?.result?.map((schedule: ScheduleInfo) => ({
+      title: schedule.title,
+      start: new Date(schedule.startDate),
+      end: new Date(schedule.endDate ?? schedule.startDate),
+    })) || []
 
   const renderEvents = (dayIndex: number, hour: number) => {
     const dayEvents = events.filter(
@@ -136,7 +111,7 @@ export const Weekly: React.FC<WeeklyProps> = ({
   }
 
   return (
-    <div className="flex h-full w-[864px] shrink-0 flex-col items-start gap-[10px] p-4">
+    <div className="flex w-[864px] shrink-0 flex-col items-start gap-[10px] p-4">
       <div className="flex items-center justify-between self-stretch">
         <div className="flex h-[48px] w-[80px]" />
         {weekDates.map((dateAndYoil, index) => (
@@ -159,6 +134,7 @@ export const Weekly: React.FC<WeeklyProps> = ({
             <p className="text-subtle">하루종일</p>
           </div>
         </div>
+
         {hours.map((hour, index) => (
           <div
             className="relative flex items-center justify-between self-stretch"

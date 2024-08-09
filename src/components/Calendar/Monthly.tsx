@@ -16,7 +16,7 @@ interface MonthlyProps {
   date: Date
 }
 
-export function Monthly({ date }: MonthlyProps) {
+export const Monthly: React.FC<MonthlyProps> = ({ date }) => {
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
   const weeks = generateCalendar(date)
 
@@ -53,21 +53,20 @@ export function Monthly({ date }: MonthlyProps) {
     })
   }
 
-  const formatTime = (time: string | undefined) => {
-    if (!time) return ''
+  const formatTime = (datetime: string): string => {
+    if (!datetime) return ''
 
-    const [startTime] = time.split('~')
-    const [period, timePart] = startTime.trim().split(' ')
-    // let [hour, minute] = timePart.split(':')
+    const [datePart, timePart] = datetime.split(' ')
+    if (!timePart) return '하루 종일'
 
-    // if (period === '오후' && parseInt(hour) !== 12) {
-    //   hour = String(parseInt(hour) + 12)
-    // } else if (period === '오전' && parseInt(hour) === 12) {
-    //   hour = '00'
-    // }
-    // minute = minute || '00'
+    const [hourString, minute] = timePart.split(':')
+    const hour = parseInt(hourString)
 
-    // return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
+    if (isNaN(hour)) return ''
+
+    const period = hour < 12 ? '오전' : '오후'
+    const hour12 = hour % 12 || 12
+    return `${period} ${hour12}:${minute}`
   }
 
   return (
@@ -101,15 +100,15 @@ export function Monthly({ date }: MonthlyProps) {
                           {schedules.map((schedule, index) => (
                             <div
                               key={index}
-                              className={`flex h-[25px] items-center gap-[5px] overflow-hidden text-ellipsis rounded-[5px] pl-1 ${getProjectColorClass(schedule.projectId ?? '')}`}
+                              className={`flex h-[25px] items-center gap-1 overflow-hidden rounded-[5px] pl-1 ${getProjectColorClass(schedule.projectId ?? '')}`}
                             >
                               <div
                                 className={`h-1 w-1 rounded-full ${getDotColorClass(schedule.projectId ?? '')}`}
                               />
-                              <p className="display-webkit-box box-orient-vertical line-clamp-2 text-center text-detail">
+                              <p className="display-webkit-box box-orient-vertical line-clamp-2 text-detail">
                                 {formatTime(schedule.startDate)}
                               </p>
-                              <p className="display-webkit-box box-orient-vertical line-clamp-1 text-center text-detail">
+                              <p className="display-webkit-box box-orient-vertical line-clamp-1 text-detail">
                                 {schedule.title}
                               </p>
                             </div>
