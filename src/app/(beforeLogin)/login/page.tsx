@@ -18,7 +18,10 @@ const Login = () => {
       </div>
       <div className="items:start flex w-[380px] flex-col gap-[20px]">
         <a
-          href={process.env.NEXT_PUBLIC_SOCIAL_LOGIN_GOOGLE}
+          href={
+            process.env.NEXT_PUBLIC_SOCIAL_LOGIN_GOOGLE +
+            `?redirect_uri=${process.env.VERCEL ? 'https://today-scrum.vercel.app' : 'http://localhost:3000'}`
+          }
           className="w-full"
         >
           <Button className="w-full gap-[8px] border border-gray-300 bg-white hover:bg-slate-50">
@@ -26,7 +29,13 @@ const Login = () => {
             <p className="w-[104px] text-black">구글로 시작하기</p>
           </Button>
         </a>
-        <a href={process.env.NEXT_PUBLIC_SOCIAL_LOGIN_KAKAO} className="w-full">
+        <a
+          href={
+            process.env.NEXT_PUBLIC_SOCIAL_LOGIN_KAKAO +
+            `?redirect_uri=${process.env.VERCEL ? 'https://today-scrum.vercel.app' : 'http://localhost:3000'}`
+          }
+          className="w-full"
+        >
           <Button className="w-full gap-[8px] bg-yellow-300 hover:bg-yellow-200">
             <Icon name="kakao" />
             <p className="text-black">카카오로 시작하기</p>
