@@ -20,7 +20,7 @@ const Login = () => {
         <a
           href={
             process.env.NEXT_PUBLIC_SOCIAL_LOGIN_GOOGLE +
-            `?redirect_uri=${process.env.VERCEL ? 'https://today-scrum.vercel.app' : 'http://localhost:3000'}`
+            `?redirect_uri=${process.env.VERCEL ? 'https://projectbuilder-frontend.vercel.app' : 'http://localhost:3000'}`
           }
           className="w-full"
         >
@@ -32,7 +32,7 @@ const Login = () => {
         <a
           href={
             process.env.NEXT_PUBLIC_SOCIAL_LOGIN_KAKAO +
-            `?redirect_uri=${process.env.VERCEL ? 'https://today-scrum.vercel.app' : 'http://localhost:3000'}`
+            `?redirect_uri=${process.env.VERCEL ? 'https://projectbuilder-frontend.vercel.app' : 'http://localhost:3000'}`
           }
           className="w-full"
         >
