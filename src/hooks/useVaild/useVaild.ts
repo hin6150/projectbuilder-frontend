@@ -61,15 +61,22 @@ const repeatField = z.string()
 
 const publicField = z.string()
 
-const participate = z.string()
+const attend = z.string()
 
 const cycleField = z.string()
 
 const repeatDay = z.string()
 
-const endDate = z.date()
+const endDate = z.date().optional()
 
 const teamName = z.string()
+
+const participate = z.object({
+  imageUrl: imageUrlField,
+  name: nameField,
+  email: emailField,
+  attend: attend,
+})
 
 export const formSchemaUserEdit = z.object({
   name: nameField,
@@ -116,6 +123,7 @@ export const formSchemaPersonalSchedule = z.object({
   allday: alldayField,
   repeat: repeatField,
   publicContent: publicField,
+  endDate: endDate,
 })
 
 export const formSchemaTeamSchedule = z.object({
@@ -125,14 +133,17 @@ export const formSchemaTeamSchedule = z.object({
   description: description,
   allday: alldayField,
   repeat: repeatField,
+  team: teamName,
   participate: participate,
+  endDate: endDate,
 })
 
 export const formSchemaRepeatSchedule = z.object({
+  period: period,
   repeat: repeatField,
   cycle: cycleField,
   day: repeatDay,
-  end: endDate,
+  endDate: endDate,
 })
 
 export const formSchemaCheckSchedule = z.object({
