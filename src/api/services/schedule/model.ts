@@ -53,7 +53,7 @@ export interface AddScheduleDTO {
   endDate?: string
   // repeat?: RepeatInfo,
   projectId?: string
-  inviteList: string[]
+  inviteList?: string[]
 }
 
 export interface EditScheduleDTO {

@@ -10,6 +10,7 @@ import {
   isSameDay,
 } from 'date-fns'
 import { ScheduleInfo, useScheduleListQuery } from '@/api'
+import { hours } from '@/hooks/useCalendar/useCalendarUtils'
 
 const TimeSlot: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
   <div className="relative flex h-[48px] flex-[1_0_0] items-center justify-center border-b border-l border-gray-200">
@@ -28,33 +29,6 @@ export const Weekly: React.FC<WeeklyProps> = ({ week }) => {
     const date = addDays(weekStart, index)
     return format(date, 'd') + ' ' + yoils[index]
   })
-
-  const hours = [
-    '오전 1시',
-    '오전 2시',
-    '오전 3시',
-    '오전 4시',
-    '오전 5시',
-    '오전 6시',
-    '오전 7시',
-    '오전 8시',
-    '오전 9시',
-    '오전 10시',
-    '오전 11시',
-    '오후 12시',
-    '오후 1시',
-    '오후 2시',
-    '오후 3시',
-    '오후 4시',
-    '오후 5시',
-    '오후 6시',
-    '오후 7시',
-    '오후 8시',
-    '오후 9시',
-    '오후 10시',
-    '오후 11시',
-    '',
-  ]
 
   const startDate = format(weekStart, 'yyyy-MM-dd')
   const endDate = format(addDays(weekStart, 6), 'yyyy-MM-dd')

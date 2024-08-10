@@ -1,6 +1,6 @@
 'use client'
 import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from '../ui/button'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
@@ -21,18 +21,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useScheduleListQuery } from '@/api'
+import { useProjectInfoQuery } from '@/api'
+import { useRouter } from 'next/navigation'
+import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu'
 
-type ViewType = 'monthly' | 'weekly' | 'list'
+type ViewType = 'monthly' | 'weekly' | 'daily' | 'list'
+
+type SelectedProjects = { [key: string]: boolean }
+type Checked = DropdownMenuCheckboxItemProps['checked']
+
 interface CalendarHeaderProps {
   view: ViewType
   date: Date
@@ -40,8 +44,6 @@ interface CalendarHeaderProps {
   onNext: () => void
   onToday: () => void
 }
-
-type Checked = DropdownMenuCheckboxItemProps['checked']
 
 export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   view,
@@ -51,10 +53,12 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onToday,
 }) => {
   const { modals, openModal } = useModal()
-  const { data } = useScheduleListQuery('', '')
-  const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true)
-  const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
-  const [showPanel, setShowPanel] = React.useState<Checked>(false)
+  const { data } = useProjectInfoQuery()
+  const router = useRouter()
+
+  const [selectedProject, setSelectedProject] =
+    React.useState<SelectedProjects>({})
+  const [myCalendar, setMyCalendar] = React.useState<Checked>(false)
 
   const year = date.getFullYear()
   const month = date.getMonth() + 1
@@ -62,6 +66,13 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   const handleClick = () => {
     openModal('default', ModalTypes.CREATE)
     console.log(modals)
+  }
+
+  const handleCheckedChange = (uid: string) => {
+    setSelectedProject((prevState) => ({
+      ...prevState,
+      [uid]: !prevState[uid],
+    }))
   }
 
   return (
@@ -102,6 +113,22 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[160px] items-start">
               <DropdownMenuLabel>필터</DropdownMenuLabel>
+
+              {data?.result.map((projectData) => (
+                <DropdownMenuCheckboxItem
+                  key={projectData.uid}
+                  checked={!!selectedProject[projectData.uid]}
+                  onCheckedChange={() => handleCheckedChange(projectData.uid)}
+                >
+                  {projectData.title}
+                </DropdownMenuCheckboxItem>
+              ))}
+              <DropdownMenuCheckboxItem
+                checked={myCalendar}
+                onCheckedChange={setMyCalendar}
+              >
+                내 캘린더
+              </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="outline" className="gap-2" onClick={handleClick}>
@@ -124,6 +151,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           </Select>
         </div>
       </div>
+
       {modals.default.open && modals.default.type == ModalTypes.CREATE && (
         <ScheduleCreateModal />
       )}

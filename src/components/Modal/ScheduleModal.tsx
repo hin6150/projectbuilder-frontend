@@ -37,6 +37,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Modal, ScheduleModal } from './Modal'
 import { ProfileAvatar } from '../Avatar/Avatar'
 import { Input } from '../ui/input'
+import { useAddScheduleMutation } from '@/api'
 
 interface Participate {
   imageUrl: string
@@ -107,6 +108,26 @@ export const ScheduleCreateModal = () => {
   const selectedPublic = form.watch('publicContent')
   const selectedTeam = form.watch('team')
 
+  const addScheduleInfo = useAddScheduleMutation(
+    {
+      title: form.watch('title'),
+      startDate: form.watch('period').from.toISOString(),
+      content: form.watch('description'),
+    },
+    {
+      onSuccess: () => {
+        console.log('Success', {
+          title: form.watch('title'),
+          startDate: form.watch('period').from.toISOString(),
+          content: form.watch('description'),
+        })
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
+
   const handleDateChange = (date: Date) => {
     setSelectedDate(date)
     setSelectedRepeat('반복 안함')
@@ -114,14 +135,8 @@ export const ScheduleCreateModal = () => {
     form.setValue('endDate', undefined)
   }
 
-  React.useEffect(() => {
-    if (selectedRepeat === '맞춤 설정') {
-      form.setValue('period.from', selectedDate)
-      console.log('일정시간:', form.getValues('period.from'))
-    }
-  }, [selectedRepeat, selectedDate, form])
-
   const onSubmit = () => {
+    addScheduleInfo.mutate()
     closeModal('default')
   }
 
@@ -243,7 +258,6 @@ export const ScheduleCreateModal = () => {
             <Button
               title="생성"
               className="flex flex-[1_0_0] gap-[10px]"
-              onClick={() => openModal('default', ModalTypes.CHECK)}
               disabled={!form.formState.isValid}
               variant={form.formState.isValid ? 'default' : 'disabled'}
             >
