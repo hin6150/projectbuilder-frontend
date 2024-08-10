@@ -10,9 +10,19 @@ const nextConfig = {
   //     },
   //   ]
   // },
-  experimental: {
-    instrumentationHook: true,
+
+  reactStrictMode: true,
+  async rewrites() {
+    return [
+      {
+        source: '/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
+      },
+    ]
   },
+  // experimental: {
+  //   instrumentationHook: true,
+  // },
   webpack(config, { isServer }) {
     if (isServer) {
       config.resolve.alias['msw/browser'] = false
