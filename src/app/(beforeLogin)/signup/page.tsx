@@ -24,7 +24,7 @@ const JoinForm = () => {
   React.useEffect(() => {
     if (data !== undefined) {
       console.log(data)
-      form.setValue('email', data.result.socialId + '@test.com')
+      form.setValue('email', data.result.email)
       form.setValue('name', data.result.name)
       form.setValue('contact', data.result.contact)
     }
