@@ -46,7 +46,7 @@ const page: React.FC = () => {
     },
     {
       onSuccess: () => {
-        router.push('/workspace')
+        router.push('/home')
       },
       onError: (e) => {
         console.log(e)
@@ -100,7 +100,7 @@ const page: React.FC = () => {
             <div className="flex items-center justify-end gap-[8px] self-stretch">
               <Button
                 type="button"
-                onClick={() => router.push('/workspace')}
+                onClick={() => router.push('/home')}
                 variant={'ghost'}
               >
                 건너뛰기

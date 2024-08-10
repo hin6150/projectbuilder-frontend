@@ -44,6 +44,7 @@ export const ProjectCreateModal = () => {
       overview: form.watch('description'),
       startDate: form.watch('period').from.toISOString(),
       endDate: form.watch('period').to.toISOString(),
+      color: '#7c67bb',
     },
     {
       onSuccess: () => {
@@ -131,6 +132,7 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
       overview: form.watch('description'),
       startDate: form.watch('period').from.toISOString(),
       endDate: form.watch('period').to.toISOString(),
+      color: '#7c67bb',
     },
     project.id,
     {

@@ -62,7 +62,7 @@ const profileEdit: React.FC = () => {
     },
     {
       onSuccess: () => {
-        router.push('/workspace')
+        router.push('/home')
       },
     },
   )
@@ -82,6 +82,7 @@ const profileEdit: React.FC = () => {
       form.setValue('stacks', data.result.stackNames.join(', ') || '')
       form.setValue('mbti', data.result.mbti || '')
       setImageUrl(data.result.imageUrl || '')
+      setValue(data.result.mbti || '')
     }
   }, [data])
 
@@ -133,7 +134,7 @@ const profileEdit: React.FC = () => {
             <div className="itmes-center flex justify-end gap-[8px] self-stretch">
               <Button
                 type="button"
-                onClick={() => router.push('/workspace')}
+                onClick={() => router.push('/home')}
                 className="bg-white text-gray-400 hover:bg-gray-100"
               >
                 취소하기

@@ -14,7 +14,7 @@ import { ModalTypes } from '@/hooks/useModal/useModal'
 import { PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 
-const Workspace = () => {
+const Home = () => {
   const { data, isLoading } = useProjectInfoQuery()
 
   const { openModal, modals } = useModal()
@@ -80,4 +80,4 @@ const Workspace = () => {
     </main>
   )
 }
-export default Workspace
+export default Home

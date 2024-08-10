@@ -52,6 +52,7 @@ export interface AddProjectDTO {
   overview: string
   startDate: string
   endDate: string
+  color: string
 }
 
 export interface EditProjectDTO {
@@ -59,6 +60,7 @@ export interface EditProjectDTO {
   overview: string
   startDate: string
   endDate: string
+  color: string
 }
 
 export interface DefaultResponse {
