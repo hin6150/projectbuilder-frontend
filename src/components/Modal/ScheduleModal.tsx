@@ -37,7 +37,15 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Modal, ScheduleModal } from './Modal'
 import { ProfileAvatar } from '../Avatar/Avatar'
 import { Input } from '../ui/input'
-import { useAddScheduleMutation } from '@/api'
+import {
+  DeleteScheduleType,
+  ScheduleInfo,
+  ScheduleVisibility,
+  useAddScheduleMutation,
+  useDeleteScheduleMutation,
+  useEditScheduleMutation,
+  useScheduleDetailQuery,
+} from '@/api'
 
 interface Participate {
   imageUrl: string
@@ -72,7 +80,7 @@ const getRepeatOptions = (date: Date) => {
 }
 
 export const ScheduleCreateModal = () => {
-  const { closeModal, openModal } = useModal()
+  const { closeModal } = useModal()
   const [selectedType, setSelectedType] = React.useState('개인 일정')
   const [allDay, setAllDay] = React.useState(false)
   const [participates, setParticipates] = React.useState<Participate[]>([])
@@ -270,7 +278,7 @@ export const ScheduleCreateModal = () => {
   )
 }
 
-export const ScheduleEditModal = () => {
+export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
   const { closeModal, openModal } = useModal()
   const [selectedType, setSelectedType] = React.useState('개인 일정')
   const [allDay, setAllDay] = React.useState(false)
@@ -305,8 +313,32 @@ export const ScheduleEditModal = () => {
     },
   })
 
+  const EditScheduleDTO = useEditScheduleMutation(
+    scheduleId,
+    {
+      title: form.watch('title'),
+      content: form.watch('description'),
+      startDate: form.watch('period').from.toISOString(),
+      endDate: form.watch('period').to.toISOString(),
+    },
+    {
+      onSuccess: () => {
+        console.log('Success:', {
+          title: form.watch('title'),
+          subTitle: form.watch('description'),
+          startDate: form.watch('period').from.toISOString(),
+          endDate: form.watch('period').to.toISOString(),
+        })
+      },
+      onError: (e) => {
+        console.log(e)
+      },
+    },
+  )
+
   const onSubmit = () => {
-    closeModal('default')
+    EditScheduleDTO.mutate()
+    closeModal('dimed')
   }
 
   const selectedPublic = form.watch('publicContent')
@@ -422,15 +454,14 @@ export const ScheduleEditModal = () => {
           <div className="flex w-full items-start justify-end gap-[12px] self-stretch">
             <Button
               title="취소"
-              onClick={() => closeModal('default')}
+              onClick={() => closeModal('dimed')}
               className="flex flex-[1_0_0] gap-[10px] bg-blue-100"
             >
               <p className="text-body text-blue-500">취소</p>
             </Button>
             <Button
-              title="생성"
+              title="수정"
               className="flex flex-[1_0_0] gap-[10px]"
-              onClick={() => openModal('default', ModalTypes.CHECK)}
               disabled={!form.formState.isValid}
               variant={form.formState.isValid ? 'default' : 'disabled'}
             >
@@ -443,36 +474,72 @@ export const ScheduleEditModal = () => {
   )
 }
 
-export const ScheduleCheckModal = () => {
-  const { openModal, closeModal } = useModal()
+export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
+  const { modals, openModal, closeModal } = useModal()
+  const { data } = useScheduleDetailQuery(scheduleId)
+  const [selectedSchedule, setSelectedSchedule] =
+    React.useState<ScheduleInfo | null>(null)
+
+  const scheduleType = data?.result.projectId ? '팀 일정' : '개인 일정'
+
+  const handleEditClick = (schedule: ScheduleInfo) => {
+    setSelectedSchedule(schedule)
+    openModal('dimed', ModalTypes.EDIT)
+  }
+  const handleDeleteClick = (schedule: ScheduleInfo) => {
+    setSelectedSchedule(schedule)
+    openModal('dimed', ModalTypes.DELETE)
+  }
 
   const form = useForm({
     resolver: zodResolver(formSchemaCheckSchedule),
     defaultValues: {
-      type: '팀 일정',
-      title: '스크럼 회의',
-      period: { from: '2024.08.02 (금) 오후 2:00', to: '오후 2:15' },
-      description: '이슈를 공유합시다',
-      publicContent: '내용 비공개',
-      allday: false,
-      repeat: '매주 금요일',
-      participate: {
+      type: scheduleType,
+      title: '',
+      content: '',
+      visible: '',
+      startDate: new Date().toISOString(),
+      endDate: new Date().toISOString(),
+      repeat: '',
+      projectId: '',
+      inviteList: {
         imageUrl: '',
         name: '홍길동',
         attend: '참석',
       },
-      team: ['자기주도 프로젝트'],
     },
   })
 
+  React.useEffect(() => {
+    if (data && data.result) {
+      const schedule: ScheduleInfo = {
+        id: scheduleId, // `id`를 `scheduleId`로 설정
+        title: data.result.title,
+        content: data.result.content ?? '',
+        visible: data.result.visible ?? ScheduleVisibility.PUBLIC, // 기본값 설정
+        startDate: data.result.startDate,
+        endDate: data.result.endDate ?? '',
+        projectId: data.result.projectId ?? '',
+        inviteList: data.result.inviteList ?? [], // 기본값 설정
+      }
+      setSelectedSchedule(schedule)
+      form.setValue('title', data.result.title)
+      form.setValue('content', data.result.content ?? '')
+      form.setValue('visible', data.result.visible ?? '')
+      form.setValue('startDate', data.result.startDate)
+      form.setValue('endDate', data.result.endDate ?? '')
+      form.setValue('projectId', data.result.projectId ?? '')
+    }
+  }, [data, scheduleId])
+
   const title = form.watch('title')
   const type = form.watch('type')
-  const periodFrom = form.watch('period.from')
-  const periodTo = form.watch('period.to')
-  const description = form.watch('description')
-  const publicContent = form.watch('publicContent')
+  const startDate = form.watch('startDate')
+  const endDate = form.watch('endDate')
+  const description = form.watch('content')
+  const publicContent = form.watch('visible')
   const repeat = form.watch('repeat')
-  const participate = form.watch('participate')
+  const participate = form.watch('inviteList')
 
   const attendClass =
     participate.attend === '참석'
@@ -481,26 +548,33 @@ export const ScheduleCheckModal = () => {
         ? 'text-slate-500'
         : 'text-red-500'
 
+  const onSubmit = () => {
+    closeModal('default')
+  }
+
   return (
     <ScheduleModal>
       <Form {...form}>
-        <form className="flex w-[384px] flex-[1_0_0] flex-col items-start gap-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex w-[384px] flex-[1_0_0] flex-col items-start gap-6"
+        >
           <div className="flex items-center justify-between self-stretch">
             <p className="text-h4">{title}</p>
             <div className="flex gap-2">
               <PencilIcon
-                className="h-6 w-6"
+                className="h-6 w-6 cursor-pointer"
                 onClick={() => {
-                  openModal('default', ModalTypes.EDIT)
+                  if (selectedSchedule) {
+                    handleEditClick(selectedSchedule)
+                  }
                 }}
               />
               <Trash2Icon
-                className="h-6 w-6"
+                className="h-6 w-6 cursor-pointer"
                 onClick={() => {
-                  if (type === '팀 일정') {
-                    openModal('dimed', ModalTypes.DELETE_REPEAT)
-                  } else {
-                    openModal('dimed', ModalTypes.DELETE)
+                  if (selectedSchedule) {
+                    handleDeleteClick(selectedSchedule)
                   }
                 }}
               />
@@ -508,7 +582,7 @@ export const ScheduleCheckModal = () => {
           </div>
           <div className="flex flex-col gap-4 self-stretch">
             <p>
-              {periodFrom} ~ {periodTo}
+              {startDate} ~ {endDate}
             </p>
             <div className="flex items-center justify-between self-stretch">
               <div className="flex w-[88px] items-center gap-2">
@@ -547,6 +621,16 @@ export const ScheduleCheckModal = () => {
           </Button>
         </form>
       </Form>
+
+      {modals.dimed.type === ModalTypes.DELETE && selectedSchedule && (
+        <ScheduleDeleteModal
+          scheduleId={selectedSchedule.id}
+          deleteType={DeleteScheduleType.THIS}
+        />
+      )}
+      {modals.dimed.type === ModalTypes.EDIT && selectedSchedule && (
+        <ScheduleEditModal scheduleId={selectedSchedule.id} />
+      )}
     </ScheduleModal>
   )
 }
@@ -664,9 +748,31 @@ export const ScheduleRepeatModal = () => {
   )
 }
 
-export const ScheduleDeleteModal = () => {
+export const ScheduleDeleteModal = ({
+  scheduleId,
+  deleteType,
+}: {
+  scheduleId: string
+  deleteType: DeleteScheduleType
+}) => {
   const { closeModal } = useModal()
+  const form = useForm()
 
+  const deleteScheduleInfo = useDeleteScheduleMutation(scheduleId, deleteType, {
+    onSuccess: () => {
+      console.log('Delete Success:', scheduleId)
+      closeModal('dimed')
+    },
+    onError: (e) => {
+      console.error('Fail:', e)
+    },
+  })
+
+  const handleDeleteClick = () => {
+    deleteScheduleInfo.mutate()
+    closeModal('dimed')
+    closeModal('default')
+  }
   return (
     <Modal>
       <p className="text-h4">해당 일정을 삭제하시겠습니까?</p>
@@ -675,7 +781,7 @@ export const ScheduleDeleteModal = () => {
         <Button
           title="취소"
           variant="secondary"
-          className="flex-1"
+          className="flex flex-[1_0_0]"
           onClick={() => {
             closeModal('dimed')
           }}
@@ -685,11 +791,8 @@ export const ScheduleDeleteModal = () => {
         <Button
           type="submit"
           title="삭제"
-          className="flex-1"
-          onClick={() => {
-            closeModal('dimed')
-            closeModal('default')
-          }}
+          className="flex flex-[1_0_0]"
+          onClick={handleDeleteClick}
         >
           <p className="text-body">삭제</p>
         </Button>
@@ -700,51 +803,63 @@ export const ScheduleDeleteModal = () => {
 
 export const RepeatScheduleDeleteModal = () => {
   const { closeModal } = useModal()
+  const form = useForm()
+
+  function onSubmit() {
+    closeModal('dimed')
+  }
 
   return (
     <ScheduleModal>
       <p className="text-h4">반복되는 일정을 삭제하시겠습니까?</p>
-      <RadioGroup
-        defaultValue="only"
-        className="flex w-[384px] flex-col items-start gap-4 px-4 py-2"
-      >
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="only" id="r1" />
-          <Label htmlFor="r1">이 일정만</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="future" id="r2" />
-          <Label htmlFor="r2">이 일정과 향후 일정</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="all" id="r3" />
-          <Label htmlFor="r3">모든 일정</Label>
-        </div>
-      </RadioGroup>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-6"
+        >
+          <RadioGroup
+            defaultValue="only"
+            className="flex w-[384px] flex-col items-start gap-4 px-4 py-2"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="only" id="r1" />
+              <Label htmlFor="r1">이 일정만</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="future" id="r2" />
+              <Label htmlFor="r2">이 일정과 향후 일정</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="all" id="r3" />
+              <Label htmlFor="r3">모든 일정</Label>
+            </div>
+          </RadioGroup>
 
-      <div className="flex w-full gap-3">
-        <Button
-          title="취소"
-          variant="secondary"
-          className="flex-1"
-          onClick={() => {
-            closeModal('default')
-          }}
-        >
-          <p className="text-body">취소</p>
-        </Button>
-        <Button
-          type="submit"
-          title="삭제"
-          className="flex-1"
-          onClick={() => {
-            closeModal('dimed')
-            closeModal('default')
-          }}
-        >
-          <p className="text-body">삭제</p>
-        </Button>
-      </div>
+          <div className="flex w-full gap-3">
+            <Button
+              title="취소"
+              variant="secondary"
+              className="flex-1"
+              onClick={() => {
+                closeModal('dimed')
+              }}
+            >
+              <p className="text-body">취소</p>
+            </Button>
+            <Button
+              type="submit"
+              title="삭제"
+              className="flex-1"
+              onClick={() => {
+                closeModal('dimed')
+                closeModal('default')
+              }}
+            >
+              <p className="text-body">삭제</p>
+            </Button>
+          </div>
+        </form>
+      </Form>
     </ScheduleModal>
   )
 }

@@ -9,8 +9,8 @@ export const scheduleHandlers = [
         {
           id: '1',
           title: '데모데모 데이',
-          startDate: '2024-08-5 4:00',
-          endDate: '2024-08-5 12:00',
+          startDate: '2024-08-05 4:00',
+          endDate: '2024-08-05 12:00',
           visible: ScheduleVisibility.PUBLIC,
           projectId: '123',
         },
@@ -42,8 +42,8 @@ export const scheduleHandlers = [
         title: '데모데모 데이',
         content: '일정내용입니다일정내용입니다',
         visible: ScheduleVisibility.PUBLIC,
-        startDate: '2024-01-10',
-        endDate: '2024-01-10',
+        startDate: '2024-08-10',
+        endDate: '2024-08-10',
         repeat: {
           gap: 1,
           cycleType: 'DAY',

@@ -24,7 +24,7 @@ export const scheduleService = {
     )
   },
 
-  async getScheduleDtail(client: QueryClient, id: string) {
+  async getScheduleDetail(client: QueryClient, id: string) {
     return (
       APIBuilder.get(`/schedule/${id}`)
         // .withCredentials(client)

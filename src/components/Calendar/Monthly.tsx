@@ -11,12 +11,16 @@ import {
   getProjectColorClass,
 } from './style'
 import { ScheduleInfo } from '@/api/services/schedule/model'
+import { useModal } from '@/hooks/useModal'
+import { ModalTypes } from '@/hooks/useModal/useModal'
+import { ScheduleCheckModal } from '../Modal/ScheduleModal'
 
 interface MonthlyProps {
   date: Date
 }
 
 export const Monthly: React.FC<MonthlyProps> = ({ date }) => {
+  const { modals, openModal } = useModal()
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
   const weeks = generateCalendar(date)
 
@@ -27,6 +31,13 @@ export const Monthly: React.FC<MonthlyProps> = ({ date }) => {
   const endDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
 
   const { data } = useScheduleListQuery(startDate, endDate)
+  const [selectedSchedule, setSelectedSchedule] =
+    React.useState<ScheduleInfo | null>(null)
+
+  const handleScheduleSelect = (schedule: ScheduleInfo) => {
+    setSelectedSchedule(schedule)
+    openModal('default', ModalTypes.CHECK)
+  }
 
   const getSchedulesForDay = (day: Date, isThisMonth: boolean) => {
     if (!data?.result) {
@@ -100,7 +111,10 @@ export const Monthly: React.FC<MonthlyProps> = ({ date }) => {
                           {schedules.map((schedule, index) => (
                             <div
                               key={index}
-                              className={`flex h-[25px] items-center gap-1 overflow-hidden rounded-[5px] pl-1 ${getProjectColorClass(schedule.projectId ?? '')}`}
+                              onClick={() => {
+                                handleScheduleSelect(schedule)
+                              }}
+                              className={`flex h-[25px] cursor-pointer items-center gap-1 overflow-hidden rounded-[5px] pl-1 ${getProjectColorClass(schedule.projectId ?? '')}`}
                             >
                               <div
                                 className={`h-1 w-1 rounded-full ${getDotColorClass(schedule.projectId ?? '')}`}
@@ -123,6 +137,11 @@ export const Monthly: React.FC<MonthlyProps> = ({ date }) => {
           </div>
         ))}
       </div>
+      {modals.default.open &&
+        modals.default.type == ModalTypes.CHECK &&
+        selectedSchedule && (
+          <ScheduleCheckModal scheduleId={selectedSchedule?.id} />
+        )}
     </div>
   )
 }

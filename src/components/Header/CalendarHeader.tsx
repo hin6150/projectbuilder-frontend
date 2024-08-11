@@ -28,7 +28,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useProjectInfoQuery } from '@/api'
+import { ScheduleInfo, useProjectInfoQuery } from '@/api'
 import { useRouter } from 'next/navigation'
 import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu'
 
@@ -155,18 +155,11 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       {modals.default.open && modals.default.type == ModalTypes.CREATE && (
         <ScheduleCreateModal />
       )}
-      {modals.default.open && modals.default.type == ModalTypes.CHECK && (
-        <ScheduleCheckModal />
-      )}
-      {modals.default.open && modals.default.type == ModalTypes.EDIT && (
-        <ScheduleEditModal />
-      )}
+
       {modals.dimed.type && modals.dimed.type == ModalTypes.REPEAT && (
         <ScheduleRepeatModal />
       )}
-      {modals.dimed.type && modals.dimed.type == ModalTypes.DELETE && (
-        <ScheduleDeleteModal />
-      )}
+
       {modals.dimed.type && modals.dimed.type == ModalTypes.DELETE_REPEAT && (
         <RepeatScheduleDeleteModal />
       )}

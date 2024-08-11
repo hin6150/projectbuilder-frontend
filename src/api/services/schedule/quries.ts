@@ -26,7 +26,7 @@ export const scheduleOptions = {
   }),
   getScheduleDetail: (client: QueryClient, id: string) => ({
     queryKey: ['schedule', id],
-    queryFn: () => scheduleService.getScheduleDtail(client, id),
+    queryFn: () => scheduleService.getScheduleDetail(client, id),
   }),
   useAddSchedule: (client: QueryClient, dto: AddScheduleDTO) => ({
     mutationFn: () => scheduleService.addSchedule(client, dto),
