@@ -59,6 +59,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   const [selectedProject, setSelectedProject] =
     React.useState<SelectedProjects>({})
   const [myCalendar, setMyCalendar] = React.useState<Checked>(false)
+  const [selectedView, setSelectedView] = React.useState<string>('monthly')
 
   const year = date.getFullYear()
   const month = date.getMonth() + 1
@@ -73,6 +74,11 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       ...prevState,
       [uid]: !prevState[uid],
     }))
+  }
+
+  const handleSelectChange = (value: string) => {
+    router.push(`/schedule/${value.toLowerCase()}`)
+    setSelectedView(value)
   }
 
   return (
@@ -135,17 +141,26 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             <PlusIcon className="h-4 w-4" />
             <p className="text-subtle">일정 추가</p>
           </Button>
-          <Select>
+
+          <Select value={selectedView} onValueChange={handleSelectChange}>
             <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="주(Weekly)" />
+              <SelectValue>
+                {selectedView === 'daily'
+                  ? '일(Daily)'
+                  : selectedView === 'weekly'
+                    ? '주(Weekly)'
+                    : selectedView === 'monthly'
+                      ? '월(Monthly)'
+                      : '일정(List)'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>캘린더 타입</SelectLabel>
-                <SelectItem value="Daily">일(Daily)</SelectItem>
-                <SelectItem value="Weekly">주(Weekly)</SelectItem>
-                <SelectItem value="Monthly">월(Monthly)</SelectItem>
-                <SelectItem value="List">일정(List)</SelectItem>
+                <SelectItem value="daily">일(Daily)</SelectItem>
+                <SelectItem value="weekly">주(Weekly)</SelectItem>
+                <SelectItem value="monthly">월(Monthly)</SelectItem>
+                <SelectItem value="list">일정(List)</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
