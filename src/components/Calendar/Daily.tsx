@@ -1,15 +1,9 @@
 'use client'
 import * as React from 'react'
-import {
-  format,
-  addDays,
-  startOfWeek,
-  getHours,
-  getMinutes,
-  isSameDay,
-} from 'date-fns'
+import { format, addDays, startOfWeek, getHours } from 'date-fns'
 import { ScheduleInfo, useProjectInfoQuery, useScheduleListQuery } from '@/api'
 import { hours } from '@/hooks/useCalendar/useCalendarUtils'
+import { EventRenderer } from './EventRenderer' // 컴포넌트 import
 
 const TimeSlot: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
   <div className="relative flex h-[48px] flex-[1_0_0] items-center justify-center border-b border-l border-gray-200">
@@ -38,55 +32,19 @@ export const Daily: React.FC<DailyProps> = ({ week }) => {
     dayIndex: number,
     hour: number,
   ) => {
-    const events =
-      scheduleData?.result
-        ?.filter((schedule: ScheduleInfo) => schedule.projectId === projectId)
-        .map((schedule: ScheduleInfo) => ({
-          title: schedule.title,
-          start: new Date(schedule.startDate),
-          end: new Date(schedule.endDate ?? schedule.startDate),
-        })) || []
-
-    const dayEvents = events.filter(
-      (event) =>
-        isSameDay(addDays(weekStart, dayIndex), event.start) &&
-        getHours(event.start) === hour,
+    const events = (scheduleData?.result || []).filter(
+      (schedule: ScheduleInfo) => schedule.projectId === projectId,
     )
 
-    dayEvents.sort((a, b) => a.start.getTime() - b.start.getTime())
-
-    return dayEvents.map((event, index) => {
-      const totalEvents = dayEvents.length
-      let leftOffset: number
-      let width: number
-
-      if (totalEvents <= 4) {
-        leftOffset = 20 * index
-        width = 100 - leftOffset
-      } else {
-        const totalSpace = 100 - 10
-        const spacing = totalSpace / totalEvents
-        leftOffset = spacing * index
-        width = spacing - 10
-      }
-
-      return (
-        <div
-          key={index}
-          className="absolute z-10 rounded-r-md rounded-br-md border-l-[3px] border-red-300 bg-red-100 p-2"
-          style={{
-            top: `${(getMinutes(event.start) / 60) * 48}px`,
-            height: `${(((getHours(event.end) - getHours(event.start)) * 60 + (getMinutes(event.end) - getMinutes(event.start))) / 60) * 48}px`,
-            left: `${leftOffset}px`,
-            width: `${width}px`,
-          }}
-        >
-          <p className="display-webkit-box webkit-box-orient-vertical webkit-line-clamp-1 self-stretch text-body">
-            {event.title}
-          </p>
-        </div>
-      )
-    })
+    return (
+      <EventRenderer
+        events={events}
+        dayIndex={dayIndex}
+        hour={hour}
+        onScheduleSelect={() => {}}
+        weekStart={weekStart}
+      />
+    )
   }
 
   return (
@@ -125,7 +83,7 @@ export const Daily: React.FC<DailyProps> = ({ week }) => {
             <TimeSlot key="personal">
               {renderEvents(null, index, getHours(new Date()))}
             </TimeSlot>
-            {projectData?.result.map((project, index) => (
+            {projectData?.result.map((project) => (
               <TimeSlot key={project.uid}>
                 {renderEvents(project.uid, index, getHours(new Date()))}
               </TimeSlot>
