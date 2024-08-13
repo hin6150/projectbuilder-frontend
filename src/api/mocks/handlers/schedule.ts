@@ -12,7 +12,7 @@ export const scheduleHandlers = [
           startDate: '2024-08-05 4:00',
           endDate: '2024-08-05 12:00',
           visible: ScheduleVisibility.PUBLIC,
-          projectId: '123',
+          projectId: '50e27d90-7e72-4c57-8a7c-4c7ceba19fbc',
         },
         {
           id: '2',
@@ -20,7 +20,7 @@ export const scheduleHandlers = [
           startDate: '2024-08-18 16:45',
           endDate: '2024-08-18 18:45',
           visible: ScheduleVisibility.PRIVATE,
-          projectId: '123',
+          projectId: '',
         },
         {
           id: '3',
@@ -28,7 +28,7 @@ export const scheduleHandlers = [
           startDate: '2024-08-31',
           endDate: '2024-08-31',
           visible: ScheduleVisibility.PUBLIC,
-          projectId: '124',
+          projectId: 'd470a00c-63f4-4234-bd1f-64fbcf4ba1b6',
         },
       ],
     })

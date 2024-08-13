@@ -22,12 +22,37 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { data } = useProjectInfoQuery()
 
   const [colors, setColors] = React.useState<{ [key: string]: string }>({})
+  const [tempColor, setTempColor] = React.useState<{ [key: string]: string }>(
+    {},
+  )
+  const [openPopover, setOpenPopover] = React.useState<{
+    [key: string]: boolean
+  }>({})
 
   const handleColorChange = (uid: string, newColor: string) => {
-    setColors((prevColors) => ({
+    setTempColor((prevColors) => ({
       ...prevColors,
       [uid]: newColor,
     }))
+  }
+
+  const handleConfirmColorChange = (uid: string) => {
+    setColors((prevColors) => ({
+      ...prevColors,
+      [uid]: tempColor[uid],
+    }))
+    setOpenPopover((prev) => ({ ...prev, [uid]: false }))
+  }
+
+  const handleCancelColorChange = (uid: string) => {
+    setTempColor((prevColors) => ({
+      ...prevColors,
+      [uid]:
+        colors[uid] ||
+        data?.result.find((project) => project.uid === uid)?.color ||
+        '#aabbcc',
+    }))
+    setOpenPopover((prev) => ({ ...prev, [uid]: false }))
   }
 
   const getHandlersForView = (view: ViewType) => {
@@ -61,22 +86,46 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <p className="text-body">내 캘린더</p>
           {data?.result.map((project) => (
             <div className="flex items-center gap-2" key={project.uid}>
-              <Popover>
+              <Popover
+                open={openPopover[project.uid] || false}
+                onOpenChange={(isOpen) =>
+                  setOpenPopover((prev) => ({ ...prev, [project.uid]: isOpen }))
+                }
+              >
                 <PopoverTrigger asChild>
                   <Button
                     style={{
-                      backgroundColor: colors[project.uid] || '#aabbcc',
+                      backgroundColor:
+                        tempColor[project.uid] ||
+                        colors[project.uid] ||
+                        project.color,
                     }}
                     className="h-[14px] w-[14px] rounded-[2px] border border-gray-200 p-0"
                   />
                 </PopoverTrigger>
                 <PopoverContent className="w-[235px]">
                   <HexColorPicker
-                    color={colors[project.uid] || '#aabbcc'}
+                    color={
+                      tempColor[project.uid] ||
+                      colors[project.uid] ||
+                      project.color
+                    }
                     onChange={(newColor) =>
                       handleColorChange(project.uid, newColor)
                     }
                   />
+                  <div className="mt-2 flex justify-end gap-2">
+                    <Button
+                      onClick={() => handleCancelColorChange(project.uid)}
+                    >
+                      취소
+                    </Button>
+                    <Button
+                      onClick={() => handleConfirmColorChange(project.uid)}
+                    >
+                      확인
+                    </Button>
+                  </div>
                 </PopoverContent>
               </Popover>
               <p className="text-small">{project.title}</p>
@@ -85,16 +134,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
 
-      <div className="p-4">
-        {/* <CalendarHeader
-          view={view}
-          date={state.date}
-          onPrev={onPrev}
-          onNext={onNext}
-          onToday={handleToday}
-        /> */}
-        {children}
-      </div>
+      <div className="p-4">{children}</div>
     </div>
   )
 }
