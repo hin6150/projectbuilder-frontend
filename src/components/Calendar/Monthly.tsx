@@ -14,6 +14,7 @@ import { ScheduleInfo } from '@/api/services/schedule/model'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import { ScheduleCheckModal } from '../Modal/ScheduleModal'
+import { useProjectInfoQuery } from '@/api'
 
 interface MonthlyProps {
   date: Date
@@ -31,12 +32,20 @@ export const Monthly: React.FC<MonthlyProps> = ({ date }) => {
   const endDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
 
   const { data } = useScheduleListQuery(startDate, endDate)
+  const { data: projectData } = useProjectInfoQuery()
   const [selectedSchedule, setSelectedSchedule] =
     React.useState<ScheduleInfo | null>(null)
 
   const handleScheduleSelect = (schedule: ScheduleInfo) => {
     setSelectedSchedule(schedule)
     openModal('default', ModalTypes.CHECK)
+  }
+
+  const getProjectColor = (projectId: string) => {
+    return (
+      projectData?.result.find((project) => project.uid === projectId)?.color ||
+      '#ccc'
+    )
   }
 
   const getSchedulesForDay = (day: Date, isThisMonth: boolean) => {
@@ -114,12 +123,17 @@ export const Monthly: React.FC<MonthlyProps> = ({ date }) => {
                               onClick={() => {
                                 handleScheduleSelect(schedule)
                               }}
-                              className={`flex h-[25px] cursor-pointer items-center gap-1 overflow-hidden rounded-[5px] pl-1 ${getProjectColorClass(schedule.projectId ?? '')}`}
+                              style={{
+                                backgroundColor: getProjectColor(
+                                  schedule.projectId ?? '',
+                                ),
+                              }}
+                              className={`flex h-[25px] cursor-pointer items-center gap-1 overflow-hidden rounded-[5px] pl-1 ${getProjectColor(schedule.projectId ?? '')}`}
                             >
                               <div
-                                className={`h-1 w-1 rounded-full ${getDotColorClass(schedule.projectId ?? '')}`}
+                                className={`h-1 w-1 shrink-0 rounded-full ${getDotColorClass(schedule.projectId ?? '')}`}
                               />
-                              <p className="display-webkit-box box-orient-vertical line-clamp-2 text-detail">
+                              <p className="display-webkit-box box-orient-vertical line-clamp-2 w-[75px] text-detail">
                                 {formatTime(schedule.startDate)}
                               </p>
                               <p className="display-webkit-box box-orient-vertical line-clamp-1 text-detail">

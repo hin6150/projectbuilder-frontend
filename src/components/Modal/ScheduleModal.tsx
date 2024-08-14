@@ -14,10 +14,10 @@ import {
   PencilIcon,
   RepeatIcon,
   Trash2Icon,
+  UsersIcon,
 } from 'lucide-react'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import {
   DefaultInputForm,
   TextAreaForm,
@@ -480,8 +480,16 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
   const [selectedSchedule, setSelectedSchedule] =
     React.useState<ScheduleInfo | null>(null)
 
-  const scheduleType = data?.result.projectId ? '팀 일정' : '개인 일정'
-
+  const formatVisible = (visibility: string) => {
+    switch (visibility) {
+      case 'PUBLIC':
+        return '내용 공개'
+      case 'PRIVATE':
+        return '내용 비공개'
+      default:
+        return '알 수 없음'
+    }
+  }
   const handleEditClick = (schedule: ScheduleInfo) => {
     setSelectedSchedule(schedule)
     openModal('dimed', ModalTypes.EDIT)
@@ -494,7 +502,7 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
   const form = useForm({
     resolver: zodResolver(formSchemaCheckSchedule),
     defaultValues: {
-      type: scheduleType,
+      type: data?.result.projectId ? '팀 일정' : '개인 일정',
       title: '',
       content: '',
       visible: '',
@@ -515,14 +523,14 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
       const schedule: ScheduleInfo = {
         id: scheduleId, // `id`를 `scheduleId`로 설정
         title: data.result.title,
-        content: data.result.content ?? '',
-        visible: data.result.visible ?? ScheduleVisibility.PUBLIC, // 기본값 설정
+        visible: data.result.visible ?? ScheduleVisibility.PUBLIC,
         startDate: data.result.startDate,
         endDate: data.result.endDate ?? '',
         projectId: data.result.projectId ?? '',
-        inviteList: data.result.inviteList ?? [], // 기본값 설정
+        inviteList: data.result.inviteList ?? [],
       }
       setSelectedSchedule(schedule)
+      form.setValue('type', data.result.projectId ? '팀 일정' : '개인 일정')
       form.setValue('title', data.result.title)
       form.setValue('content', data.result.content ?? '')
       form.setValue('visible', data.result.visible ?? '')
@@ -591,8 +599,19 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
               </div>
               <div className="flex items-start gap-2">
                 <div className="flex items-center gap-1">
-                  <LockIcon className="h-4 w-4" />
-                  <span className="text-small">{publicContent}</span>
+                  {type === '팀 일정' ? (
+                    <>
+                      <UsersIcon className="h-4 w-4" />
+                      <span className="text-small">project.title</span>
+                    </>
+                  ) : (
+                    <>
+                      <LockIcon className="h-4 w-4" />
+                      <span className="text-small">
+                        {formatVisible(publicContent)}
+                      </span>
+                    </>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
                   <CalendarIcon className="h-4 w-4" />
