@@ -230,6 +230,49 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
 
   return (
     <div className="relative flex items-center space-x-2 p-2">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path
+          d="M3 6H21"
+          stroke="black"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M19 6V20C19 21 18 22 17 22H7C6 22 5 21 5 20V6"
+          stroke="black"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M8 6V4C8 3 9 2 10 2H14C15 2 16 3 16 4V6"
+          stroke="black"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M10 11V17"
+          stroke="black"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M14 11V17"
+          stroke="black"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
       {showSearchInput ? (
         <input
           type="text"
@@ -499,6 +542,71 @@ const Board: React.FC<BoardProps> = ({ items }) => {
         </div>
       )
     }
+  }
+  if (items.length === 0) {
+    return (
+      <div className="h-[356px]">
+        <div>
+          <table className="w-full">
+            <thead className="text-left">
+              <tr>
+                <th className="w-[50px] border-b px-5 py-2">
+                  <Checkbox />
+                </th>
+                <th
+                  className="w-[100px] cursor-pointer border-b px-4 py-2"
+                  onClick={() => requestSort('type')}
+                >
+                  <div className="flex items-center justify-start">
+                    종류
+                    {renderSortIcon('type')}
+                  </div>
+                </th>
+                <th
+                  className="w-[200px] cursor-pointer border-b px-4 py-2"
+                  onClick={() => requestSort('title')}
+                >
+                  <div className="flex items-center justify-start">
+                    제목
+                    {renderSortIcon('title')}
+                  </div>
+                </th>
+                <th
+                  className="w-[150px] cursor-pointer border-b px-4 py-2"
+                  onClick={() => requestSort('assignee')}
+                >
+                  <div className="flex items-center justify-start">
+                    담당자
+                    {renderSortIcon('assignee')}
+                  </div>
+                </th>
+                <th
+                  className="w-[150px] cursor-pointer border-b px-4 py-2"
+                  onClick={() => requestSort('createdDate')}
+                >
+                  <div className="flex items-center">
+                    생성일자
+                    {renderSortIcon('createdDate')}
+                  </div>
+                </th>
+                <th
+                  className="w-[100px] cursor-pointer border-b px-4 py-2"
+                  onClick={() => requestSort('status')}
+                >
+                  <div className="flex items-center">
+                    진행 상태
+                    {renderSortIcon('status')}
+                  </div>
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div className="flex h-full items-center justify-center text-h3">
+          검색 결과가 없습니다.
+        </div>
+      </div>
+    )
   }
 
   return (
