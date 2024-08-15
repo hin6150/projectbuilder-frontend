@@ -41,6 +41,43 @@ interface StatusDropdownProps {
   onClose: () => void
 }
 
+interface ModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onDelete: () => void
+}
+
+const DeleteModal: React.FC<ModalProps> = ({ isOpen, onClose, onDelete }) => {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="w-[448px] rounded-md bg-white p-6 shadow-lg">
+        <h2 className="mb-4 text-center text-lg font-bold">
+          해당 게시글을 삭제하시겠습니까?
+        </h2>
+        <p className="text-center text-gray-600">
+          해당 행동은 되돌릴 수 없습니다.
+        </p>
+        <div className="mt-6 flex justify-center space-x-4">
+          <button
+            onClick={onClose}
+            className="w-[186px] rounded bg-[#DBEAFE] px-4 py-2 text-[#3B82F6]"
+          >
+            취소
+          </button>
+          <button
+            onClick={onDelete}
+            className="w-[186px] rounded bg-[#007AFF] px-4 py-2 text-white"
+          >
+            삭제
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const StatusDropdown: React.FC<StatusDropdownProps> = ({
   currentStatus,
   onChangeStatus,
@@ -194,6 +231,21 @@ interface FilterBarProps {
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
+  const [isModalOpen, setModalOpen] = useState(false)
+
+  const handleDeleteClick = () => {
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+  }
+
+  const handleDeleteItems = () => {
+    // 삭제 로직 구현
+    console.log('Items deleted')
+    setModalOpen(false)
+  }
   const [isDropdownVisible, setDropdownVisible] = useState(false)
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
@@ -230,11 +282,17 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
 
   return (
     <div className="relative flex items-center space-x-2 p-2">
+      <DeleteModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onDelete={handleDeleteItems}
+      />
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
         viewBox="0 0 24 24"
+        onClick={handleDeleteClick}
         fill="none"
       >
         <path
@@ -398,6 +456,15 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
 }
 
 const Board: React.FC<BoardProps> = ({ items }) => {
+  const [selectedItems, setSelectedItems] = useState<string[]>([])
+
+  const handleSelectItem = (id: string) => {
+    setSelectedItems((prevSelectedItems) =>
+      prevSelectedItems.includes(id)
+        ? prevSelectedItems.filter((item) => item !== id)
+        : [...prevSelectedItems, id],
+    )
+  }
   const [sortConfig, setSortConfig] = useState<{
     key: string
     direction: string
@@ -673,7 +740,7 @@ const Board: React.FC<BoardProps> = ({ items }) => {
             {sortedItems.map((item, index) => (
               <tr key={index}>
                 <td className="w-[50px] border-b px-5 py-2">
-                  <Checkbox />
+                  <Checkbox onChange={() => handleSelectItem(item.title)} />
                 </td>
                 <td className="w-[100px] border-b px-4 py-2">{item.type}</td>
                 <td className="w-[200px] border-b px-4 py-2">{item.title}</td>
