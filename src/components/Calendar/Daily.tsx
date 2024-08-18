@@ -1,9 +1,12 @@
 'use client'
 import * as React from 'react'
-import { format, addDays, startOfWeek, getHours } from 'date-fns'
+import { format } from 'date-fns'
 import { ScheduleInfo, useProjectInfoQuery, useScheduleListQuery } from '@/api'
 import { hours } from '@/hooks/useCalendar/useCalendarUtils'
-import { EventRenderer } from './EventRenderer' // 컴포넌트 import
+import { EventRenderer } from './EventRenderer'
+import { useModal } from '@/hooks/useModal'
+import { ModalTypes } from '@/hooks/useModal/useModal'
+import { ScheduleCheckModal } from '../Modal/ScheduleModal'
 
 const TimeSlot: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
   <div className="relative flex h-[48px] flex-[1_0_0] items-center justify-center border-b border-l border-gray-200">
@@ -12,26 +15,31 @@ const TimeSlot: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
 )
 
 interface DailyProps {
-  week: Date
+  date: Date
 }
 
-export const Daily: React.FC<DailyProps> = ({ week }) => {
-  const weekStart = startOfWeek(week, { weekStartsOn: 0 })
+export const Daily: React.FC<DailyProps> = ({ date }) => {
+  const { modals, openModal } = useModal()
 
-  const startDate = format(weekStart, 'yyyy-MM-dd')
-  const endDate = format(addDays(weekStart, 6), 'yyyy-MM-dd')
+  const startDate = format(date, 'yyyy-MM-dd')
+  const endDate = format(date, 'yyyy-MM-dd')
+
   const { data: scheduleData } = useScheduleListQuery(startDate, endDate)
   const { data: projectData } = useProjectInfoQuery()
 
-  const filterPersonalSchedules = (schedules: ScheduleInfo[]) => {
-    return schedules.filter((schedule) => schedule.projectId === null)
+  const [selectedSchedule, setSelectedSchedule] =
+    React.useState<ScheduleInfo | null>(null)
+
+  const handleScheduleSelect = (schedule: ScheduleInfo) => {
+    setSelectedSchedule(schedule)
+    openModal('default', ModalTypes.CHECK)
   }
 
-  const renderEvents = (
-    projectId: string | null,
-    dayIndex: number,
-    hour: number,
-  ) => {
+  // const filterPersonalSchedules = (schedules: ScheduleInfo[]) => {
+  //   return schedules.filter((schedule) => schedule.projectId === null)
+  // }
+
+  const renderEvents = (projectId: string | null, hour: number) => {
     const events = (scheduleData?.result || []).filter(
       (schedule: ScheduleInfo) => schedule.projectId === projectId,
     )
@@ -39,10 +47,10 @@ export const Daily: React.FC<DailyProps> = ({ week }) => {
     return (
       <EventRenderer
         events={events}
-        dayIndex={dayIndex}
+        dayIndex={0}
         hour={hour}
-        onScheduleSelect={() => {}}
-        weekStart={weekStart}
+        onScheduleSelect={handleScheduleSelect}
+        weekStart={date}
       />
     )
   }
@@ -51,9 +59,9 @@ export const Daily: React.FC<DailyProps> = ({ week }) => {
     <div className="flex w-[864px] shrink-0 flex-col items-start gap-[10px] p-4">
       <div className="flex items-center justify-between self-stretch">
         <div className="flex h-[48px] w-[80px]" />
-        <p className="flex-[1_0_0] gap-[10px] text-center text-large">
+        {/* <p className="flex-[1_0_0] gap-[10px] text-center text-large">
           나의 일정
-        </p>
+        </p> */}
         {projectData?.result.map((project) => (
           <p
             className="flex-[1_0_0] gap-[10px] text-center text-large"
@@ -80,17 +88,20 @@ export const Daily: React.FC<DailyProps> = ({ week }) => {
             <div className="absolute bottom-[-10px] left-[15px] text-subtle">
               {hour}
             </div>
-            <TimeSlot key="personal">
-              {renderEvents(null, index, getHours(new Date()))}
-            </TimeSlot>
             {projectData?.result.map((project) => (
               <TimeSlot key={project.uid}>
-                {renderEvents(project.uid, index, getHours(new Date()))}
+                {renderEvents(project.uid, index)}
               </TimeSlot>
             ))}
           </div>
         ))}
       </div>
+
+      {modals.default.open &&
+        modals.default.type == ModalTypes.CHECK &&
+        selectedSchedule && (
+          <ScheduleCheckModal scheduleId={selectedSchedule.id} />
+        )}
     </div>
   )
 }

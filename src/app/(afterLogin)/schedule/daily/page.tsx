@@ -17,7 +17,7 @@ export default function page() {
         onNext={() => handleNext('day')}
         onToday={handleToday}
       />
-      <Daily week={state.date} />
+      <Daily date={state.date} />
     </div>
   )
 }

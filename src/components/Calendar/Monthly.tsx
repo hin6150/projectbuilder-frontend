@@ -1,38 +1,28 @@
 'use client'
 
 import * as React from 'react'
-import { useScheduleListQuery } from '@/api/services/schedule/quries'
 import { generateCalendar } from '@/hooks/useCalendar'
-import {
-  weekClass,
-  yoilClass,
-  dayClass,
-  getDotColorClass,
-  getProjectColorClass,
-} from './style'
-import { ScheduleInfo } from '@/api/services/schedule/model'
+import { weekClass, yoilClass, dayClass, getDotColorClass } from './style'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import { ScheduleCheckModal } from '../Modal/ScheduleModal'
-import { useProjectInfoQuery } from '@/api'
+import { ScheduleInfo, ProjectInfo } from '@/api'
 
 interface MonthlyProps {
   date: Date
+  schedules: ScheduleInfo[] | undefined
+  projects: ProjectInfo[] | undefined
 }
 
-export const Monthly: React.FC<MonthlyProps> = ({ date }) => {
+export const Monthly: React.FC<MonthlyProps> = ({
+  date,
+  schedules,
+  projects,
+}) => {
   const { modals, openModal } = useModal()
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
   const weeks = generateCalendar(date)
 
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-
-  const startDate = `${year}-${String(month).padStart(2, '0')}-01`
-  const endDate = `${year}-${String(month + 1).padStart(2, '0')}-01`
-
-  const { data } = useScheduleListQuery(startDate, endDate)
-  const { data: projectData } = useProjectInfoQuery()
   const [selectedSchedule, setSelectedSchedule] =
     React.useState<ScheduleInfo | null>(null)
 
@@ -43,17 +33,14 @@ export const Monthly: React.FC<MonthlyProps> = ({ date }) => {
 
   const getProjectColor = (projectId: string) => {
     return (
-      projectData?.result.find((project) => project.uid === projectId)?.color ||
-      '#ccc'
+      projects?.find((project) => project.uid === projectId)?.color || '#ccc'
     )
   }
 
   const getSchedulesForDay = (day: Date, isThisMonth: boolean) => {
-    if (!data?.result) {
+    if (!schedules) {
       return []
     }
-
-    const schedules = data.result as ScheduleInfo[]
 
     return schedules.filter((schedule) => {
       const scheduleDate = new Date(schedule.startDate).getDate()
@@ -130,9 +117,7 @@ export const Monthly: React.FC<MonthlyProps> = ({ date }) => {
                               }}
                               className={`flex h-[25px] cursor-pointer items-center gap-1 overflow-hidden rounded-[5px] pl-1 ${getProjectColor(schedule.projectId ?? '')}`}
                             >
-                              <div
-                                className={`h-1 w-1 shrink-0 rounded-full ${getDotColorClass(schedule.projectId ?? '')}`}
-                              />
+                              <div className="h-1 w-1 shrink-0 rounded-full" />
                               <p className="display-webkit-box box-orient-vertical line-clamp-2 w-[75px] text-detail">
                                 {formatTime(schedule.startDate)}
                               </p>
