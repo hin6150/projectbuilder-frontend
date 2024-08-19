@@ -10,14 +10,17 @@ import { cn } from '@/lib/utils'
 import { useState } from 'react'
 
 export function PickerExample() {
-  const [background, setBackground] = useState('#ff75c3')
+  const [background, setBackground] = useState('bg-blue-900') // 기본 색상을 Tailwind 클래스로 설정
 
   return (
-    <div
-      className="flex h-[14px] w-[14px] items-center justify-center rounded !bg-cover !bg-center p-10 transition-all"
-      style={{ background }}
-    >
+    <div className="flex h-[14px] w-[14px] items-center justify-center rounded !bg-cover !bg-center p-10 transition-all">
       <GradientPicker background={background} setBackground={setBackground} />
+      <Button
+        variant={'outline'}
+        className={cn('flex h-[14px] w-[14px] rounded', background)}
+      >
+        Button
+      </Button>
     </div>
   )
 }
@@ -32,14 +35,14 @@ export function GradientPicker({
   className?: string
 }) {
   const solids = [
-    '#E2E2E2',
-    '#FEE2E2',
-    '#FFEDD5',
-    '#FEF08A',
-    '#D9F99D',
-    '#CFFAFE',
-    '#F3E8FF',
-    '#09203f',
+    'bg-slate-200', // '#E2E2E2'
+    'bg-red-100', // '#FEE2E2'
+    'bg-orange-100', // '#FFEDD5'
+    'bg-yellow-200', // '#FEF08A'
+    'bg-lime-100', // '#D9F99D'
+    'bg-cyan-100', // '#CFFAFE'
+    'bg-purple-100', // '#F3E8FF'
+    'bg-blue-900', // '#09203f'
   ]
 
   return (
@@ -47,12 +50,7 @@ export function GradientPicker({
       <PopoverTrigger asChild>
         <Button
           variant={'outline'}
-          className={cn(
-            'flex h-[14px] w-[14px]',
-            !background && 'text-muted-foreground',
-            className,
-          )}
-          style={{ background }}
+          className={cn('flex h-[14px] w-[14px]', className, background)}
         />
       </PopoverTrigger>
       <PopoverContent className="flex w-full flex-col gap-2">
@@ -60,8 +58,7 @@ export function GradientPicker({
           {solids.map((s) => (
             <div
               key={s}
-              style={{ background: s }}
-              className="h-6 w-6 cursor-pointer rounded-md active:scale-105"
+              className={`h-6 w-6 cursor-pointer rounded-md ${s} active:scale-105`}
               onClick={() => setBackground(s)}
             />
           ))}
