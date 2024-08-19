@@ -35,14 +35,14 @@ export function GradientPicker({
   className?: string
 }) {
   const solids = [
-    'bg-slate-200', // '#E2E2E2'
+    'bg-slate-100', // '#F1F5F9'
     'bg-red-100', // '#FEE2E2'
     'bg-orange-100', // '#FFEDD5'
-    'bg-yellow-200', // '#FEF08A'
-    'bg-lime-100', // '#D9F99D'
+    'bg-yellow-100', // '#FEF9C3'
+    'bg-lime-100', // '#ECFCCB'
     'bg-cyan-100', // '#CFFAFE'
+    'bg-blue-100', // '#DBEAFE'
     'bg-purple-100', // '#F3E8FF'
-    'bg-blue-900', // '#09203f'
   ]
 
   return (

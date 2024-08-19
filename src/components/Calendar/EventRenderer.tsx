@@ -2,6 +2,7 @@
 import * as React from 'react'
 import { getHours, getMinutes, isSameDay, addDays } from 'date-fns'
 import { ScheduleInfo, useProjectInfoQuery } from '@/api'
+import { getBorderColor } from './style'
 
 const formatTime = (date: Date) => {
   const hours = getHours(date)
@@ -67,9 +68,8 @@ export const EventRenderer: React.FC<EventRendererProps> = ({
         return (
           <div
             key={index}
-            className="absolute z-10 cursor-pointer rounded-r-md rounded-br-md p-2"
+            className={`absolute z-10 cursor-pointer rounded-r-md rounded-br-md p-2 ${projectColor} border-l-[3px] ${getBorderColor(projectColor)}`}
             style={{
-              backgroundColor: projectColor,
               top: `${(getMinutes(new Date(event.startDate)) / 60) * 48}px`,
               height: `${(((getHours(new Date(event.endDate ?? event.startDate)) - getHours(new Date(event.startDate))) * 60 + (getMinutes(new Date(event.endDate ?? event.startDate)) - getMinutes(new Date(event.startDate)))) / 60) * 48}px`,
               left: `${leftOffset}px`,

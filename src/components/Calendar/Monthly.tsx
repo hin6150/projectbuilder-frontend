@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { generateCalendar } from '@/hooks/useCalendar'
-import { weekClass, yoilClass, dayClass, getDotColorClass } from './style'
+import { weekClass, yoilClass, dayClass, getDotColor } from './style'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import { ScheduleCheckModal } from '../Modal/ScheduleModal'
@@ -110,14 +110,11 @@ export const Monthly: React.FC<MonthlyProps> = ({
                               onClick={() => {
                                 handleScheduleSelect(schedule)
                               }}
-                              style={{
-                                backgroundColor: getProjectColor(
-                                  schedule.projectId ?? '',
-                                ),
-                              }}
                               className={`flex h-[25px] cursor-pointer items-center gap-1 overflow-hidden rounded-[5px] pl-1 ${getProjectColor(schedule.projectId ?? '')}`}
                             >
-                              <div className="h-1 w-1 shrink-0 rounded-full" />
+                              <div
+                                className={`h-1 w-1 shrink-0 rounded-full ${getDotColor(getProjectColor(schedule.projectId ?? ''))}`}
+                              />
                               <p className="display-webkit-box box-orient-vertical line-clamp-2 w-[75px] text-detail">
                                 {formatTime(schedule.startDate)}
                               </p>
