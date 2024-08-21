@@ -51,31 +51,22 @@ const period = z.object({
   to: z.date(),
 })
 
+const type = z.string()
+
 const description = z.string()
 
-const scheduletypeField = z.string()
+const startDate = z.date()
+const endDate = z.date()
 
-const alldayField = z.boolean().optional()
+const visible = z.string()
 
-const repeatField = z.string()
+const projectId = z.string()
 
-const publicField = z.string()
-
-const attend = z.string()
-
-const cycleField = z.string()
-
-const repeatDay = z.string()
-
-const endDate = z.date().optional()
-
-const teamName = z.string()
-
-const participate = z.object({
-  imageUrl: imageUrlField,
-  name: nameField,
-  email: emailField,
-  attend: attend,
+const inviteList = z.object({
+  imageUrl: z.string().optional(),
+  name: z.string(),
+  email: z.string(),
+  state: z.string(),
 })
 
 export const formSchemaUserEdit = z.object({
@@ -115,47 +106,33 @@ export const formEmailProject = z.object({
   email: emailField,
 })
 
-export const formSchemaPersonalSchedule = z.object({
-  type: scheduletypeField,
+export const fromSchemaSchedule = z.object({
+  type: type,
   title: title,
-  period: period,
-  description: description,
-  allday: alldayField,
-  repeat: repeatField,
-  publicContent: publicField,
+  content: description,
+  startDate: startDate,
   endDate: endDate,
+  visible: visible,
+  projectId: projectId,
+  inviteList: inviteList,
 })
 
-export const formSchemaTeamSchedule = z.object({
-  type: scheduletypeField,
-  title: title,
-  period: period,
-  description: description,
-  allday: alldayField,
-  repeat: repeatField,
-  team: teamName,
-  participate: participate,
-  endDate: endDate,
-})
-
-export const formSchemaRepeatSchedule = z.object({
-  period: period,
-  repeat: repeatField,
-  cycle: cycleField,
-  day: repeatDay,
-  endDate: endDate,
-})
+// export const formSchemaRepeatSchedule = z.object({
+//   period: period,
+//   repeat: repeatField,
+//   cycle: cycleField,
+//   day: repeatDay,
+//   endDate: endDate,
+// })
 
 export const formSchemaCheckSchedule = z.object({
-  type: scheduletypeField,
   title: title,
-  period: period,
   description: description,
-  publicContent: publicField,
-  allday: alldayField,
-  repeat: repeatField,
-  participate: participate,
-  team: teamName,
+  startDate: startDate,
+  endDate: endDate,
+  visible: visible,
+  projectId: projectId,
+  inviteList: inviteList,
 })
 
 export const formatPhoneNumber = (value: string) => {

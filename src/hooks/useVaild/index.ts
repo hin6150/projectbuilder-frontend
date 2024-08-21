@@ -3,9 +3,8 @@ export {
   formSchemaProject,
   formSchemaSignUp,
   formSchemaUserEdit,
-  formSchemaPersonalSchedule,
-  formSchemaTeamSchedule,
-  formSchemaRepeatSchedule,
+  fromSchemaSchedule,
+  // formSchemaRepeatSchedule,
   formSchemaCheckSchedule,
   formatPhoneNumber,
 } from './useVaild'

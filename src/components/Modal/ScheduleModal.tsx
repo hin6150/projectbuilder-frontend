@@ -1,12 +1,7 @@
 'use client'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
-import {
-  formSchemaCheckSchedule,
-  formSchemaPersonalSchedule,
-  formSchemaRepeatSchedule,
-  formSchemaTeamSchedule,
-} from '@/hooks/useVaild'
+import { formSchemaCheckSchedule, fromSchemaSchedule } from '@/hooks/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   CalendarIcon,
@@ -46,6 +41,7 @@ import {
   useEditScheduleMutation,
   useScheduleDetailQuery,
 } from '@/api'
+import { z } from 'zod'
 
 interface Participate {
   imageUrl: string
@@ -81,7 +77,6 @@ const getRepeatOptions = (date: Date) => {
 
 export const ScheduleCreateModal = () => {
   const { closeModal } = useModal()
-  const [selectedType, setSelectedType] = React.useState('개인 일정')
   const [allDay, setAllDay] = React.useState(false)
   const [participates, setParticipates] = React.useState<Participate[]>([])
   const [selectedDate, setSelectedDate] = React.useState(new Date())
@@ -90,44 +85,42 @@ export const ScheduleCreateModal = () => {
   >(undefined)
   const [selectedRepeat, setSelectedRepeat] = React.useState('반복 안함')
 
-  const teamOptions = ['프로젝트 팀A', '프로젝트 팀B', '프로젝트 팀C']
   const repeatOptions = getRepeatOptions(selectedDate)
 
-  const formSchema =
-    selectedType === '개인 일정'
-      ? formSchemaPersonalSchedule
-      : formSchemaTeamSchedule
-
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(fromSchemaSchedule),
     defaultValues: {
       type: '개인 일정',
       title: '',
-      period: { from: new Date(), to: new Date() },
-      description: '',
-      allday: false,
-      repeat: '반복 안함',
-      publicContent: '내용 비공개',
-      team: '',
-      participate: [],
-      endDate: undefined,
+      content: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      visible: '',
+      projectId: '',
+      inviteList: [],
     },
   })
-  const selectedPublic = form.watch('publicContent')
-  const selectedTeam = form.watch('team')
 
   const addScheduleInfo = useAddScheduleMutation(
     {
       title: form.watch('title'),
-      startDate: form.watch('period').from.toISOString(),
-      content: form.watch('description'),
+      content: form.watch('content'),
+      startDate: form.watch('startDate').toISOString(),
+      endDate: form.watch('endDate').toISOString(),
+      visible: form.watch('visible') as ScheduleVisibility | undefined,
+      projectId: form.watch('projectId'),
+      inviteList: form.watch('inviteList'),
     },
     {
       onSuccess: () => {
         console.log('Success', {
           title: form.watch('title'),
-          startDate: form.watch('period').from.toISOString(),
-          content: form.watch('description'),
+          content: form.watch('content'),
+          startDate: form.watch('startDate').toISOString(),
+          endDate: form.watch('endDate').toISOString(),
+          visible: form.watch('visible') as ScheduleVisibility | undefined,
+          projectId: form.watch('projectId'),
+          inviteList: form.watch('inviteList'),
         })
       },
       onError: (e) => {
@@ -140,12 +133,12 @@ export const ScheduleCreateModal = () => {
     setSelectedDate(date)
     setSelectedRepeat('반복 안함')
     setSelectedEndDate(undefined)
-    form.setValue('endDate', undefined)
+    // form.setValue('endDate', '')
   }
 
   const onSubmit = () => {
     addScheduleInfo.mutate()
-    closeModal('default')
+    closeModal('dimed')
   }
 
   return (
@@ -161,7 +154,6 @@ export const ScheduleCreateModal = () => {
               <CalendarIcon className="h-4 w-4" />
               <DropdownForm
                 form={form}
-                value={selectedType}
                 options={['개인 일정', '팀 일정']}
                 defaultValue="개인 일정"
                 label="일정 유형"
@@ -198,7 +190,6 @@ export const ScheduleCreateModal = () => {
                     <LockIcon className="h-4 w-4" />
                     <DropdownForm
                       form={form}
-                      value={selectedPublic}
                       options={['내용 비공개', '내용 공개']}
                       defaultValue="내용 비공개"
                       label="공개 여부"
@@ -208,8 +199,7 @@ export const ScheduleCreateModal = () => {
                 ) : (
                   <DropdownForm
                     form={form}
-                    value={selectedTeam}
-                    options={teamOptions}
+                    options={['a', 'b']}
                     defaultValue="프로젝트 팀"
                     label="프로젝트 팀"
                     name="team"
@@ -279,8 +269,7 @@ export const ScheduleCreateModal = () => {
 }
 
 export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
-  const { closeModal, openModal } = useModal()
-  const [selectedType, setSelectedType] = React.useState('개인 일정')
+  const { closeModal } = useModal()
   const [allDay, setAllDay] = React.useState(false)
   const [participates, setParticipates] = React.useState<Participate[]>([])
   const [selectedDate, setSelectedDate] = React.useState(new Date())
@@ -292,13 +281,8 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
   const teamOptions = ['프로젝트 팀A', '프로젝트 팀B', '프로젝트 팀C']
   const repeatOptions = getRepeatOptions(selectedDate)
 
-  const formSchema =
-    selectedType === '개인 일정'
-      ? formSchemaPersonalSchedule
-      : formSchemaTeamSchedule
-
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(fromSchemaSchedule),
     defaultValues: {
       type: '',
       title: '',
@@ -357,7 +341,6 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
               <CalendarIcon className="h-4 w-4" />
               <DropdownForm
                 form={form}
-                value={selectedType}
                 options={['개인 일정', '팀 일정']}
                 defaultValue="개인 일정"
                 label="일정 유형"
@@ -394,7 +377,6 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
                     <LockIcon className="h-4 w-4" />
                     <DropdownForm
                       form={form}
-                      value={selectedPublic}
                       options={['내용 비공개', '내용 공개']}
                       defaultValue="내용 비공개"
                       label="공개 여부"
@@ -404,8 +386,7 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
                 ) : (
                   <DropdownForm
                     form={form}
-                    value={selectedTeam}
-                    options={teamOptions}
+                    options={[]}
                     defaultValue="프로젝트 팀"
                     label="프로젝트 팀"
                     name="team"
@@ -666,7 +647,7 @@ export const ScheduleRepeatModal = () => {
   const cycleOptions = ['일(Day)', '주(Week)', '월(Month)', '년(Year)']
 
   const form = useForm({
-    resolver: zodResolver(formSchemaRepeatSchedule),
+    resolver: zodResolver(fromSchemaSchedule),
     defaultValues: {
       period: { from: new Date(), to: new Date() },
       repeat: '1',
