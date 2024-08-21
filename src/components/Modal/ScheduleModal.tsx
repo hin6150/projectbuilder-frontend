@@ -39,6 +39,7 @@ import {
   useAddScheduleMutation,
   useDeleteScheduleMutation,
   useEditScheduleMutation,
+  useProjectInfoQuery,
   useScheduleDetailQuery,
 } from '@/api'
 import { z } from 'zod'
@@ -87,6 +88,10 @@ export const ScheduleCreateModal = () => {
 
   const repeatOptions = getRepeatOptions(selectedDate)
 
+  const { data } = useProjectInfoQuery()
+
+  const projectOptions = data?.result.map((project) => project.title) || []
+
   const form = useForm({
     resolver: zodResolver(fromSchemaSchedule),
     defaultValues: {
@@ -95,7 +100,7 @@ export const ScheduleCreateModal = () => {
       content: '',
       startDate: new Date(),
       endDate: new Date(),
-      visible: '',
+      visible: 'PRIVATE',
       projectId: '',
       inviteList: [],
     },
@@ -133,12 +138,11 @@ export const ScheduleCreateModal = () => {
     setSelectedDate(date)
     setSelectedRepeat('반복 안함')
     setSelectedEndDate(undefined)
-    // form.setValue('endDate', '')
   }
 
   const onSubmit = () => {
     addScheduleInfo.mutate()
-    closeModal('dimed')
+    closeModal('default')
   }
 
   return (
@@ -190,19 +194,19 @@ export const ScheduleCreateModal = () => {
                     <LockIcon className="h-4 w-4" />
                     <DropdownForm
                       form={form}
-                      options={['내용 비공개', '내용 공개']}
-                      defaultValue="내용 비공개"
+                      options={['PRIVATE', 'PUBLIC']}
+                      defaultValue="PRIVATE"
                       label="공개 여부"
-                      name="public"
+                      name="visible"
                     />
                   </div>
                 ) : (
                   <DropdownForm
                     form={form}
-                    options={['a', 'b']}
+                    options={projectOptions}
                     defaultValue="프로젝트 팀"
                     label="프로젝트 팀"
-                    name="team"
+                    name="projectId"
                   />
                 )}
               </div>
@@ -243,19 +247,20 @@ export const ScheduleCreateModal = () => {
             )}
           </div>
 
-          <TextAreaForm form={form} name="description" label="일정 내용" />
+          <TextAreaForm form={form} name="content" label="일정 내용" />
 
           <div className="flex w-full items-start justify-end gap-[12px] self-stretch">
             <Button
               title="취소"
+              variant="secondary"
               onClick={() => closeModal('default')}
-              className="flex flex-[1_0_0] gap-[10px] bg-blue-100"
+              className="flex-1"
             >
-              <p className="text-body text-blue-500">취소</p>
+              <p className="text-body">취소</p>
             </Button>
             <Button
               title="생성"
-              className="flex flex-[1_0_0] gap-[10px]"
+              className="flex-1"
               disabled={!form.formState.isValid}
               variant={form.formState.isValid ? 'default' : 'disabled'}
             >
@@ -278,40 +283,45 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
   >(undefined)
   const [selectedRepeat, setSelectedRepeat] = React.useState('반복 안함')
 
-  const teamOptions = ['프로젝트 팀A', '프로젝트 팀B', '프로젝트 팀C']
   const repeatOptions = getRepeatOptions(selectedDate)
+
+  const { data } = useScheduleDetailQuery(scheduleId)
 
   const form = useForm({
     resolver: zodResolver(fromSchemaSchedule),
     defaultValues: {
-      type: '',
+      type: '개인 일정',
       title: '',
-      period: { from: new Date(), to: new Date() },
-      description: '',
-      allday: false,
-      repeat: '반복 안함',
-      publicContent: '내용 비공개',
-      team: '',
-      participate: [],
-      endDate: undefined,
+      content: '',
+      startDate: new Date(),
+      endDate: new Date(),
+      visible: 'PRIVATE',
+      projectId: '',
+      inviteList: [],
     },
   })
 
-  const EditScheduleDTO = useEditScheduleMutation(
+  const editScheduleInfo = useEditScheduleMutation(
     scheduleId,
     {
       title: form.watch('title'),
-      content: form.watch('description'),
-      startDate: form.watch('period').from.toISOString(),
-      endDate: form.watch('period').to.toISOString(),
+      content: form.watch('content'),
+      startDate: form.watch('startDate').toISOString(),
+      endDate: form.watch('endDate').toISOString(),
+      visible: form.watch('visible') as ScheduleVisibility | undefined,
+      projectId: form.watch('projectId'),
+      inviteList: form.watch('inviteList'),
     },
     {
       onSuccess: () => {
-        console.log('Success:', {
+        console.log('Success', {
           title: form.watch('title'),
-          subTitle: form.watch('description'),
-          startDate: form.watch('period').from.toISOString(),
-          endDate: form.watch('period').to.toISOString(),
+          content: form.watch('content'),
+          startDate: form.watch('startDate').toISOString(),
+          endDate: form.watch('endDate').toISOString(),
+          visible: form.watch('visible') as ScheduleVisibility | undefined,
+          projectId: form.watch('projectId'),
+          inviteList: form.watch('inviteList'),
         })
       },
       onError: (e) => {
@@ -320,16 +330,25 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
     },
   )
 
+  React.useEffect(() => {
+    if (data !== undefined) {
+      form.setValue('title', data.result.title)
+      form.setValue('content', data.result.content ?? '')
+      form.setValue('startDate', new Date(data.result.startDate))
+      form.setValue('endDate', new Date(data.result.endDate ?? ''))
+      form.setValue('visible', data.result.visible ?? '')
+      form.setValue('projectId', data.result.projectId ?? '')
+      // form.setValue('inviteList', data.result.inviteList||[])
+    }
+  }, [data])
+
   const onSubmit = () => {
-    EditScheduleDTO.mutate()
+    editScheduleInfo.mutate()
     closeModal('dimed')
   }
 
-  const selectedPublic = form.watch('publicContent')
-  const selectedTeam = form.watch('team')
-
   return (
-    <ScheduleModal>
+    <Modal>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -354,7 +373,7 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
             <div className="flex flex-col gap-[6px]">
               <DateTimePickerForm
                 form={form}
-                name="datetime"
+                name="startDate"
                 label="일정 시간"
                 allDay={allDay}
                 setAllDay={setAllDay}
@@ -380,7 +399,7 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
                       options={['내용 비공개', '내용 공개']}
                       defaultValue="내용 비공개"
                       label="공개 여부"
-                      name="public"
+                      name="visible"
                     />
                   </div>
                 ) : (
@@ -430,7 +449,7 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
             )}
           </div>
 
-          <TextAreaForm form={form} name="description" label="일정 내용" />
+          <TextAreaForm form={form} name="content" label="일정 내용" />
 
           <div className="flex w-full items-start justify-end gap-[12px] self-stretch">
             <Button
@@ -451,7 +470,7 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
           </div>
         </form>
       </Form>
-    </ScheduleModal>
+    </Modal>
   )
 }
 
@@ -502,7 +521,7 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
   React.useEffect(() => {
     if (data && data.result) {
       const schedule: ScheduleInfo = {
-        id: scheduleId, // `id`를 `scheduleId`로 설정
+        id: scheduleId,
         title: data.result.title,
         visible: data.result.visible ?? ScheduleVisibility.PUBLIC,
         startDate: data.result.startDate,

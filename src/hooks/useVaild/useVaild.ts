@@ -56,18 +56,13 @@ const type = z.string()
 const description = z.string()
 
 const startDate = z.date()
-const endDate = z.date()
+const endDate = z.date().optional()
 
-const visible = z.string()
+const visible = z.string().optional()
 
-const projectId = z.string()
+const projectId = z.string().optional()
 
-const inviteList = z.object({
-  imageUrl: z.string().optional(),
-  name: z.string(),
-  email: z.string(),
-  state: z.string(),
-})
+const inviteList = z.array(z.string()).optional()
 
 export const formSchemaUserEdit = z.object({
   name: nameField,

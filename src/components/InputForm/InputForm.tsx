@@ -757,7 +757,7 @@ export const ParticipateForm = ({
   return (
     <FormField
       control={form.control}
-      name="participates"
+      name="inviteList"
       render={({ field }) => (
         <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
           <FormLabel>참가자</FormLabel>
