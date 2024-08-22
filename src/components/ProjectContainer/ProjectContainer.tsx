@@ -762,6 +762,54 @@ const Board: React.FC<BoardProps> = ({ items }) => {
   )
 }
 
+type TeamMember = {
+  id: number
+  name: string
+  role: string
+  imageUrl: string
+}
+
+const teamMembers: TeamMember[] = [
+  { id: 1, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member1.jpg' },
+  { id: 2, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member2.jpg' },
+  { id: 3, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member3.jpg' },
+  { id: 4, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member4.jpg' },
+  { id: 5, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member5.jpg' },
+  { id: 6, name: '홍길동', role: '탈퇴한 사용자', imageUrl: '' }, // No image URL to demonstrate the default case
+]
+
+const TeamBoard: React.FC = () => {
+  return (
+    <div className="py-8">
+      <h2 className="mb-6 text-2xl font-bold">팀원 정보</h2>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+        {teamMembers.map((member) => (
+          <div
+            key={member.id}
+            className="rounded-md border border-slate-200 bg-white p-[8px] shadow"
+          >
+            <div className="flex h-[90px] items-center justify-center bg-gray-200">
+              {member.imageUrl ? (
+                <img
+                  src={member.imageUrl}
+                  alt={member.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="text-gray-400">No Image</div>
+              )}
+            </div>
+            <div className="py-[8px]">
+              <h3 className="text-[14px] font-semibold">{member.name}</h3>
+              <p className="text-[12px] text-gray-600">{member.role}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
   if (!data) {
     return <div>Loading...</div>
@@ -856,6 +904,9 @@ const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
           date={scheduleData.date}
           timeslots={scheduleData.timeslots}
         />
+      </div>
+      <div>
+        <TeamBoard />
       </div>
     </div>
   )
