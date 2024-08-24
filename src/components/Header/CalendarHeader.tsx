@@ -1,17 +1,13 @@
-'use client'
-import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from '../ui/button'
 import { useModal } from '@/hooks/useModal'
-import { ModalTypes } from '@/hooks/useModal/useModal'
 import {
-  RepeatScheduleDeleteModal,
-  ScheduleCheckModal,
-  ScheduleCreateModal,
-  ScheduleDeleteModal,
-  ScheduleEditModal,
-  ScheduleRepeatModal,
-} from '../Modal/ScheduleModal'
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Select,
   SelectContent,
@@ -21,21 +17,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { ScheduleInfo, useProjectInfoQuery } from '@/api'
+import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu'
+import { ScheduleInfo, useProjectInfoQuery } from '@/api'
+import { ModalTypes } from '@/hooks/useModal/useModal'
+import {
+  ScheduleCreateModal,
+  ScheduleRepeatModal,
+  RepeatScheduleDeleteModal,
+} from '../Modal/ScheduleModal'
 
 type ViewType = 'monthly' | 'weekly' | 'daily' | 'list'
 
 type SelectedProjects = { [key: string]: boolean }
-type Checked = DropdownMenuCheckboxItemProps['checked']
+type Checked = boolean
 
 interface CalendarHeaderProps {
   view: ViewType
@@ -43,6 +38,10 @@ interface CalendarHeaderProps {
   onPrev: () => void
   onNext: () => void
   onToday: () => void
+  onFilterChange: (
+    selectedProject: SelectedProjects,
+    myCalendar: Checked,
+  ) => void
 }
 
 export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
@@ -51,32 +50,31 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onPrev,
   onNext,
   onToday,
+  onFilterChange,
 }) => {
   const { modals, openModal } = useModal()
-  const { data } = useProjectInfoQuery()
+  const { data: projectData } = useProjectInfoQuery()
   const router = useRouter()
 
-  const [selectedProject, setSelectedProject] =
-    React.useState<SelectedProjects>({})
-  const [myCalendar, setMyCalendar] = React.useState<Checked>(false)
-  const [selectedView, setSelectedView] = React.useState<string>('monthly')
-
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-
-  const handleClick = () => {
-    openModal('default', ModalTypes.CREATE)
-    console.log(modals)
-  }
+  const [selectedProject, setSelectedProject] = useState<SelectedProjects>({})
+  const [myCalendar, setMyCalendar] = useState<Checked>(true)
+  const [selectedView, setSelectedView] = useState<ViewType>(view)
 
   const handleCheckedChange = (uid: string) => {
-    setSelectedProject((prevState) => ({
-      ...prevState,
-      [uid]: !prevState[uid],
-    }))
+    const updatedProjects = {
+      ...selectedProject,
+      [uid]: !selectedProject[uid],
+    }
+    setSelectedProject(updatedProjects)
+    onFilterChange(updatedProjects, myCalendar)
   }
 
-  const handleSelectChange = (value: string) => {
+  const handleMyCalendarChange = (checked: Checked) => {
+    setMyCalendar(checked)
+    onFilterChange(selectedProject, checked)
+  }
+
+  const handleSelectChange = (value: ViewType) => {
     router.push(`/schedule/${value.toLowerCase()}`)
     setSelectedView(value)
   }
@@ -86,7 +84,8 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       <div className="flex w-[864px] items-center justify-between self-stretch px-4">
         <div className="flex items-center gap-[16px]">
           <p className="w-[140px] text-h3">
-            {year}년 {month.toString().padStart(2, '0')}월
+            {date.getFullYear()}년{' '}
+            {(date.getMonth() + 1).toString().padStart(2, '0')}월
           </p>
           <Button
             onClick={onPrev}
@@ -104,7 +103,6 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-
           <Button onClick={onToday} variant="outline" className="flex h-8">
             <p className="text-body">오늘</p>
           </Button>
@@ -119,29 +117,31 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[160px] items-start">
               <DropdownMenuLabel>필터</DropdownMenuLabel>
-
-              {data?.result.map((projectData) => (
+              {projectData?.result.map((project) => (
                 <DropdownMenuCheckboxItem
-                  key={projectData.uid}
-                  checked={!!selectedProject[projectData.uid]}
-                  onCheckedChange={() => handleCheckedChange(projectData.uid)}
+                  key={project.uid}
+                  checked={!!selectedProject[project.uid]}
+                  onCheckedChange={() => handleCheckedChange(project.uid)}
                 >
-                  {projectData.title}
+                  {project.title}
                 </DropdownMenuCheckboxItem>
               ))}
               <DropdownMenuCheckboxItem
                 checked={myCalendar}
-                onCheckedChange={setMyCalendar}
+                onCheckedChange={handleMyCalendarChange}
               >
                 내 캘린더
               </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" className="gap-2" onClick={handleClick}>
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => openModal('default', ModalTypes.CREATE)}
+          >
             <PlusIcon className="h-4 w-4" />
             <p className="text-subtle">일정 추가</p>
           </Button>
-
           <Select value={selectedView} onValueChange={handleSelectChange}>
             <SelectTrigger className="w-[160px]">
               <SelectValue>
@@ -166,16 +166,11 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           </Select>
         </div>
       </div>
-
-      {modals.default.open && modals.default.type == ModalTypes.CREATE && (
+      {modals.default.open && modals.default.type === ModalTypes.CREATE && (
         <ScheduleCreateModal />
       )}
-
-      {modals.dimed.type && modals.dimed.type == ModalTypes.REPEAT && (
-        <ScheduleRepeatModal />
-      )}
-
-      {modals.dimed.type && modals.dimed.type == ModalTypes.DELETE_REPEAT && (
+      {modals.dimed.type === ModalTypes.REPEAT && <ScheduleRepeatModal />}
+      {modals.dimed.type === ModalTypes.DELETE_REPEAT && (
         <RepeatScheduleDeleteModal />
       )}
     </>

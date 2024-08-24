@@ -26,35 +26,58 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const view = (pathname.split('/').pop() || 'list') as ViewType
   const { data } = useProjectInfoQuery()
 
-  const getHandlersForView = (view: ViewType) => {
-    switch (view) {
-      case 'monthly':
-        return {
-          onPrev: () => handlePrev('month'),
-          onNext: () => handleNext('month'),
-        }
-      case 'weekly':
-        return {
-          onPrev: () => handlePrev('week'),
-          onNext: () => handleNext('week'),
-        }
-      case 'list':
-      default:
-        return {
-          onPrev: () => handlePrev('day'),
-          onNext: () => handleNext('day'),
-        }
-    }
-  }
+  const [selectedProject, setSelectedProject] = React.useState<{
+    [key: string]: boolean
+  }>({})
+  const [myCalendar, setMyCalendar] = React.useState<boolean>(true)
 
-  const { onPrev, onNext } = getHandlersForView(view)
+  React.useEffect(() => {
+    if (data) {
+      const initialSelectedProjects = data.result.reduce(
+        (acc, project) => {
+          acc[project.uid] = true
+          return acc
+        },
+        {} as { [key: string]: boolean },
+      )
+      handleFilterChange(initialSelectedProjects, true)
+    }
+  }, [data])
+
+  const { onPrev, onNext } = React.useMemo(() => {
+    const handlers = {
+      monthly: {
+        onPrev: () => handlePrev('month'),
+        onNext: () => handleNext('month'),
+      },
+      weekly: {
+        onPrev: () => handlePrev('week'),
+        onNext: () => handleNext('week'),
+      },
+      list: {
+        onPrev: () => handlePrev('day'),
+        onNext: () => handleNext('day'),
+      },
+    }
+    return handlers[view] || handlers.list
+  }, [view, handlePrev, handleNext])
 
   const handleColorChange = (uid: string, newColor: string) => {
     // Update your state or API with the new color here
   }
 
+  const handleFilterChange = (
+    updatedSelectedProject: { [key: string]: boolean },
+    updatedMyCalendar: boolean,
+  ) => {
+    setSelectedProject(updatedSelectedProject)
+    setMyCalendar(updatedMyCalendar)
+  }
+
   return (
-    <CalendarContext.Provider value={calendarState}>
+    <CalendarContext.Provider
+      value={{ state, selectedProject, myCalendar, handleFilterChange }}
+    >
       <div className="m-auto flex w-[1180px]">
         <div className="flex flex-col gap-6">
           <Calendar className="h-78 rounded-[8px] border border-gray-300 text-large" />
@@ -90,6 +113,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             onPrev={onPrev}
             onNext={onNext}
             onToday={handleToday}
+            onFilterChange={handleFilterChange}
           />
           {children}
         </div>

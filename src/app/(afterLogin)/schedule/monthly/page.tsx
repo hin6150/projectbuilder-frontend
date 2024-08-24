@@ -1,17 +1,11 @@
 'use client'
 import * as React from 'react'
-import { CalendarHeader } from '@/components/Header/CalendarHeader'
 import { Monthly } from '@/components/Calendar/Monthly'
-import { useCalendar } from '@/hooks/useCalendar'
-import {
-  ProjectInfo,
-  useProjectInfoQuery,
-  ScheduleInfo,
-  useScheduleListQuery,
-} from '@/api'
+import { useProjectInfoQuery, useScheduleListQuery } from '@/api'
+import { useCalendarContext } from '../layout'
 
 export default function Page() {
-  const { state, handlePrev, handleNext, handleToday } = useCalendar()
+  const { state, selectedProject, myCalendar } = useCalendarContext()
 
   const year = state.date.getFullYear()
   const month = state.date.getMonth() + 1
@@ -21,19 +15,21 @@ export default function Page() {
   const { data: schedulesResponse } = useScheduleListQuery(startDate, endDate)
   const { data: projectsResponse } = useProjectInfoQuery()
 
-  const schedules: ScheduleInfo[] | undefined = schedulesResponse?.result
-  const projects: ProjectInfo[] | undefined = projectsResponse?.result
+  const schedules = schedulesResponse?.result
+  const projects = projectsResponse?.result
+
+  const filteredSchedules = schedules?.filter((schedule) => {
+    const isProjectSelected = selectedProject[schedule.projectId || '']
+    return isProjectSelected || !schedule.projectId || myCalendar
+  })
 
   return (
     <div>
-      <CalendarHeader
-        view="monthly"
+      <Monthly
         date={state.date}
-        onPrev={() => handlePrev('month')}
-        onNext={() => handleNext('month')}
-        onToday={handleToday}
+        schedules={filteredSchedules}
+        projects={projects}
       />
-      <Monthly date={state.date} schedules={schedules} projects={projects} />
     </div>
   )
 }
