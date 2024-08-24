@@ -16,16 +16,12 @@ const TimeSlot: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
 
 interface DailyProps {
   date: Date
+  schedules: ScheduleInfo[] | undefined
+  projects: { uid: string; title: string }[] | undefined
 }
 
-export const Daily: React.FC<DailyProps> = ({ date }) => {
+export const Daily: React.FC<DailyProps> = ({ date, schedules, projects }) => {
   const { modals, openModal } = useModal()
-
-  const startDate = format(date, 'yyyy-MM-dd')
-  const endDate = format(date, 'yyyy-MM-dd')
-
-  const { data: scheduleData } = useScheduleListQuery(startDate, endDate)
-  const { data: projectData } = useProjectInfoQuery()
 
   const [selectedSchedule, setSelectedSchedule] =
     React.useState<ScheduleInfo | null>(null)
@@ -40,7 +36,7 @@ export const Daily: React.FC<DailyProps> = ({ date }) => {
   // }
 
   const renderEvents = (projectId: string | null, hour: number) => {
-    const events = (scheduleData?.result || []).filter(
+    const events = (schedules || []).filter(
       (schedule: ScheduleInfo) => schedule.projectId === projectId,
     )
 
@@ -62,7 +58,7 @@ export const Daily: React.FC<DailyProps> = ({ date }) => {
         {/* <p className="flex-[1_0_0] gap-[10px] text-center text-large">
           나의 일정
         </p> */}
-        {projectData?.result.map((project) => (
+        {projects?.map((project) => (
           <p
             className="flex-[1_0_0] gap-[10px] text-center text-large"
             key={project.uid}
@@ -88,7 +84,7 @@ export const Daily: React.FC<DailyProps> = ({ date }) => {
             <div className="absolute bottom-[-10px] left-[15px] text-subtle">
               {hour}
             </div>
-            {projectData?.result.map((project) => (
+            {projects?.map((project) => (
               <TimeSlot key={project.uid}>
                 {renderEvents(project.uid, index)}
               </TimeSlot>

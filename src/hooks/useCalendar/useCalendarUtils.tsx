@@ -37,6 +37,14 @@ export const hours = [
   '',
 ]
 
+export const TimeSlot: React.FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => (
+  <div className="relative flex h-[48px] flex-[1_0_0] items-center justify-center border-b border-l border-gray-200">
+    {children}
+  </div>
+)
+
 export const daysInMonth = (year: number, month: number) => {
   return new Date(year, month, 0).getDate()
 }

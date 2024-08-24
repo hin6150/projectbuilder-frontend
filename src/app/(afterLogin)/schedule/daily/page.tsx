@@ -1,23 +1,40 @@
 'use client'
 import * as React from 'react'
-import { CalendarHeader } from '@/components/Header/CalendarHeader'
-import { useCalendar } from '@/hooks/useCalendar'
 import { Daily } from '@/components/Calendar/Daily'
+import { useCalendarContext } from '../layout'
+import { format } from 'date-fns'
+import { useProjectInfoQuery, useScheduleListQuery } from '@/api'
 
 export default function page() {
-  const { state, handlePrev, handleNext, handleToday, formatMonth } =
-    useCalendar()
+  const { state, selectedProject, myCalendar } = useCalendarContext()
+
+  const startDate = format(state.date, 'yyyy-MM-dd')
+  const endDate = format(state.date, 'yyyy-MM-dd')
+
+  const { data: scheduleDataResponse } = useScheduleListQuery(
+    startDate,
+    endDate,
+  )
+  const { data: projectDataResponse } = useProjectInfoQuery()
+
+  const schedules = scheduleDataResponse?.result
+  const projects = projectDataResponse?.result
+
+  const filteredSchedules = schedules?.filter((schedule) => {
+    const isProjectSelected = selectedProject[schedule.projectId || '']
+    return isProjectSelected || !schedule.projectId || myCalendar
+  })
 
   return (
     <div>
-      <CalendarHeader
-        view="daily"
+      <Daily
         date={state.date}
-        onPrev={() => handlePrev('day')}
-        onNext={() => handleNext('day')}
-        onToday={handleToday}
+        schedules={filteredSchedules}
+        projects={projects?.map((project) => ({
+          uid: project.uid,
+          title: project.title,
+        }))}
       />
-      <Daily date={state.date} />
     </div>
   )
 }

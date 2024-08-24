@@ -1,11 +1,27 @@
-// List.tsx
 'use client'
 import * as React from 'react'
-import { formatDate, useFutureSchedules } from '@/hooks/useCalendar'
-import { getDotColorClass } from './style'
+import { formatDate } from '@/hooks/useCalendar'
+import { getDotColor } from './style'
+import { ProjectInfo, ScheduleInfo } from '@/api'
+import { format } from 'date-fns'
 
-export function List() {
-  const { groupedSchedules } = useFutureSchedules()
+interface ListProps {
+  schedules: ScheduleInfo[] | undefined
+  projects: ProjectInfo[] | undefined
+}
+
+export function List({ schedules, projects }: ListProps) {
+  const groupedSchedules: Record<string, ScheduleInfo[]> = {}
+
+  if (schedules) {
+    schedules.forEach((schedule) => {
+      const dateKey = format(new Date(schedule.startDate), 'yyyy-MM-dd')
+      if (!groupedSchedules[dateKey]) {
+        groupedSchedules[dateKey] = []
+      }
+      groupedSchedules[dateKey].push(schedule)
+    })
+  }
 
   const formatTime = (start: string, end?: string): string => {
     const formatSingleTime = (
@@ -41,6 +57,12 @@ export function List() {
     return `${startPeriod} ${startHour12}시 ~ ${endTime}`
   }
 
+  const getProjectColor = (projectId: string) => {
+    return (
+      projects?.find((project) => project.uid === projectId)?.color || '#ccc'
+    )
+  }
+
   return (
     <div className="flex h-full w-[864px] flex-shrink-0 flex-col items-start gap-[10px] p-4">
       <div className="h-[1px] w-[832px] bg-gray-300" />
@@ -67,7 +89,7 @@ export function List() {
                   >
                     <div className="flex items-center gap-2 self-stretch">
                       <div
-                        className={`h-2 w-2 rounded-full ${getDotColorClass(schedule.projectId ?? '')}`}
+                        className={`h-2 w-2 rounded-full ${getDotColor(getProjectColor(schedule.projectId ?? ''))}`}
                       />
                       <p className="display-webkit-box webkit-box-orient-vertical webkit-line-clamp-2 w-[130px] text-body">
                         {formatTime(schedule.startDate, schedule.endDate)}

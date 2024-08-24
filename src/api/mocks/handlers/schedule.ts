@@ -24,11 +24,19 @@ export const scheduleHandlers = [
         },
         {
           id: '3',
+          title: '데모데모 데이',
+          startDate: '2024-08-19 4:00',
+          endDate: '2024-08-19 12:00',
+          visible: ScheduleVisibility.PUBLIC,
+          projectId: 'd470a00c-63f4-4234-bd1f-64fbcf4ba1b6',
+        },
+        {
+          id: '4',
           title: '일정이름 입니다',
           startDate: '2024-08-31',
           endDate: '2024-08-31',
           visible: ScheduleVisibility.PUBLIC,
-          projectId: 'd470a00c-63f4-4234-bd1f-64fbcf4ba1b6',
+          projectId: '4058db92-16fb-4e81-9911-62747e3598f0',
         },
       ],
     })
@@ -40,26 +48,37 @@ export const scheduleHandlers = [
       {
         id: '1',
         title: '데모데모 데이',
+        content: '일정내용입니다일정내용입니다',
         startDate: '2024-08-05 4:00',
         endDate: '2024-08-05 12:00',
         visible: ScheduleVisibility.PUBLIC,
-        projectId: '123',
+        projectId: '50e27d90-7e72-4c57-8a7c-4c7ceba19fbc',
       },
       {
         id: '2',
         title: '일정이름 입니다',
+        content: '일정내용입니다일정내용입니다',
         startDate: '2024-08-18 16:45',
         endDate: '2024-08-18 18:45',
         visible: ScheduleVisibility.PRIVATE,
-        projectId: '123',
+        projectId: '',
       },
       {
         id: '3',
+        title: '데모데모 데이',
+        startDate: '2024-08-19 4:00',
+        endDate: '2024-08-19 12:00',
+        visible: ScheduleVisibility.PUBLIC,
+        projectId: 'd470a00c-63f4-4234-bd1f-64fbcf4ba1b6',
+      },
+      {
+        id: '4',
         title: '일정이름 입니다',
+        content: '일정내용입니다일정내용입니다',
         startDate: '2024-08-31',
         endDate: '2024-08-31',
         visible: ScheduleVisibility.PUBLIC,
-        projectId: '124',
+        projectId: '50e27d90-7e72-4c57-8a7c-4c7ceba19fbc',
       },
     ]
 
@@ -82,27 +101,14 @@ export const scheduleHandlers = [
   http.post(`${process.env.NEXT_PUBLIC_API_URL}/schedule`, async (req) => {
     return HttpResponse.json({
       code: 200,
-      msg: 'INSERT SUCCESS',
-      result: {
-        id: '4', // 새로 생성된 스케줄 ID
-      },
+      msg: 'CREATE SUCCESS',
     })
   }),
 
   http.patch(`${process.env.NEXT_PUBLIC_API_URL}/schedule/:id`, () => {
     return HttpResponse.json({
       code: 200,
-      msg: 'SUCCESS',
-      result: [
-        {
-          id: '4',
-          title: '업데이트된 스케줄 제목',
-          startDate: '2024-02-01',
-          endDate: '2024-02-01',
-          visible: ScheduleVisibility.PRIVATE,
-          projectId: '124',
-        },
-      ],
+      msg: 'EDIT SUCCESS',
     })
   }),
 

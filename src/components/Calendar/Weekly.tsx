@@ -3,34 +3,30 @@ import * as React from 'react'
 import { yoilClass } from './style'
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns'
 import { ScheduleInfo, useScheduleListQuery } from '@/api'
-import { hours } from '@/hooks/useCalendar/useCalendarUtils'
+import { hours, TimeSlot } from '@/hooks/useCalendar/useCalendarUtils'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import { ScheduleCheckModal } from '../Modal/ScheduleModal'
 import { EventRenderer } from './EventRenderer'
 
-const TimeSlot: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
-  <div className="relative flex h-[48px] flex-[1_0_0] items-center justify-center border-b border-l border-gray-200">
-    {children}
-  </div>
-)
-
 interface WeeklyProps {
-  week: Date
+  date: Date
+  schedules: ScheduleInfo[] | undefined
+  projects: { uid: string; title: string }[] | undefined
 }
 
-export const Weekly: React.FC<WeeklyProps> = ({ week }) => {
+export const Weekly: React.FC<WeeklyProps> = ({
+  date,
+  schedules,
+  projects,
+}) => {
   const { modals, openModal } = useModal()
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
-  const weekStart = startOfWeek(week, { weekStartsOn: 0 })
+  const weekStart = startOfWeek(date, { weekStartsOn: 0 })
   const weekDates = yoils.map((_, index) => {
     const date = addDays(weekStart, index)
     return format(date, 'd') + ' ' + yoils[index]
   })
-
-  const startDate = format(weekStart, 'yyyy-MM-dd')
-  const endDate = format(addDays(weekStart, 6), 'yyyy-MM-dd')
-  const { data } = useScheduleListQuery(startDate, endDate)
 
   const [selectedSchedule, setSelectedSchedule] =
     React.useState<ScheduleInfo | null>(null)
@@ -40,7 +36,7 @@ export const Weekly: React.FC<WeeklyProps> = ({ week }) => {
     openModal('default', ModalTypes.CHECK)
   }
 
-  const events: ScheduleInfo[] = data?.result || []
+  const events: ScheduleInfo[] = schedules || []
 
   // const allDayEvents = events.filter((event) =>
   //   isSameDay(
