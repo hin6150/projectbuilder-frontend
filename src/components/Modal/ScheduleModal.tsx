@@ -43,6 +43,7 @@ import {
   useScheduleDetailQuery,
 } from '@/api'
 import { z } from 'zod'
+import { formatDateTime } from '@/hooks/useCalendar/useCalendarUtils'
 
 interface Participate {
   imageUrl: string
@@ -290,7 +291,7 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
   const form = useForm({
     resolver: zodResolver(fromSchemaSchedule),
     defaultValues: {
-      type: '개인 일정',
+      type: data?.result.projectId ? '팀 일정' : '개인 일정',
       title: '',
       content: '',
       startDate: new Date(),
@@ -545,7 +546,7 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
   const startDate = form.watch('startDate')
   const endDate = form.watch('endDate')
   const description = form.watch('content')
-  const publicContent = form.watch('visible')
+  const visible = form.watch('visible')
   const repeat = form.watch('repeat')
   const participate = form.watch('inviteList')
 
@@ -589,9 +590,8 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
             </div>
           </div>
           <div className="flex flex-col gap-4 self-stretch">
-            <p>
-              {startDate} ~ {endDate}
-            </p>
+            <p>{formatDateTime(startDate, endDate)}</p>
+
             <div className="flex items-center justify-between self-stretch">
               <div className="flex w-[88px] items-center gap-2">
                 <p className="text-small text-gray-400">{repeat}</p>
@@ -608,7 +608,7 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
                     <>
                       <LockIcon className="h-4 w-4" />
                       <span className="text-small">
-                        {formatVisible(publicContent)}
+                        {formatVisible(visible)}
                       </span>
                     </>
                   )}

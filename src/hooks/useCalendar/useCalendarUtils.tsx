@@ -1,5 +1,4 @@
 import {
-  endOfMonth,
   startOfMonth,
   startOfWeek,
   endOfWeek,
@@ -8,6 +7,9 @@ import {
   getDate,
   getMonth,
   getYear,
+  isValid,
+  parseISO,
+  format,
 } from 'date-fns'
 
 export const hours = [
@@ -61,6 +63,45 @@ export const getPreviousMonthDays = (year: number, month: number) => {
 
 export const formatDate = (date: number) => {
   return date.toString().padStart(2, '0')
+}
+
+// 요일 변환 함수
+const getDayOfWeek = (date: Date): string => {
+  const days = ['일', '월', '화', '수', '목', '금', '토']
+  return days[date.getDay()]
+}
+
+// 시간 포맷 변환 함수
+const formatTime = (date: Date): string => {
+  const hours = date.getHours()
+  const minutes = date.getMinutes().toString().padStart(2, '0')
+  const period = hours >= 12 ? '오후' : '오전'
+  const adjustedHours = hours % 12 === 0 ? 12 : hours % 12
+  return `${period} ${adjustedHours}:${minutes}`
+}
+
+// 날짜와 시간 포맷팅 함수
+export const formatDateTime = (startDate: string, endDate?: string): string => {
+  const start = parseISO(startDate)
+  const end = endDate ? parseISO(endDate) : undefined
+
+  if (!isValid(start)) return ''
+
+  const startDateFormatted =
+    format(start, 'yyyy. MM. dd') +
+    `(${getDayOfWeek(start)}) ${formatTime(start)}`
+
+  const endDateFormatted = end ? formatTime(end) : ''
+
+  if (!end || startDate === endDate) {
+    const formattedStartTime =
+      start.getHours() === 0 && start.getMinutes() === 0
+        ? ''
+        : formatTime(start)
+    return `${format(start, 'yyyy. MM. dd')}(${getDayOfWeek(start)}) ${formattedStartTime}`
+  }
+
+  return `${startDateFormatted} ~ ${endDateFormatted}`
 }
 
 interface DayInfo {
