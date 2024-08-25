@@ -89,9 +89,9 @@ export const ScheduleCreateModal = () => {
 
   const repeatOptions = getRepeatOptions(selectedDate)
 
-  const { data } = useProjectInfoQuery()
+  const { data: projects } = useProjectInfoQuery()
 
-  const projectOptions = data?.result.map((project) => project.title) || []
+  const projectOptions = projects?.result.map((project) => project.title) || []
 
   const form = useForm({
     resolver: zodResolver(fromSchemaSchedule),
@@ -100,7 +100,7 @@ export const ScheduleCreateModal = () => {
       title: '',
       content: '',
       startDate: new Date(),
-      endDate: new Date(),
+      endDate: undefined,
       visible: 'PRIVATE',
       projectId: '',
       inviteList: [],
@@ -112,7 +112,8 @@ export const ScheduleCreateModal = () => {
       title: form.watch('title'),
       content: form.watch('content'),
       startDate: form.watch('startDate').toISOString(),
-      endDate: form.watch('endDate').toISOString(),
+      endDate:
+        (form.watch('endDate') as Date | undefined)?.toISOString() ?? undefined,
       visible: form.watch('visible') as ScheduleVisibility | undefined,
       projectId: form.watch('projectId'),
       inviteList: form.watch('inviteList'),
@@ -123,7 +124,9 @@ export const ScheduleCreateModal = () => {
           title: form.watch('title'),
           content: form.watch('content'),
           startDate: form.watch('startDate').toISOString(),
-          endDate: form.watch('endDate').toISOString(),
+          endDate:
+            (form.watch('endDate') as Date | undefined)?.toISOString() ??
+            undefined,
           visible: form.watch('visible') as ScheduleVisibility | undefined,
           projectId: form.watch('projectId'),
           inviteList: form.watch('inviteList'),
@@ -286,12 +289,21 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
 
   const repeatOptions = getRepeatOptions(selectedDate)
 
-  const { data } = useScheduleDetailQuery(scheduleId)
+  const { data: schedules } = useScheduleDetailQuery(scheduleId)
+  const { data: projects } = useProjectInfoQuery()
+
+  const projectOptions = projects?.result.map((project) => project.title) || []
+
+  const getProjectTitle = (projectId: string) => {
+    return (
+      projects?.result.find((project) => project.uid === projectId)?.title || ''
+    )
+  }
 
   const form = useForm({
     resolver: zodResolver(fromSchemaSchedule),
     defaultValues: {
-      type: data?.result.projectId ? '팀 일정' : '개인 일정',
+      type: schedules?.result.projectId ? '팀 일정' : '개인 일정',
       title: '',
       content: '',
       startDate: new Date(),
@@ -332,16 +344,16 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
   )
 
   React.useEffect(() => {
-    if (data !== undefined) {
-      form.setValue('title', data.result.title)
-      form.setValue('content', data.result.content ?? '')
-      form.setValue('startDate', new Date(data.result.startDate))
-      form.setValue('endDate', new Date(data.result.endDate ?? ''))
-      form.setValue('visible', data.result.visible ?? '')
-      form.setValue('projectId', data.result.projectId ?? '')
-      // form.setValue('inviteList', data.result.inviteList||[])
+    if (schedules !== undefined) {
+      form.setValue('title', schedules.result.title)
+      form.setValue('content', schedules.result.content ?? '')
+      form.setValue('startDate', new Date(schedules.result.startDate))
+      form.setValue('endDate', new Date(schedules.result.endDate ?? ''))
+      form.setValue('visible', schedules.result.visible ?? '')
+      form.setValue('projectId', schedules.result.projectId ?? '')
+      // form.setValue('inviteList', schedules.result.inviteList||[])
     }
-  }, [data])
+  }, [schedules])
 
   const onSubmit = () => {
     editScheduleInfo.mutate()
@@ -406,8 +418,10 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
                 ) : (
                   <DropdownForm
                     form={form}
-                    options={[]}
-                    defaultValue="프로젝트 팀"
+                    options={projectOptions}
+                    defaultValue={getProjectTitle(
+                      schedules?.result.projectId ?? '',
+                    )}
                     label="프로젝트 팀"
                     name="team"
                   />
@@ -477,9 +491,17 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
 
 export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
   const { modals, openModal, closeModal } = useModal()
-  const { data } = useScheduleDetailQuery(scheduleId)
   const [selectedSchedule, setSelectedSchedule] =
     React.useState<ScheduleInfo | null>(null)
+
+  const { data: schedules } = useScheduleDetailQuery(scheduleId)
+  const { data: projects } = useProjectInfoQuery()
+
+  const getProjectTitle = (projectId: string) => {
+    return (
+      projects?.result.find((project) => project.uid === projectId)?.title || ''
+    )
+  }
 
   const formatVisible = (visibility: string) => {
     switch (visibility) {
@@ -503,7 +525,7 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
   const form = useForm({
     resolver: zodResolver(formSchemaCheckSchedule),
     defaultValues: {
-      type: data?.result.projectId ? '팀 일정' : '개인 일정',
+      type: schedules?.result.projectId ? '팀 일정' : '개인 일정',
       title: '',
       content: '',
       visible: '',
@@ -520,26 +542,29 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
   })
 
   React.useEffect(() => {
-    if (data && data.result) {
+    if (schedules && schedules.result) {
       const schedule: ScheduleInfo = {
         id: scheduleId,
-        title: data.result.title,
-        visible: data.result.visible ?? ScheduleVisibility.PUBLIC,
-        startDate: data.result.startDate,
-        endDate: data.result.endDate ?? '',
-        projectId: data.result.projectId ?? '',
-        inviteList: data.result.inviteList ?? [],
+        title: schedules.result.title,
+        visible: schedules.result.visible ?? ScheduleVisibility.PUBLIC,
+        startDate: schedules.result.startDate,
+        endDate: schedules.result.endDate ?? '',
+        projectId: schedules.result.projectId ?? '',
+        inviteList: schedules.result.inviteList ?? [],
       }
       setSelectedSchedule(schedule)
-      form.setValue('type', data.result.projectId ? '팀 일정' : '개인 일정')
-      form.setValue('title', data.result.title)
-      form.setValue('content', data.result.content ?? '')
-      form.setValue('visible', data.result.visible ?? '')
-      form.setValue('startDate', data.result.startDate)
-      form.setValue('endDate', data.result.endDate ?? '')
-      form.setValue('projectId', data.result.projectId ?? '')
+      form.setValue(
+        'type',
+        schedules.result.projectId ? '팀 일정' : '개인 일정',
+      )
+      form.setValue('title', schedules.result.title)
+      form.setValue('content', schedules.result.content ?? '')
+      form.setValue('visible', schedules.result.visible ?? '')
+      form.setValue('startDate', schedules.result.startDate)
+      form.setValue('endDate', schedules.result.endDate ?? '')
+      form.setValue('projectId', schedules.result.projectId ?? '')
     }
-  }, [data, scheduleId])
+  }, [schedules, scheduleId])
 
   const title = form.watch('title')
   const type = form.watch('type')
@@ -602,7 +627,9 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
                   {type === '팀 일정' ? (
                     <>
                       <UsersIcon className="h-4 w-4" />
-                      <span className="text-small">project.title</span>
+                      <span className="text-small">
+                        {getProjectTitle(schedules?.result.projectId ?? '')}
+                      </span>
                     </>
                   ) : (
                     <>

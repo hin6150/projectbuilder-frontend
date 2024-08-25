@@ -78,7 +78,7 @@ export const scheduleHandlers = [
         startDate: '2024-08-31',
         endDate: '2024-08-31',
         visible: ScheduleVisibility.PUBLIC,
-        projectId: '50e27d90-7e72-4c57-8a7c-4c7ceba19fbc',
+        projectId: '4058db92-16fb-4e81-9911-62747e3598f0',
       },
     ]
 
