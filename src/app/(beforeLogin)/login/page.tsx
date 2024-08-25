@@ -1,11 +1,10 @@
 'use client'
 
-import * as React from 'react'
-import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/Icon'
+import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 
-const Login = () => {
+function Login() {
   const router = useRouter()
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-[3rem]">
@@ -18,27 +17,28 @@ const Login = () => {
         </p>
       </div>
       <div className="items:start flex w-[380px] flex-col gap-[20px]">
-        <Button
-          onClick={() => router.push('/auth/token?access=AccessToken&refresh=RefreshToken')}
-          className="gap-[8px] bg-slate-900 hover:bg-slate-800"
+        <a
+          href={`${
+            process.env.NEXT_PUBLIC_SOCIAL_LOGIN_GOOGLE
+          }?redirect_uri=${process.env.VERCEL ? 'https://today-scrum.vercel.app' : 'http://localhost:3000'}`}
+          className="w-full"
         >
-          <Icon name="github" />
-          <p className="text-white">깃허브로 시작하기</p>
-        </Button>
-        <Button
-          onClick={() => router.push('/auth/token?access=AccessToken&refresh=RefreshToken')}
-          className="gap-[8px] bg-yellow-300 hover:bg-yellow-200"
+          <Button className="w-full gap-[8px] border border-gray-300 bg-white hover:bg-slate-50">
+            <Icon name="google" />
+            <p className="w-[104px] text-black">구글로 시작하기</p>
+          </Button>
+        </a>
+        <a
+          href={`${
+            process.env.NEXT_PUBLIC_SOCIAL_LOGIN_KAKAO
+          }?redirect_uri=${process.env.VERCEL ? 'https://today-scrum.vercel.app' : 'http://localhost:3000'}`}
+          className="w-full"
         >
-          <Icon name="kakao" />
-          <p className="text-black">카카오로 시작하기</p>
-        </Button>
-        <Button
-          onClick={() => router.push('/auth/token?access=AccessToken&refresh=RefreshToken')}
-          className="gap-[8px] border border-gray-300 bg-white hover:bg-slate-50"
-        >
-          <Icon name="google" />
-          <p className="w-[104px] text-black">구글로 시작하기</p>
-        </Button>
+          <Button className="w-full gap-[8px] bg-yellow-300 hover:bg-yellow-200">
+            <Icon name="kakao" />
+            <p className="text-black">카카오로 시작하기</p>
+          </Button>
+        </a>
       </div>
     </div>
   )

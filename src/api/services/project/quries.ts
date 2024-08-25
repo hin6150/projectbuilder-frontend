@@ -14,13 +14,27 @@ import {
   EditProjectDTO,
   InviteTeamDto,
   DeleteTeamDto,
+  ProjectListInfoResponse,
 } from './model'
 import { projectService } from './service'
 
-export const projectOptions = {
+export const {
+  addProjectInfo,
+  deleteProjectInfo,
+  deleteTeamInfo,
+  editProjectInfo,
+  inviteTeamInfo,
+  projectInfo,
+  oneprojectInfo,
+  teamInfo,
+} = {
   projectInfo: (client: QueryClient) => ({
     queryKey: ['projectList'],
     queryFn: () => projectService.projectInfo(client),
+  }),
+  oneprojectInfo: (client: QueryClient, uid: string) => ({
+    queryKey: ['project'],
+    queryFn: () => projectService.oneprojectInfo(client, uid),
   }),
   teamInfo: (client: QueryClient, uid: string) => ({
     queryKey: ['teamList'],
@@ -29,17 +43,18 @@ export const projectOptions = {
   addProjectInfo: (client: QueryClient, dto: AddProjectDTO) => ({
     mutationFn: () => projectService.addProjectInfo(client, dto),
   }),
-  editProjectInfo: (client: QueryClient, dto: EditProjectDTO) => ({
-    mutationFn: () => projectService.editProjectInfo(client, dto),
+  editProjectInfo: (client: QueryClient, dto: EditProjectDTO, uid: string) => ({
+    mutationFn: () => projectService.editProjectInfo(client, dto, uid),
   }),
   deleteProjectInfo: (client: QueryClient, uid: string) => ({
     mutationFn: () => projectService.deleteProjectInfo(client, uid),
   }),
-  inviteTeamInfo: (client: QueryClient, dto: InviteTeamDto) => ({
-    mutationFn: () => projectService.inviteTeamInfo(client, dto),
+  inviteTeamInfo: (client: QueryClient, uid: string, dto: InviteTeamDto) => ({
+    mutationFn: () => projectService.inviteTeamInfo(client, uid, dto),
   }),
-  deleteTeamInfo: (client: QueryClient, dto: DeleteTeamDto) => ({
-    mutationFn: () => projectService.deleteTeamInfo(client, dto),
+  deleteTeamInfo: (client: QueryClient, uid: string) => ({
+    mutationFn: (dto: DeleteTeamDto) =>
+      projectService.deleteTeamInfo(client, uid, dto),
   }),
 }
 
@@ -48,8 +63,19 @@ export const useProjectInfoQuery = (
 ) => {
   const queryClient = useQueryClient()
 
+  return useQuery<ProjectListInfoResponse>({
+    ...projectInfo(queryClient),
+    ...options,
+  })
+}
+export const useOneProjectInfoQuery = (
+  uid: string,
+  options: CustomQueryOptions<ProjectInfoResponse> = {},
+) => {
+  const queryClient = useQueryClient()
+
   return useQuery<ProjectInfoResponse>({
-    ...projectOptions.projectInfo(queryClient),
+    ...oneprojectInfo(queryClient, uid),
     ...options,
   })
 }
@@ -61,19 +87,20 @@ export const useTeamInfoQuery = (
   const queryClient = useQueryClient()
 
   return useQuery<TeamInfoResponse>({
-    ...projectOptions.teamInfo(queryClient, uid),
+    ...teamInfo(queryClient, uid),
     ...options,
   })
 }
 
 export const useInviteTeamInfo = (
   dto: InviteTeamDto,
+  uid: string,
   options: MutationOptions = {},
 ) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...projectOptions.inviteTeamInfo(queryClient, dto),
+    ...inviteTeamInfo(queryClient, uid, dto),
     ...options,
   })
 }
@@ -85,19 +112,20 @@ export const useAddProjectInfo = (
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...projectOptions.addProjectInfo(queryClient, dto),
+    ...addProjectInfo(queryClient, dto),
     ...options,
   })
 }
 
 export const useEditProjectInfo = (
   dto: EditProjectDTO,
+  uid: string,
   options: MutationOptions = {},
 ) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...projectOptions.editProjectInfo(queryClient, dto),
+    ...editProjectInfo(queryClient, dto, uid),
     ...options,
   })
 }
@@ -109,19 +137,19 @@ export const useDeleteProjectInfo = (
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...projectOptions.deleteProjectInfo(queryClient, uid),
+    ...deleteProjectInfo(queryClient, uid),
     ...options,
   })
 }
 
 export const useDeleteTeamInfo = (
-  dto: DeleteTeamDto,
+  uid: string,
   options: MutationOptions = {},
 ) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...projectOptions.deleteTeamInfo(queryClient, dto),
+    ...deleteTeamInfo(queryClient, uid),
     ...options,
   })
 }

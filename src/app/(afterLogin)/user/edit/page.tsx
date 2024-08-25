@@ -1,4 +1,5 @@
 'use client'
+
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -34,10 +35,10 @@ const profileEdit: React.FC = () => {
     defaultValues: {
       name: '',
       email: '',
-      phonenumber: '',
-      address: '',
-      stack: '',
-      MBTI: '',
+      contact: '',
+      location: '',
+      stacks: '',
+      mbti: '',
       entries: [],
       imageUrl: '',
     },
@@ -47,57 +48,42 @@ const profileEdit: React.FC = () => {
     {
       name: form.watch('name'),
       email: form.watch('email'),
-      phone: form.watch('phonenumber'),
-      address: form.watch('address'),
-      stack: form
-        .watch('stack')
+      contact: form.watch('contact'),
+      location: form.watch('location'),
+      stacks: form
+        .watch('stacks')
         .split(',')
-        .map((stack) => stack.trim())
-        .filter((stack) => stack !== ''),
-      MBTI: form.watch('MBTI'),
-      tool: Object.fromEntries(
-        entries.map((entry) => [entry.tool, entry.email]),
+        .map((stacks) => stacks.trim())
+        .filter((stacks) => stacks !== ''),
+      mbti: form.watch('mbti') === '' ? null : form.watch('mbti'),
+      tools: Object.fromEntries(
+        entries.map((entry) => [entry.tool.toUpperCase(), entry.email]),
       ),
-      imageUrl: imageUrl,
+      imageUrl,
     },
     {
       onSuccess: () => {
-        console.log('Success:', {
-          name: form.watch('name'),
-          email: form.watch('email'),
-          phone: form.watch('phonenumber'),
-          address: form.watch('address'),
-          stack: form
-            .watch('stack')
-            .split(',')
-            .map((stack) => stack.trim())
-            .filter((stack) => stack !== ''),
-          MBTI: form.watch('MBTI'),
-          tool: Object.fromEntries(
-            entries.map((entry) => [entry.tool, entry.email]),
-          ),
-          imageUrl: imageUrl,
-        }),
-          router.push('/workspace')
+        router.push('/home')
       },
     },
   )
 
   React.useEffect(() => {
     if (data !== undefined) {
-      form.setValue('email', data.result.email)
-      form.setValue('name', data.result.name)
-      form.setValue('phonenumber', data.result.phone)
-      form.setValue('address', data.result.address)
+      form.setValue('email', data.result.email || '')
+      form.setValue('name', data.result.name || '')
+      form.setValue('contact', data.result.contact || '')
+      form.setValue('location', data.result.location || '')
       setEntries(
-        Object.entries(data.result.tool).map(([tool, email]) => ({
-          tool,
-          email: email as string,
+        data.result.tools.map((item) => ({
+          tool: item.toolName,
+          email: item.email,
         })),
       )
-      form.setValue('stack', data.result.stack.join(', '))
-      form.setValue('MBTI', data.result.MBTI)
+      form.setValue('stacks', data.result.stackNames.join(', ') || '')
+      form.setValue('mbti', data.result.mbti || '')
       setImageUrl(data.result.imageUrl || '')
+      setValue(data.result.mbti || '')
     }
   }, [data])
 
@@ -124,7 +110,7 @@ const profileEdit: React.FC = () => {
               form={form}
               name="email"
               label="로그인 정보"
-              disabled={true}
+              disabled
             />
             <AvatarInfoForm
               form={form}
@@ -137,10 +123,10 @@ const profileEdit: React.FC = () => {
               setEntries={setEntries}
             />
             <PhoneInfoForm form={form} />
-            <DefaultInputForm form={form} name="address" label="거주지역" />
+            <DefaultInputForm form={form} name="location" label="거주지역" />
             <DefaultInputForm
               form={form}
-              name="stack"
+              name="stacks"
               label="기술스택(쉼포로 구분)"
               placeholder="기술스택"
             />
@@ -149,7 +135,7 @@ const profileEdit: React.FC = () => {
             <div className="itmes-center flex justify-end gap-[8px] self-stretch">
               <Button
                 type="button"
-                onClick={() => router.push('/workspace')}
+                onClick={() => router.push('/home')}
                 className="bg-white text-gray-400 hover:bg-gray-100"
               >
                 취소하기

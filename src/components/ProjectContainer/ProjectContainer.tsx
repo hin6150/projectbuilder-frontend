@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ko } from 'date-fns/locale'
-import { ProjectInfo } from '@/api'
+import { ProjectInfo, useProjectInfoQuery } from '@/api'
 import { format } from 'date-fns'
-import { useState, useEffect } from 'react'
 import { Check } from 'lucide-react'
+import { useBoardListQuery } from '@/api/services/board/quries'
+import { useOneProjectInfoQuery } from '@/api/services/project/quries'
 
 interface TeamCheckboxProps {
   id: string
@@ -417,7 +418,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
                   {status}
                 </div>
               ))}
-              <div className="border-t border-gray-200"></div>
+              <div className="border-t border-gray-200" />
               <div className="px-4 py-2 text-sm text-gray-700">담당자</div>
               {['사람 A', '사람 B', '사람 C'].map((assignee) => (
                 <div
@@ -557,7 +558,7 @@ const Board: React.FC<BoardProps> = ({ items }) => {
           className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-red-200 px-[8px]"
           onClick={() => handleStatusClick(index)}
         >
-          <span className="h-2.5 w-2.5 rounded-full bg-red-500"></span>
+          <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
           <span className="w-full text-center">긴급</span>
           {activeDropdown === index && (
             <StatusDropdown
@@ -570,13 +571,14 @@ const Board: React.FC<BoardProps> = ({ items }) => {
           )}
         </div>
       )
-    } else if (status === '진행중') {
+    }
+    if (status === '진행중') {
       return (
         <div
           className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-blue-200 px-[8px]"
           onClick={() => handleStatusClick(index)}
         >
-          <span className="h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
           <span className="w-full text-center">진행중</span>
           {activeDropdown === index && (
             <StatusDropdown
@@ -589,13 +591,14 @@ const Board: React.FC<BoardProps> = ({ items }) => {
           )}
         </div>
       )
-    } else if (status === '완료') {
+    }
+    if (status === '완료') {
       return (
         <div
           className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-green-200 px-[8px]"
           onClick={() => handleStatusClick(index)}
         >
-          <span className="h-2.5 w-2.5 rounded-full bg-green-500"></span>
+          <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
           <span className="w-full text-center">완료</span>
           {activeDropdown === index && (
             <StatusDropdown
@@ -778,12 +781,14 @@ const teamMembers: TeamMember[] = [
   { id: 6, name: '홍길동', role: '탈퇴한 사용자', imageUrl: '' }, // No image URL to demonstrate the default case
 ]
 
-const TeamBoard: React.FC = () => {
+const TeamBoard: React.FC<{ id: string }> = ({ id }) => {
+  const { data, isLoading } = useOneProjectInfoQuery(id)
+
   return (
     <div className="py-8">
       <h2 className="mb-6 text-2xl font-bold">팀원 정보</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-        {teamMembers.map((member) => (
+        {data?.result.users.map((member) => (
           <div
             key={member.id}
             className="rounded-md border border-slate-200 bg-white p-[8px] shadow"
@@ -810,7 +815,7 @@ const TeamBoard: React.FC = () => {
   )
 }
 
-const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
+function ProjectContainer({ data, id }: { data: ProjectInfo; id: string }) {
   if (!data) {
     return <div>Loading...</div>
   }
@@ -820,6 +825,8 @@ const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
     assignees: [],
     search: '',
   })
+
+  const boardList = useBoardListQuery(id)
 
   const filteredItems = items.filter((item) => {
     const matchesStatus =
@@ -839,7 +846,8 @@ const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
         <div className="flex">
           <div className="text-h1">{data.title}</div>
           <div className="self-end pl-[24px] text-h3">
-            {data.startDate}~{data.endDate}
+            {format(data.startDate, 'yy.MM.dd (EEE)', { locale: ko })} ~
+            {format(data.endDate, 'yy.MM.dd (EEE)', { locale: ko })}{' '}
           </div>
         </div>
         <svg
@@ -866,7 +874,7 @@ const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
           />
         </svg>
       </div>
-      <div className="py-[36px] text-h3">{data.subTitle}</div>
+      <div className="py-[36px] text-h3">{data.overview}</div>
       <hr className="mb-[36px] border-t border-gray-300" />
       <div className="flex justify-between">
         <h1 className="text-2xl font-bold">보드</h1>
@@ -888,11 +896,11 @@ const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
       </div>
       <div className="mt-[32px] flex flex-col gap-[12px] p-[1px]">
         프로젝트 팀원
-        <TeamCheckbox id="1" name="팀원 A"></TeamCheckbox>
-        <TeamCheckbox id="2" name="팀원 B"></TeamCheckbox>
-        <TeamCheckbox id="3" name="팀원 C"></TeamCheckbox>
-        <TeamCheckbox id="4" name="팀원 내 개인 캘린더"></TeamCheckbox>
-        <TeamCheckbox id="5" name="팀원 프로젝트 회의"></TeamCheckbox>
+        <TeamCheckbox id="1" name="팀원 A" />
+        <TeamCheckbox id="2" name="팀원 B" />
+        <TeamCheckbox id="3" name="팀원 C" />
+        <TeamCheckbox id="4" name="팀원 내 개인 캘린더" />
+        <TeamCheckbox id="5" name="팀원 프로젝트 회의" />
       </div>
       <div className="mt-[24px] w-[300px]">
         회의 추천 일정
@@ -906,7 +914,7 @@ const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
         />
       </div>
       <div>
-        <TeamBoard />
+        <TeamBoard id={id} />
       </div>
     </div>
   )

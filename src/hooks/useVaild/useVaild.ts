@@ -1,3 +1,4 @@
+import { Contact } from 'lucide-react'
 import { z } from 'zod'
 
 // 개별 필드 정의
@@ -74,10 +75,10 @@ const teamName = z.string()
 export const formSchemaUserEdit = z.object({
   name: nameField,
   email: emailField,
-  phonenumber: phonenumberField,
-  address: addressField,
-  stack: stackField,
-  MBTI: mbtiField,
+  contact: phonenumberField,
+  location: addressField,
+  stacks: stackField,
+  mbti: mbtiField,
   entries: entriesField,
   imageUrl: imageUrlField,
 })
@@ -85,7 +86,7 @@ export const formSchemaUserEdit = z.object({
 export const formSchemaSignUp = z.object({
   name: nameField,
   email: emailField,
-  phonenumber: phonenumberField,
+  contact: phonenumberField,
   use: useField,
   privacy: privacyField,
   marketing: marketingField,
@@ -99,9 +100,9 @@ export const formSchemaOptionalInfo = z.object({
 })
 
 export const formSchemaProject = z.object({
-  title: title,
-  period: period,
-  description: description,
+  title,
+  period,
+  description,
 })
 
 export const formEmailProject = z.object({
@@ -110,9 +111,9 @@ export const formEmailProject = z.object({
 
 export const formSchemaPersonalSchedule = z.object({
   type: scheduletypeField,
-  title: title,
-  period: period,
-  description: description,
+  title,
+  period,
+  description,
   allday: alldayField,
   repeat: repeatField,
   publicContent: publicField,
@@ -120,12 +121,12 @@ export const formSchemaPersonalSchedule = z.object({
 
 export const formSchemaTeamSchedule = z.object({
   type: scheduletypeField,
-  title: title,
-  period: period,
-  description: description,
+  title,
+  period,
+  description,
   allday: alldayField,
   repeat: repeatField,
-  participate: participate,
+  participate,
 })
 
 export const formSchemaRepeatSchedule = z.object({
@@ -137,13 +138,13 @@ export const formSchemaRepeatSchedule = z.object({
 
 export const formSchemaCheckSchedule = z.object({
   type: scheduletypeField,
-  title: title,
-  period: period,
-  description: description,
+  title,
+  period,
+  description,
   publicContent: publicField,
   allday: alldayField,
   repeat: repeatField,
-  participate: participate,
+  participate,
   team: teamName,
 })
 
