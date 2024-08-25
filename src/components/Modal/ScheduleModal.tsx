@@ -43,7 +43,7 @@ import {
   useScheduleDetailQuery,
 } from '@/api'
 import { z } from 'zod'
-import { formatDateTime } from '@/hooks/useCalendar/useCalendarUtils'
+import { formatDateTime } from '@/hooks/useCalendar'
 
 interface Participate {
   imageUrl: string

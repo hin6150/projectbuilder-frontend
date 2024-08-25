@@ -3,7 +3,7 @@ import * as React from 'react'
 import { Weekly } from '@/components/Calendar/Weekly'
 import { useCalendarContext } from '../layout'
 import { addDays, format, startOfWeek } from 'date-fns'
-import { useProjectInfoQuery, useScheduleListQuery } from '@/api'
+import { useScheduleListQuery } from '@/api'
 
 export default function page() {
   const { state, selectedProject, myCalendar } = useCalendarContext()
@@ -13,10 +13,8 @@ export default function page() {
   const endDate = format(addDays(weekStart, 6), 'yyyy-MM-dd')
 
   const { data: scheduleResponse } = useScheduleListQuery(startDate, endDate)
-  const { data: projectResponse } = useProjectInfoQuery()
 
   const schedules = scheduleResponse?.result
-  const projects = projectResponse?.result
 
   const filteredSchedules = schedules?.filter((schedule) => {
     const isProjectSelected = selectedProject[schedule.projectId || '']
@@ -25,14 +23,7 @@ export default function page() {
 
   return (
     <div>
-      <Weekly
-        date={state.date}
-        schedules={filteredSchedules}
-        projects={projects?.map((project) => ({
-          uid: project.uid,
-          title: project.title,
-        }))}
-      />
+      <Weekly date={state.date} schedules={filteredSchedules} />
     </div>
   )
 }

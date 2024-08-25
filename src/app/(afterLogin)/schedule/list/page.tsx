@@ -4,7 +4,7 @@ import * as React from 'react'
 import { useProjectInfoQuery, useScheduleListQuery } from '@/api'
 import { useCalendarContext } from '../layout'
 import { List } from '@/components/Calendar/List'
-import { addDays, format } from 'date-fns'
+import { format } from 'date-fns'
 
 export default function Page() {
   const { state, selectedProject, myCalendar } = useCalendarContext()

@@ -2,7 +2,7 @@
 import * as React from 'react'
 import { yoilClass } from './style'
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns'
-import { ScheduleInfo, useScheduleListQuery } from '@/api'
+import { ScheduleInfo } from '@/api'
 import { hours, TimeSlot } from '@/hooks/useCalendar/useCalendarUtils'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
@@ -12,14 +12,9 @@ import { EventRenderer } from './EventRenderer'
 interface WeeklyProps {
   date: Date
   schedules: ScheduleInfo[] | undefined
-  projects: { uid: string; title: string }[] | undefined
 }
 
-export const Weekly: React.FC<WeeklyProps> = ({
-  date,
-  schedules,
-  projects,
-}) => {
+export const Weekly: React.FC<WeeklyProps> = ({ date, schedules }) => {
   const { modals, openModal } = useModal()
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
   const weekStart = startOfWeek(date, { weekStartsOn: 0 })

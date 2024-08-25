@@ -11,14 +11,11 @@ export default function page() {
   const startDate = format(state.date, 'yyyy-MM-dd')
   const endDate = format(state.date, 'yyyy-MM-dd')
 
-  const { data: scheduleDataResponse } = useScheduleListQuery(
-    startDate,
-    endDate,
-  )
-  const { data: projectDataResponse } = useProjectInfoQuery()
+  const { data: scheduleResponse } = useScheduleListQuery(startDate, endDate)
+  const { data: projectResponse } = useProjectInfoQuery()
 
-  const schedules = scheduleDataResponse?.result
-  const projects = projectDataResponse?.result
+  const schedules = scheduleResponse?.result
+  const projects = projectResponse?.result
 
   const filteredSchedules = schedules?.filter((schedule) => {
     const isProjectSelected = selectedProject[schedule.projectId || '']
