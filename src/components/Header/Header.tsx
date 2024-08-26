@@ -27,12 +27,14 @@ const Header: React.FC = () => {
               </div>
             </DropdownMenuItem>
           </Link>
-          <DropdownMenuItem>
-            <div className="flex items-center gap-2 p-2">
-              <CalendarCheckIcon size={16} />
-              <p className="text-subtle font-medium">내 일정 관리</p>
-            </div>
-          </DropdownMenuItem>
+          <Link href="/schedule/monthly">
+            <DropdownMenuItem>
+              <div className="flex items-center gap-2 p-2">
+                <CalendarCheckIcon size={16} />
+                <p className="text-subtle font-medium">내 일정 관리</p>
+              </div>
+            </DropdownMenuItem>
+          </Link>
           <Link href="/">
             <DropdownMenuItem>
               <div className="flex items-center gap-2 p-2">

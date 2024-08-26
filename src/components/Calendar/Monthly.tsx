@@ -1,65 +1,79 @@
 'use client'
 
 import * as React from 'react'
-import { useSchedulesQuery } from '@/api'
 import { generateCalendar } from '@/hooks/useCalendar'
-import {
-  weekClass,
-  yoilClass,
-  dayClass,
-  getDotColorClass,
-  getProjectColorClass,
-} from './style'
+import { weekClass, yoilClass, dayClass, getDotColor } from './style'
+import { useModal } from '@/hooks/useModal'
+import { ModalTypes } from '@/hooks/useModal/useModal'
+import { ScheduleCheckModal } from '../Modal/ScheduleModal'
+import { ScheduleInfo, ProjectInfo } from '@/api'
 
 interface MonthlyProps {
-  month: string
-  year: number
+  date: Date
+  schedules: ScheduleInfo[] | undefined
+  projects: ProjectInfo[] | undefined
 }
 
-export function Monthly({ month, year }: MonthlyProps) {
+export const Monthly: React.FC<MonthlyProps> = ({
+  date,
+  schedules,
+  projects,
+}) => {
+  const { modals, openModal } = useModal()
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
-  const weeks = generateCalendar(year, parseInt(month))
+  const weeks = generateCalendar(date)
 
-  const { data } = useSchedulesQuery()
-  const getSchedulesForDay = (day: number, isThisMonth: boolean) => {
-    if (isThisMonth && data?.result[year]?.[parseInt(month)]) {
-      return data.result[year][parseInt(month)].filter(
-        (schedule) => schedule.date === day,
-      )
-    }
+  const [selectedSchedule, setSelectedSchedule] =
+    React.useState<ScheduleInfo | null>(null)
 
-    if (!isThisMonth) {
-      const prevMonth = parseInt(month) === 1 ? 12 : parseInt(month) - 1
-      const prevYear = parseInt(month) === 1 ? year - 1 : year
-      const nextMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1
-      const nextYear = parseInt(month) === 12 ? year + 1 : year
-
-      if (data?.result[prevYear]?.[prevMonth] && day > 15) {
-        return data.result[prevYear][prevMonth].filter(
-          (schedule) => schedule.date === day,
-        )
-      } else if (data?.result[nextYear]?.[nextMonth] && day < 15) {
-        return data.result[nextYear][nextMonth].filter(
-          (schedule) => schedule.date === day,
-        )
-      }
-    }
-    return []
+  const handleScheduleSelect = (schedule: ScheduleInfo) => {
+    setSelectedSchedule(schedule)
+    openModal('default', ModalTypes.CHECK)
   }
 
-  const formatTime = (time: string) => {
-    if (!time) return ''
+  const getProjectColor = (projectId: string) => {
+    return (
+      projects?.find((project) => project.uid === projectId)?.color || '#ccc'
+    )
+  }
 
-    const [startTime] = time.split('~')
-    const [period, timePart] = startTime.trim().split(' ')
-    let [hour, minute] = timePart.split(':')
-
-    if (period === '오후') {
-      hour = String(parseInt(hour) + 12)
+  const getSchedulesForDay = (day: Date, isThisMonth: boolean) => {
+    if (!schedules) {
+      return []
     }
-    minute = minute || '00'
 
-    return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
+    return schedules.filter((schedule) => {
+      const scheduleDate = new Date(schedule.startDate).getDate()
+      const scheduleMonth = new Date(schedule.startDate).getMonth() + 1
+      const scheduleYear = new Date(schedule.startDate).getFullYear()
+
+      if (
+        isThisMonth &&
+        scheduleYear === day.getFullYear() &&
+        scheduleMonth === day.getMonth() + 1 &&
+        scheduleDate === day.getDate()
+      ) {
+        return true
+      }
+
+      return false
+    })
+  }
+
+  const formatTime = (datetime: string): string => {
+    if (!datetime) return ''
+
+    const [datePart, timePart] = datetime.split(' ')
+    if (!timePart) return '하루 종일'
+
+    const [hourString, minute] = timePart.split(':')
+    const hour = parseInt(hourString)
+
+    if (isNaN(hour)) return ''
+
+    const period = hour < 12 ? '오전' : '오후'
+    const hour12 = hour % 12 || 12
+    return `${period} ${hour12}:${minute}`
   }
 
   return (
@@ -75,38 +89,37 @@ export function Monthly({ month, year }: MonthlyProps) {
         ))}
       </div>
       <div className="h-[1px] w-[832px] bg-gray-300" />
-      <div
-        className={
-          'flex h-[764px] flex-shrink-0 flex-col items-start self-stretch rounded-[4px] border-r border-t border-gray-200'
-        }
-      >
+      <div className="flex h-[764px] flex-shrink-0 flex-col items-start self-stretch rounded-[4px] border-r border-t border-gray-200">
         {weeks.map((week, weekIndex) => (
           <div className={weekClass} key={weekIndex}>
-            {week.map(({ day, isThisMonth }, dayIndex) => {
-              const schedules = getSchedulesForDay(day, isThisMonth)
+            {week.map(({ day, isThisMonth, date }, dayIndex) => {
+              const schedules = getSchedulesForDay(date, isThisMonth)
               return (
                 <div
                   className={`${dayClass} ${isThisMonth ? '' : 'text-gray-300'}`}
                   key={dayIndex}
                 >
                   <div className="flex h-6 w-full flex-col">
-                    {day !== '' && (
+                    {day !== null && (
                       <>
                         <p className="p-2">{day}</p>
                         <div className="flex flex-col gap-[2px]">
                           {schedules.map((schedule, index) => (
                             <div
                               key={index}
-                              className={`flex h-[25px] items-center gap-[5px] overflow-hidden text-ellipsis rounded-[5px] pl-1 ${getProjectColorClass(schedule.project)}`}
+                              onClick={() => {
+                                handleScheduleSelect(schedule)
+                              }}
+                              className={`flex h-[25px] cursor-pointer items-center gap-1 overflow-hidden rounded-[5px] pl-1 ${getProjectColor(schedule.projectId ?? '')}`}
                             >
                               <div
-                                className={`h-1 w-1 rounded-full ${getDotColorClass(schedule.project)}`}
+                                className={`h-1 w-1 shrink-0 rounded-full ${getDotColor(getProjectColor(schedule.projectId ?? ''))}`}
                               />
-                              <p className="display-webkit-box box-orient-vertical line-clamp-2 text-center text-detail">
-                                {formatTime(schedule.time)}
+                              <p className="display-webkit-box box-orient-vertical line-clamp-2 w-[75px] text-detail">
+                                {formatTime(schedule.startDate)}
                               </p>
-                              <p className="display-webkit-box box-orient-vertical line-clamp-1 text-center text-detail">
-                                {schedule.description}
+                              <p className="display-webkit-box box-orient-vertical line-clamp-1 text-detail">
+                                {schedule.title}
                               </p>
                             </div>
                           ))}
@@ -120,6 +133,11 @@ export function Monthly({ month, year }: MonthlyProps) {
           </div>
         ))}
       </div>
+      {modals.default.open &&
+        modals.default.type == ModalTypes.CHECK &&
+        selectedSchedule && (
+          <ScheduleCheckModal scheduleId={selectedSchedule?.id} />
+        )}
     </div>
   )
 }

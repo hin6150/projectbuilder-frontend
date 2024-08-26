@@ -1,48 +1,68 @@
-// src/hooks/useCalendar.tsx
+'use client'
+import { addDays, subDays, subMonths, addMonths } from 'date-fns'
 import * as React from 'react'
 
 interface CalendarState {
-  month: number
-  year: number
+  date: Date
 }
 
 export function useCalendar() {
   const [state, setState] = React.useState<CalendarState>({
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
+    date: new Date(),
   })
 
-  const handlePrevMonth = React.useCallback(() => {
+  const handlePrev = React.useCallback((unit: 'month' | 'week' | 'day') => {
     setState((prevState) => {
-      const newMonth = prevState.month === 1 ? 12 : prevState.month - 1
-      const newYear =
-        prevState.month === 1 ? prevState.year - 1 : prevState.year
-      return { month: newMonth, year: newYear }
+      let newDate
+      switch (unit) {
+        case 'month':
+          newDate = subMonths(prevState.date, 1)
+          return { date: newDate }
+        case 'week':
+          newDate = subDays(prevState.date, 7)
+          return { date: newDate }
+        case 'day':
+          newDate = subDays(prevState.date, 1)
+          return { date: newDate }
+        default:
+          return prevState
+      }
     })
   }, [])
 
-  const handleNextMonth = React.useCallback(() => {
+  const handleNext = React.useCallback((unit: 'month' | 'week' | 'day') => {
     setState((prevState) => {
-      const newMonth = prevState.month === 12 ? 1 : prevState.month + 1
-      const newYear =
-        prevState.month === 12 ? prevState.year + 1 : prevState.year
-      return { month: newMonth, year: newYear }
+      let newDate
+      switch (unit) {
+        case 'month':
+          newDate = addMonths(prevState.date, 1)
+          return { date: newDate }
+        case 'week':
+          newDate = addDays(prevState.date, 7)
+          return { date: newDate }
+        case 'day':
+          newDate = addDays(prevState.date, 1)
+          return { date: newDate }
+        default:
+          return prevState
+      }
     })
   }, [])
 
   const handleToday = React.useCallback(() => {
-    const today = new Date()
-    setState({ month: today.getMonth() + 1, year: today.getFullYear() })
+    setState({
+      date: new Date(),
+    })
   }, [])
 
-  const formatMonth = (month: number) => {
-    return month.toString().padStart(2, '0')
+  const formatMonth = (date: Date) => {
+    return (date.getMonth() + 1).toString().padStart(2, '0')
   }
 
   return {
     state,
-    handlePrevMonth,
-    handleNextMonth,
+    handlePrev,
+    handleNext,
     handleToday,
     formatMonth,
   }

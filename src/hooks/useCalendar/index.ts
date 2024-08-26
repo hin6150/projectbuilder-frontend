@@ -5,5 +5,5 @@ export {
   getFirstDayofMonth,
   getPreviousMonthDays,
   formatDate,
+  formatDateTime,
 } from './useCalendarUtils'
-export { useFutureSchedules } from './useSchedule'

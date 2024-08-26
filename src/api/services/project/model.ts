@@ -20,6 +20,7 @@ export interface ProjectInfo {
   user: ProjectUserInfo[]
   startDate: string
   endDate: string
+  color: string
 }
 
 export interface ProjectInfoResponse {

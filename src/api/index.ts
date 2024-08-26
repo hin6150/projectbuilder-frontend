@@ -38,9 +38,22 @@ export {
 } from './services/project/quries'
 
 //Schedule
-export type { ScheduleResponse } from './services/schedule/model'
 export {
-  scheduleOptions,
+  ScheduleVisibility,
+  DeleteScheduleType,
+} from './services/schedule/model'
+export type {
+  ScheduleInfo,
+  ScheduleDetailResponse,
+  ScheduleListResponse,
+  AddScheduleDTO,
+  EditScheduleDTO,
+  DeleteScheduleResponse,
+} from './services/schedule/model'
+export {
+  useScheduleListQuery,
+  useScheduleDetailQuery,
   useAddScheduleMutation,
-  useSchedulesQuery,
+  useEditScheduleMutation,
+  useDeleteScheduleMutation,
 } from './services/schedule/quries'

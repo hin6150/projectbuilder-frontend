@@ -111,7 +111,6 @@ interface mbtiFormType {
 
 interface DropdownFormProps {
   form: UseFormReturn<z.infer<any>>
-  value: string
   options: string[]
   defaultValue: string
   label: string
@@ -687,7 +686,6 @@ export const ParticipateForm = ({
   const [searchTerm, setSearchTerm] = React.useState('')
   const [searchResults, setSearchResults] = React.useState<participate[]>([])
 
-  // 기본 참가자 데이터
   const defaultParticipants: participate[] = [
     {
       imageUrl: '',
@@ -759,7 +757,7 @@ export const ParticipateForm = ({
   return (
     <FormField
       control={form.control}
-      name="participates"
+      name="inviteList"
       render={({ field }) => (
         <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
           <FormLabel>참가자</FormLabel>
@@ -789,7 +787,7 @@ export const ParticipateForm = ({
             {participates.map((participant, index) => (
               <div
                 key={index}
-                className="flex h-[36px] items-center gap-2 self-stretch px-[6px] px-[8px] text-detail"
+                className="flex h-[36px] items-center gap-2 self-stretch px-[6px] py-[8px] text-detail"
               >
                 <ProfileAvatar
                   name={participant.name}

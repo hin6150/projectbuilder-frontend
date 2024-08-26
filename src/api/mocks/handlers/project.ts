@@ -11,7 +11,7 @@ export const projectHandlers = [
       result: [
         {
           uid: '50e27d90-7e72-4c57-8a7c-4c7ceba19fbc',
-          title: '자기주도프로젝트',
+          title: '자기주도프로젝트A',
           subTitle: '신흥철 교수님 2024년 2학기 자기주도프로젝트 수업',
           user: [
             {
@@ -27,10 +27,11 @@ export const projectHandlers = [
           ],
           startDate: '2024.09.01',
           endDate: '2024.12.01',
+          color: 'bg-red-100',
         },
         {
           uid: '4058db92-16fb-4e81-9911-62747e3598f0',
-          title: '자기주도프로젝트',
+          title: '자기주도프로젝트B',
           subTitle: '신흥철 교수님 2024년 2학기 자기주도프로젝트 수업',
           user: [
             {
@@ -41,10 +42,11 @@ export const projectHandlers = [
           ],
           startDate: '2024.09.01',
           endDate: '2024.12.01',
+          color: 'bg-purple-100',
         },
         {
           uid: 'd470a00c-63f4-4234-bd1f-64fbcf4ba1b6',
-          title: '자기주도프로젝트',
+          title: '자기주도프로젝트C',
           subTitle: '신흥철 교수님 2024년 2학기 자기주도프로젝트 수업',
           user: [
             {
@@ -55,6 +57,7 @@ export const projectHandlers = [
           ],
           startDate: '2024.09.01',
           endDate: '2024.12.01',
+          color: 'bg-orange-100',
         },
         {
           uid: 'c7ea218d-aa92-4639-b4de-aafd7306623a',
@@ -94,6 +97,7 @@ export const projectHandlers = [
           ],
           startDate: '2024.07.01',
           endDate: '2024.09.01',
+          color: 'bg-cyan-100',
         },
       ],
     })

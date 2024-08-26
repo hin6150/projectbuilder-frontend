@@ -1,21 +1,21 @@
 'use client'
 import * as React from 'react'
-import { Monthly } from '@/components/Calendar/Monthly'
-import { useProjectInfoQuery, useScheduleListQuery } from '@/api'
+import { Daily } from '@/components/Calendar/Daily'
 import { useCalendarContext } from '../layout'
 import { format } from 'date-fns'
+import { useProjectInfoQuery, useScheduleListQuery } from '@/api'
 
-export default function Page() {
+export default function page() {
   const { state, selectedProject, myCalendar } = useCalendarContext()
 
   const startDate = format(state.date, 'yyyy-MM-dd')
   const endDate = format(state.date, 'yyyy-MM-dd')
 
-  const { data: schedulesResponse } = useScheduleListQuery(startDate, endDate)
-  const { data: projectsResponse } = useProjectInfoQuery()
+  const { data: scheduleResponse } = useScheduleListQuery(startDate, endDate)
+  const { data: projectResponse } = useProjectInfoQuery()
 
-  const schedules = schedulesResponse?.result
-  const projects = projectsResponse?.result
+  const schedules = scheduleResponse?.result
+  const projects = projectResponse?.result
 
   const filteredSchedules = schedules?.filter((schedule) => {
     const isProjectSelected = selectedProject[schedule.projectId || '']
@@ -24,10 +24,13 @@ export default function Page() {
 
   return (
     <div>
-      <Monthly
+      <Daily
         date={state.date}
         schedules={filteredSchedules}
-        projects={projects}
+        projects={projects?.map((project) => ({
+          uid: project.uid,
+          title: project.title,
+        }))}
       />
     </div>
   )
