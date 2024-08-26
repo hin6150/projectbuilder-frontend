@@ -7,7 +7,6 @@ import {
   useMutation,
 } from '@tanstack/react-query'
 import {
-  ProjectInfo,
   ProjectInfoResponse,
   TeamInfoResponse,
   AddProjectDTO,
@@ -15,6 +14,7 @@ import {
   InviteTeamDto,
   DeleteTeamDto,
   ProjectListInfoResponse,
+  DefaultResponse,
 } from './model'
 import { projectService } from './service'
 
@@ -25,16 +25,16 @@ export const {
   editProjectInfo,
   inviteTeamInfo,
   projectInfo,
-  oneprojectInfo,
+  oneProjectInfo,
   teamInfo,
 } = {
   projectInfo: (client: QueryClient) => ({
     queryKey: ['projectList'],
     queryFn: () => projectService.projectInfo(client),
   }),
-  oneprojectInfo: (client: QueryClient, uid: string) => ({
+  oneProjectInfo: (client: QueryClient, uid: string) => ({
     queryKey: ['project'],
-    queryFn: () => projectService.oneprojectInfo(client, uid),
+    queryFn: () => projectService.oneProjectInfo(client, uid),
   }),
   teamInfo: (client: QueryClient, uid: string) => ({
     queryKey: ['teamList'],
@@ -59,7 +59,7 @@ export const {
 }
 
 export const useProjectInfoQuery = (
-  options: CustomQueryOptions<ProjectInfoResponse> = {},
+  options: CustomQueryOptions<ProjectListInfoResponse> = {},
 ) => {
   const queryClient = useQueryClient()
 
@@ -75,14 +75,14 @@ export const useOneProjectInfoQuery = (
   const queryClient = useQueryClient()
 
   return useQuery<ProjectInfoResponse>({
-    ...oneprojectInfo(queryClient, uid),
+    ...oneProjectInfo(queryClient, uid),
     ...options,
   })
 }
 
 export const useTeamInfoQuery = (
-  options: CustomQueryOptions<TeamInfoResponse> = {},
   uid: string,
+  options: CustomQueryOptions<TeamInfoResponse> = {},
 ) => {
   const queryClient = useQueryClient()
 
@@ -144,7 +144,7 @@ export const useDeleteProjectInfo = (
 
 export const useDeleteTeamInfo = (
   uid: string,
-  options: MutationOptions = {},
+  options: MutationOptions<DefaultResponse, Error, DeleteTeamDto> = {},
 ) => {
   const queryClient = useQueryClient()
 

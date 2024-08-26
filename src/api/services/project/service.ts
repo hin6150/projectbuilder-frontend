@@ -19,7 +19,7 @@ export const projectService = {
       .call<ProjectListInfoResponse>()
   },
 
-  async oneprojectInfo(client: QueryClient, uid: string) {
+  async oneProjectInfo(client: QueryClient, uid: string) {
     return APIBuilder.get(`/project/${uid}`)
       .withCredentials(client)
       .build()

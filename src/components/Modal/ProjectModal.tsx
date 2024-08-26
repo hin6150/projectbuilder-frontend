@@ -44,13 +44,13 @@ export function ProjectCreateModal() {
     },
   })
 
-  const ShowToast = () => {
+  const successToast = () => {
     const time = format(new Date(), 'yyyy년 MM월 dd일 HH시 ss분', {
       locale: ko,
     })
 
     toast(`${form.watch('title')} 프로젝트 생성 완료`, {
-      duration: 2000,
+      duration: 3000,
       description: time.replace(/(\b0)(\d)/g, '$2'),
     })
   }
@@ -66,12 +66,14 @@ export function ProjectCreateModal() {
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['projectList'] })
-        ShowToast()
+        successToast()
 
         closeModal('dimed')
       },
-      onError: (e) => {
-        console.log(e)
+      onError: () => {
+        toast(`${form.watch('title')} 프로젝트 생성 실패`, {
+          duration: 3000,
+        })
       },
     },
   )
@@ -144,6 +146,17 @@ export function ProjectEditModal({ project }: { project: ProjectInfo }) {
     },
   })
 
+  const ShowToast = () => {
+    const time = format(new Date(), 'yyyy년 MM월 dd일 HH시 ss분', {
+      locale: ko,
+    })
+
+    toast(`${form.watch('title')} 프로젝트 수정 완료`, {
+      duration: 3000,
+      description: time.replace(/(\b0)(\d)/g, '$2'),
+    })
+  }
+
   const editProjectInfo = useEditProjectInfo(
     {
       title: form.watch('title'),
@@ -156,11 +169,12 @@ export function ProjectEditModal({ project }: { project: ProjectInfo }) {
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['projectList'] })
+        ShowToast()
 
         closeModal('dimed')
       },
-      onError: (e) => {
-        console.log(e)
+      onError: () => {
+        toast(`${form.watch('title')} 프로젝트 수정 실패`, { duration: 3000 })
       },
     },
   )
@@ -220,14 +234,25 @@ export function ProjectDeleteModal({ uid }: { uid: string }) {
   const { closeModal } = useModal()
   const queryClient = useQueryClient()
 
+  const ShowToast = () => {
+    const time = format(new Date(), 'yyyy년 MM월 dd일 HH시 ss분', {
+      locale: ko,
+    })
+
+    toast(`프로젝트 삭제 완료`, {
+      duration: 2000,
+      description: time.replace(/(\b0)(\d)/g, '$2'),
+    })
+  }
+
   const deleteProjectInfo = useDeleteProjectInfo(uid, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projectList'] })
-
+      ShowToast()
       closeModal('dimed')
     },
-    onError: (err: Error) => {
-      console.error('프로젝트 삭제 실패:', err)
+    onError: () => {
+      toast(`프로젝트 삭제 실패`, { duration: 3000 })
     },
   })
 
@@ -285,8 +310,7 @@ export function ProjectInviteModal({ uid }: { uid: string }) {
     uid,
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['teamList'] })
-        queryClient.invalidateQueries({ queryKey: ['projectList'] })
+        queryClient.invalidateQueries({ queryKey: ['teamList', 'projectList'] })
       },
       onError: (e) => {
         console.log(e)
@@ -296,8 +320,7 @@ export function ProjectInviteModal({ uid }: { uid: string }) {
 
   const deleteTeamInfo = useDeleteTeamInfo(uid, {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teamList'] })
-      queryClient.invalidateQueries({ queryKey: ['projectList'] })
+      queryClient.invalidateQueries({ queryKey: ['teamList', 'projectList'] })
     },
     onError: (e) => {
       console.log(e)
