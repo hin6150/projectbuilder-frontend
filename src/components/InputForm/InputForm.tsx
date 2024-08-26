@@ -683,7 +683,7 @@ export const RepeatDayForm = ({ form }: formType) => {
   )
 }
 
-export function ParticipateForm({
+export const ParticipateForm = ({
   form,
   participates,
   setParticipates,
