@@ -14,24 +14,16 @@ import {
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import {
-  DefaultInputForm,
-  TextAreaForm,
   DateTimePickerForm,
+  DefaultInputForm,
+  DropdownForm,
   EndDateForm,
   ParticipateForm,
   RepeatDayForm,
-  DropdownForm,
   SelectForm,
+  TextAreaForm,
 } from '../InputForm'
 
-import { Button } from '../ui/button'
-import { Checkbox } from '../ui/checkbox'
-import { Form } from '../ui/form'
-import { Label } from '../ui/label'
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
-import { Modal, ScheduleModal } from './Modal'
-import { ProfileAvatar } from '../Avatar/Avatar'
-import { Input } from '../ui/input'
 import {
   DeleteScheduleType,
   ScheduleInfo,
@@ -42,8 +34,15 @@ import {
   useProjectInfoQuery,
   useScheduleDetailQuery,
 } from '@/api'
-import { z } from 'zod'
 import { formatDateTime } from '@/hooks/useCalendar'
+import { ProfileAvatar } from '../Avatar/Avatar'
+import { Button } from '../ui/button'
+import { Checkbox } from '../ui/checkbox'
+import { Form } from '../ui/form'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
+import { Modal, ScheduleModal } from './Modal'
 
 interface Participate {
   imageUrl: string
@@ -91,7 +90,7 @@ export const ScheduleCreateModal = () => {
 
   const { data: projects } = useProjectInfoQuery()
 
-  const projectOptions = projects?.result.map((project) => project.title) || []
+  const projectOptions = projects?.result?.map((project) => project.title) || []
 
   const form = useForm({
     resolver: zodResolver(fromSchemaSchedule),
@@ -292,11 +291,11 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
   const { data: schedules } = useScheduleDetailQuery(scheduleId)
   const { data: projects } = useProjectInfoQuery()
 
-  const projectOptions = projects?.result.map((project) => project.title) || []
+  const projectOptions = projects?.result?.map((project) => project.title) || []
 
   const getProjectTitle = (projectId: string) => {
     return (
-      projects?.result.find((project) => project.uid === projectId)?.title || ''
+      projects?.result?.find((project) => project.id === projectId)?.title || ''
     )
   }
 
@@ -499,7 +498,7 @@ export const ScheduleCheckModal = ({ scheduleId }: { scheduleId: string }) => {
 
   const getProjectTitle = (projectId: string) => {
     return (
-      projects?.result.find((project) => project.uid === projectId)?.title || ''
+      projects?.result?.find((project) => project.id === projectId)?.title || ''
     )
   }
 
