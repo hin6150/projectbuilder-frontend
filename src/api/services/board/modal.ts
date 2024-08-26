@@ -32,3 +32,7 @@ export interface BoardResponse<T> {
   code: number
   result: T | [] | null
 }
+
+export interface BoardProps {
+  items: BoardDto[]
+}

@@ -21,7 +21,7 @@ export const BoardService = {
     return APIBuilder.post(`/project/${uid}/board/`)
       .withCredentials(client)
       .build()
-      .call<BoardResponse<null>>({ body: JSON.stringify(dto) })
+      .call<BoardResponse<string>>({ body: JSON.stringify(dto) })
   },
 
   async updateBoard(client: QueryClient, uid: string, dto: InputBoard) {

@@ -13,12 +13,16 @@ import { useModal } from '@/hooks/useModal'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { QueryClient, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { boolean, date, z } from 'zod'
 import { MailIcon, XIcon } from 'lucide-react'
 import { ProjectUserRole } from '@/api/services/project/model'
+import { toast } from 'sonner'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { deleteProjectInfo } from '@/api/services/project/quries'
 import {
   DatePickerInfoForm,
   DefaultInputForm,
@@ -41,6 +45,17 @@ export function ProjectCreateModal() {
     },
   })
 
+  const ShowToast = () => {
+    const time = format(new Date(), 'yyyy년 MM월 dd일 HH시 ss분', {
+      locale: ko,
+    })
+
+    toast(`${form.watch('title')} 프로젝트 생성 완료`, {
+      duration: 2000,
+      description: time.replace(/(\b0)(\d)/g, '$2'),
+    })
+  }
+
   const addProjectInfo = useAddProjectInfo(
     {
       title: form.watch('title'),
@@ -51,8 +66,8 @@ export function ProjectCreateModal() {
     },
     {
       onSuccess: () => {
-        console.log('success')
         queryClient.invalidateQueries({ queryKey: ['projectList'] })
+        ShowToast()
 
         closeModal('dimed')
       },
@@ -272,6 +287,7 @@ export function ProjectInviteModal({ uid }: { uid: string }) {
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['teamList'] })
+        queryClient.invalidateQueries({ queryKey: ['projectList'] })
       },
       onError: (e) => {
         console.log(e)
@@ -282,11 +298,16 @@ export function ProjectInviteModal({ uid }: { uid: string }) {
   const deleteTeamInfo = useDeleteTeamInfo(uid, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teamList'] })
+      queryClient.invalidateQueries({ queryKey: ['projectList'] })
     },
     onError: (e) => {
       console.log(e)
     },
   })
+
+  const isEmailDuplicate = (email: string) => {
+    return !inviteEmailList.some((item) => item.email === email)
+  }
 
   const handleRemove = async (index: number) => {
     try {
@@ -309,7 +330,6 @@ export function ProjectInviteModal({ uid }: { uid: string }) {
     console.log(values)
     // closeModal()
   }
-
   return (
     <Modal>
       <p className="text-h4">프로젝트 팀원 초대</p>
@@ -326,7 +346,11 @@ export function ProjectInviteModal({ uid }: { uid: string }) {
               type="submit"
               title="초대"
               disabled={!form.formState.isValid}
-              variant={form.formState.isValid ? 'default' : 'disabled'}
+              variant={
+                form.formState.isValid && isEmailDuplicate(form.watch('email'))
+                  ? 'default'
+                  : 'disabled'
+              }
             >
               <p>초대하기</p>
             </Button>

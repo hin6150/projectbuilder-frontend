@@ -1,9 +1,15 @@
-import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  MutationOptions,
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { CustomQueryOptions } from '@/api/type'
 import { BoardService } from './service'
-import { BoardDto, BoardResponse } from './modal'
+import { BoardDto, BoardResponse, InputBoard } from './modal'
 
-export const { BoardListInfo, BoardInfo } = {
+export const { BoardListInfo, BoardInfo, AddBoard } = {
   BoardListInfo: (client: QueryClient, uid: string) => ({
     queryKey: ['boardList'],
     queryFn: () => BoardService.boardListInfo(client, uid),
@@ -11,6 +17,9 @@ export const { BoardListInfo, BoardInfo } = {
   BoardInfo: (client: QueryClient, uid: string) => ({
     queryKey: ['board'],
     qeuryFn: () => BoardService.boardInfo(client, uid),
+  }),
+  AddBoard: (client: QueryClient, uid: string) => ({
+    mutationFn: (dto: InputBoard) => BoardService.addBoard(client, uid, dto),
   }),
 }
 
@@ -33,6 +42,17 @@ export const useBoardQuery = (
 
   return useQuery<BoardResponse<BoardDto>>({
     ...BoardInfo(queryClient, uid),
+    ...options,
+  })
+}
+export const useAddBoard = (
+  uid: string,
+  options: MutationOptions<BoardResponse<string>, Error, InputBoard> = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation<BoardResponse<string>, Error, InputBoard>({
+    ...AddBoard(queryClient, uid),
     ...options,
   })
 }

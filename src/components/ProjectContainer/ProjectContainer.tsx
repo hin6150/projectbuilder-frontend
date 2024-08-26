@@ -5,8 +5,9 @@ import { ko } from 'date-fns/locale'
 import { ProjectInfo, useProjectInfoQuery } from '@/api'
 import { format } from 'date-fns'
 import { Check } from 'lucide-react'
-import { useBoardListQuery } from '@/api/services/board/quries'
+import { useAddBoard, useBoardListQuery } from '@/api/services/board/quries'
 import { useOneProjectInfoQuery } from '@/api/services/project/quries'
+import { BoardDto, BoardProps } from '@/api/services/board/modal'
 
 interface TeamCheckboxProps {
   id: string
@@ -30,10 +31,6 @@ export interface BoardItem {
   createdDate: string
   status: string
   [key: string]: string
-}
-
-export interface BoardProps {
-  items: BoardItem[]
 }
 
 interface StatusDropdownProps {
@@ -164,62 +161,62 @@ const scheduleData = {
 } // api 연동시 수정해야함!
 
 const items: BoardItem[] = [
-  {
-    type: '이슈',
-    title: '긴급 배포 이슈',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '긴급',
-  },
-  {
-    type: '피드백',
-    title: '스프린트 3 디자인 A안 B안 비교',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '진행중',
-  },
-  {
-    type: '이슈',
-    title: 'AWS 배포 비용 문제',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '진행중',
-  },
-  {
-    type: '이슈',
-    title: '프론트엔드 개발자 필요@@',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '진행중',
-  },
-  {
-    type: '피드백',
-    title: '스프린트 3 기획 리뷰',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '진행중',
-  },
-  {
-    type: '이슈',
-    title: '긴급 배포 이슈',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '완료',
-  },
-  {
-    type: '이슈',
-    title: '긴급 배포 이슈',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '완료',
-  },
-  {
-    type: '이슈',
-    title: '긴급 배포 이슈',
-    assignee: 'CN +2',
-    createdDate: '2024. 07. 19',
-    status: '완료',
-  },
+  // {
+  //   type: '이슈',
+  //   title: '긴급 배포 이슈',
+  //   assignee: 'CN +2',
+  //   createdDate: '2024. 07. 19',
+  //   status: '긴급',
+  // },
+  // {
+  //   type: '피드백',
+  //   title: '스프린트 3 디자인 A안 B안 비교',
+  //   assignee: 'CN +2',
+  //   createdDate: '2024. 07. 19',
+  //   status: '진행중',
+  // },
+  // {
+  //   type: '이슈',
+  //   title: 'AWS 배포 비용 문제',
+  //   assignee: 'CN +2',
+  //   createdDate: '2024. 07. 19',
+  //   status: '진행중',
+  // },
+  // {
+  //   type: '이슈',
+  //   title: '프론트엔드 개발자 필요@@',
+  //   assignee: 'CN +2',
+  //   createdDate: '2024. 07. 19',
+  //   status: '진행중',
+  // },
+  // {
+  //   type: '피드백',
+  //   title: '스프린트 3 기획 리뷰',
+  //   assignee: 'CN +2',
+  //   createdDate: '2024. 07. 19',
+  //   status: '진행중',
+  // },
+  // {
+  //   type: '이슈',
+  //   title: '긴급 배포 이슈',
+  //   assignee: 'CN +2',
+  //   createdDate: '2024. 07. 19',
+  //   status: '완료',
+  // },
+  // {
+  //   type: '이슈',
+  //   title: '긴급 배포 이슈',
+  //   assignee: 'CN +2',
+  //   createdDate: '2024. 07. 19',
+  //   status: '완료',
+  // },
+  // {
+  //   type: '이슈',
+  //   title: '긴급 배포 이슈',
+  //   assignee: 'CN +2',
+  //   createdDate: '2024. 07. 19',
+  //   status: '완료',
+  // },
 ]
 
 type FilterChangeProps = {
@@ -229,9 +226,10 @@ type FilterChangeProps = {
 }
 interface FilterBarProps {
   onFilterChange: (filters: FilterChangeProps) => void
+  id: string
 }
 
-const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
+const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, id }) => {
   const [isModalOpen, setModalOpen] = useState(false)
 
   const handleDeleteClick = () => {
@@ -280,6 +278,12 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
       search,
     })
   }, [selectedStatuses, selectedAssignees, search, onFilterChange])
+
+  const AddBoard = useAddBoard(id, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boardList'] })
+    },
+  })
 
   return (
     <div className="relative flex items-center space-x-2 p-2">
@@ -765,22 +769,6 @@ const Board: React.FC<BoardProps> = ({ items }) => {
   )
 }
 
-type TeamMember = {
-  id: number
-  name: string
-  role: string
-  imageUrl: string
-}
-
-const teamMembers: TeamMember[] = [
-  { id: 1, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member1.jpg' },
-  { id: 2, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member2.jpg' },
-  { id: 3, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member3.jpg' },
-  { id: 4, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member4.jpg' },
-  { id: 5, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member5.jpg' },
-  { id: 6, name: '홍길동', role: '탈퇴한 사용자', imageUrl: '' }, // No image URL to demonstrate the default case
-]
-
 const TeamBoard: React.FC<{ id: string }> = ({ id }) => {
   const { data, isLoading } = useOneProjectInfoQuery(id)
 
@@ -826,9 +814,10 @@ function ProjectContainer({ data, id }: { data: ProjectInfo; id: string }) {
     search: '',
   })
 
-  const boardList = useBoardListQuery(id)
+  const boardResponse = useBoardListQuery(id)
+  const boardList = boardResponse.data?.result || []
 
-  const filteredItems = items.filter((item) => {
+  const filteredItems = boardList.filter((item) => {
     const matchesStatus =
       filters.statuses.length === 0 || filters.statuses.includes(item.status)
     const matchesAssignee =

@@ -38,7 +38,9 @@ function Card({
       <div className="flex w-[380px] flex-col gap-14 rounded-xl border-2 border-slate-200 p-6 shadow-base">
         <div className="flex flex-col gap-4">
           <p className="text-h3">{data.title}</p>
-          <p className="text-body">{data.overview}</p>
+          <p className="text-body">
+            {data.overview ? `${data.overview}` : '\u00A0'}
+          </p>
           <p className="text-inline-code text-gray-400">
             {format(data.startDate, 'yy.MM.dd (EEE)', { locale: ko })} ~
             {format(data.endDate, 'yy.MM.dd (EEE)', { locale: ko })}
