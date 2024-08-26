@@ -1,178 +1,122 @@
 import { http, HttpResponse } from 'msw'
-import { AddScheduleDTO, DefaultResponse } from '@/api/services/schedule/model'
+import { ScheduleVisibility } from '@/api/services/schedule/model'
 
 export const scheduleHandlers = [
-  http.get(`${process.env.NEXT_PUBLIC_API_URL}/schedule/list`, () => {
+  http.get(`${process.env.NEXT_PUBLIC_API_URL}/schedule`, () => {
     return HttpResponse.json({
-      code: 'SUCCESS',
-      result: {
-        2024: {
-          7: [
-            {
-              date: 14,
-              time: '',
-              description: '데모데이 준비',
-              project: 'A',
-              isAllday: true,
-            },
-            {
-              date: 14,
-              time: '오후 4:15 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-            {
-              date: 20,
-              time: '오후 4:00',
-              description: '일정이름입니다',
-              project: 'A',
-              isAllday: false,
-            },
-            {
-              date: 28,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-            {
-              date: 28,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-            {
-              date: 29,
-              time: '오후 4:25 ~ 5:30',
-              description: '일정이름입니다',
-              project: 'C',
-              isAllday: false,
-            },
-          ],
-          8: [
-            {
-              date: 1,
-              time: '',
-              description: '데모데이 준비',
-              project: 'A',
-              isAllday: true,
-            },
-            {
-              date: 4,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'C',
-              isAllday: false,
-            },
-            {
-              date: 11,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-            {
-              date: 18,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-          ],
-          10: [
-            {
-              date: 1,
-              time: '',
-              description: '데모데이 준비',
-              project: 'A',
-              isAllday: true,
-            },
-            {
-              date: 4,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-            {
-              date: 11,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-            {
-              date: 18,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-          ],
-          12: [
-            {
-              date: 1,
-              time: '',
-              description: '데모데이 준비',
-              project: 'A',
-              isAllday: true,
-            },
-            {
-              date: 1,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-            {
-              date: 11,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-            {
-              date: 18,
-              time: '오후 4:00 ~ 5:00',
-              description: '일정이름입니다',
-              project: 'B',
-              isAllday: false,
-            },
-          ],
+      code: 200,
+      result: [
+        {
+          id: '1',
+          title: '데모데모 데이',
+          startDate: '2024-08-05 4:00',
+          endDate: '2024-08-05 12:00',
+          visible: ScheduleVisibility.PUBLIC,
+          projectId: '50e27d90-7e72-4c57-8a7c-4c7ceba19fbc',
         },
-        2025: {
-          1: [
-            {
-              date: 1,
-              time: '',
-              description: '새해 첫날',
-              project: 'C',
-              isAllday: true,
-            },
-          ],
+        {
+          id: '2',
+          title: '일정이름 입니다',
+          startDate: '2024-08-18 16:45',
+          endDate: '2024-08-18 18:45',
+          visible: ScheduleVisibility.PRIVATE,
+          projectId: '',
         },
-      },
+        {
+          id: '3',
+          title: '데모데모 데이',
+          startDate: '2024-08-19 4:00',
+          endDate: '2024-08-19 12:00',
+          visible: ScheduleVisibility.PUBLIC,
+          projectId: 'd470a00c-63f4-4234-bd1f-64fbcf4ba1b6',
+        },
+        {
+          id: '4',
+          title: '일정이름 입니다',
+          startDate: '2024-08-31',
+          endDate: '2024-08-31',
+          visible: ScheduleVisibility.PUBLIC,
+          projectId: '4058db92-16fb-4e81-9911-62747e3598f0',
+        },
+      ],
     })
   }),
 
-  http.post(`${process.env.NEXT_PUBLIC_API_URL}/schedule/list`, async (req) => {
-    // const dto: AddScheduleDTO = await req.json()
-    // const { year, month, schedule } = dto
+  http.get(`${process.env.NEXT_PUBLIC_API_URL}/schedule/:id`, (req) => {
+    const { id } = req.params
+    const schedules = [
+      {
+        id: '1',
+        title: '데모데모 데이',
+        content: '일정내용입니다일정내용입니다',
+        startDate: '2024-08-05 4:00',
+        endDate: '2024-08-05 12:00',
+        visible: ScheduleVisibility.PUBLIC,
+        projectId: '50e27d90-7e72-4c57-8a7c-4c7ceba19fbc',
+      },
+      {
+        id: '2',
+        title: '일정이름 입니다',
+        content: '일정내용입니다일정내용입니다',
+        startDate: '2024-08-18 16:45',
+        endDate: '2024-08-18 18:45',
+        visible: ScheduleVisibility.PRIVATE,
+        projectId: '',
+      },
+      {
+        id: '3',
+        title: '데모데모 데이',
+        startDate: '2024-08-19 4:00',
+        endDate: '2024-08-19 12:00',
+        visible: ScheduleVisibility.PUBLIC,
+        projectId: 'd470a00c-63f4-4234-bd1f-64fbcf4ba1b6',
+      },
+      {
+        id: '4',
+        title: '일정이름 입니다',
+        content: '일정내용입니다일정내용입니다',
+        startDate: '2024-08-31',
+        endDate: '2024-08-31',
+        visible: ScheduleVisibility.PUBLIC,
+        projectId: '4058db92-16fb-4e81-9911-62747e3598f0',
+      },
+    ]
 
-    // if (!schedules[year]) {
-    //   schedules[year] = {}
-    // }
+    const schedule = schedules.find((s) => s.id === id)
 
-    // if (!schedules[year][month]) {
-    //   schedules[year][month] = []
-    // }
+    if (schedule) {
+      return HttpResponse.json({
+        code: 200,
+        msg: 'SUCCESS',
+        result: schedule,
+      })
+    } else {
+      return HttpResponse.json({
+        code: 404,
+        msg: 'Schedule not found',
+      })
+    }
+  }),
 
-    // schedules[year][month].push(schedule)
+  http.post(`${process.env.NEXT_PUBLIC_API_URL}/schedule`, async (req) => {
+    return HttpResponse.json({
+      code: 200,
+      msg: 'CREATE SUCCESS',
+    })
+  }),
 
-    return HttpResponse.json<DefaultResponse>({
-      code: 'SUCCESS',
+  http.patch(`${process.env.NEXT_PUBLIC_API_URL}/schedule/:id`, () => {
+    return HttpResponse.json({
+      code: 200,
+      msg: 'EDIT SUCCESS',
+    })
+  }),
+
+  http.delete(`${process.env.NEXT_PUBLIC_API_URL}/schedule/:id`, () => {
+    return HttpResponse.json({
+      code: 200,
+      message: 'DELETE SUCCESS',
+      data: null,
     })
   }),
 ]

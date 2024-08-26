@@ -32,17 +32,11 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { CommandList } from 'cmdk'
-import {
-  CalendarIcon,
-  Check,
-  ChevronDown,
-  ChevronsUpDown,
-  XIcon,
-} from 'lucide-react'
+import { Check, ChevronDown, ChevronsUpDown, XIcon } from 'lucide-react'
 import * as React from 'react'
 import { z } from 'zod'
 
-import { getInitials } from '@/components/Avatar/Avatar'
+import { getInitials, ProfileAvatar } from '@/components/Avatar/Avatar'
 import { Icon } from '@/components/Icon'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useModal } from '@/hooks/useModal'
@@ -50,6 +44,7 @@ import { ModalTypes } from '@/hooks/useModal/useModal'
 import { formatPhoneNumber } from '@/hooks/useVaild'
 import { format, getDay } from 'date-fns'
 import { UseFormReturn } from 'react-hook-form'
+import { TimePickerDemo } from '../TimePicker/time-picker-demo'
 import { Calendar } from '../ui/calendar'
 import { Checkbox } from '../ui/checkbox'
 import {
@@ -60,7 +55,6 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { Textarea } from '../ui/textarea'
-import { TimePickerDemo } from '../TimePicker/time-picker-demo'
 
 interface entry {
   tool: string
@@ -102,51 +96,41 @@ interface infoFormType {
   setEntries: React.Dispatch<React.SetStateAction<entry[]>>
 }
 
+interface participateFormType {
+  form: UseFormReturn<z.infer<any>>
+  participates: participate[]
+  setParticipates: React.Dispatch<React.SetStateAction<participate[]>>
+}
+
 interface mbtiFormType {
   form: UseFormReturn<z.infer<any>>
   value: string
   setValue: React.Dispatch<React.SetStateAction<string>>
 }
 
-interface cycleFormType {
+interface DropdownFormProps {
   form: UseFormReturn<z.infer<any>>
-  value: string
-  setValue: React.Dispatch<React.SetStateAction<string>>
-}
-
-interface repeatFormType {
-  form: UseFormReturn<z.infer<any>>
-  value: string
-  setValue: React.Dispatch<React.SetStateAction<string>>
-}
-
-interface publicFormType {
-  form: UseFormReturn<z.infer<any>>
-  value: string
-  setValue: React.Dispatch<React.SetStateAction<string>>
-}
-
-type Participant = {
+  options: string[]
+  defaultValue: string
+  label: string
   name: string
-  email: string
 }
 
-interface participateFormType {
-  form: UseFormReturn<z.infer<any>>
-  participates: Participant[]
-  setParticipates: React.Dispatch<React.SetStateAction<Participant[]>>
-}
-
-interface scheduleTypeFormType {
+interface SelectFormProps {
   form: UseFormReturn<z.infer<any>>
   value: string
   setValue: React.Dispatch<React.SetStateAction<string>>
+  options: string[]
+  defaultValue: string
+  name: string
+  className: string
 }
 
-interface repeatDayFormType {
+interface EndDateFormProps {
   form: UseFormReturn<z.infer<any>>
-  value: string
-  setValue: React.Dispatch<React.SetStateAction<string>>
+  disabled: boolean
+  minDate: Date
+  setSelectedEndDate: React.Dispatch<React.SetStateAction<Date | undefined>>
 }
 
 export function ToolInfoForm({ form, entries, setEntries }: infoFormType) {
@@ -569,30 +553,43 @@ export function CheckBoxForm({ form, name }: checkBoxFormType) {
   )
 }
 
-export function CycleForm({ form, value, setValue }: cycleFormType) {
-  const [cycle, setCycle] = React.useState<string>('')
-  const cycleList = ['일(Day)', '주(Week)', '월(Month)', '년(Year)']
+export const SelectForm = ({
+  form,
+  value,
+  setValue,
+  options,
+  defaultValue,
+  name,
+  className,
+}: SelectFormProps) => {
+  const { openModal } = useModal()
+
+  const handleSelect = (selected: string) => {
+    setValue(selected)
+
+    if (selected === '맞춤 설정' && openModal) {
+      openModal('dimed', ModalTypes.REPEAT)
+    }
+  }
 
   return (
     <FormField
       control={form.control}
-      name="cycle"
+      name={name}
       render={({ field }) => (
         <FormItem>
           <FormControl>
-            <Select value={cycle} onValueChange={setCycle}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="주(Week)" />
+            <Select value={value} onValueChange={handleSelect}>
+              <SelectTrigger className={className}>
+                <SelectValue placeholder={defaultValue} />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  {cycleList.map((cycle) => {
-                    return (
-                      <SelectItem value={cycle} key={cycle}>
-                        {cycle}
-                      </SelectItem>
-                    )
-                  })}
+                  {options.map((option) => (
+                    <SelectItem value={option} key={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -603,136 +600,38 @@ export function CycleForm({ form, value, setValue }: cycleFormType) {
   )
 }
 
-export function RepeatForm({ form, value, setValue }: repeatFormType) {
-  const [repeat, setRepeat] = React.useState<string>('')
-  const repeatList = ['매일', '매주', '매월', '반복 안함', '맞춤 설정']
-
-  const { openModal } = useModal()
-
-  const handleSelect = (selectedRepeat: string) => {
-    setRepeat(selectedRepeat)
-    setValue(selectedRepeat)
-
-    if (selectedRepeat === '맞춤 설정') {
-      openModal('dimed', ModalTypes.REPEAT)
-    }
-  }
-
-  return (
-    <FormField
-      control={form.control}
-      name="repeat"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1">
-                <p className="text-small">{repeat || '반복 안함'}</p>
-                <ChevronDown className="h-4 w-4" />
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent className="text-center">
-                <DropdownMenuLabel>반복 여부</DropdownMenuLabel>
-                {repeatList.map((item, index) => {
-                  return (
-                    <DropdownMenuItem
-                      key={index}
-                      onClick={() => handleSelect(item)}
-                    >
-                      {item}
-                    </DropdownMenuItem>
-                  )
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  )
-}
-
-export function PublicForm({ form, value, setValue }: publicFormType) {
-  const [publicContent, setPublicContent] = React.useState<string>('')
-  const publicList = ['내용 비공개', '공개']
-
-  const handleSelect = (selectedPublic: string) => {
-    setPublicContent(selectedPublic)
-    setValue(selectedPublic)
-  }
-
-  return (
-    <FormField
-      control={form.control}
-      name="repeat"
-      render={({ field }) => (
-        <FormItem>
-          <FormControl>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1">
-                <p className="text-small">{publicContent || '내용 비공개'}</p>
-                <ChevronDown className="h-4 w-4" />
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent className="text-center">
-                <DropdownMenuLabel>반복 여부</DropdownMenuLabel>
-                {publicList.map((item, index) => {
-                  return (
-                    <DropdownMenuItem
-                      key={index}
-                      onClick={() => handleSelect(item)}
-                    >
-                      {item}
-                    </DropdownMenuItem>
-                  )
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </FormControl>
-        </FormItem>
-      )}
-    />
-  )
-}
-
-export function ScheduleTypeForm({
+export const DropdownForm = ({
   form,
-  value,
-  setValue,
-}: scheduleTypeFormType) {
-  const [type, setType] = React.useState<string>('')
-  const typeList = ['개인 일정', '팀 일정']
-
-  const handleSelect = (selectedType: string) => {
-    setType(selectedType)
-    setValue(selectedType)
-  }
-
+  options,
+  defaultValue,
+  label,
+  name,
+}: DropdownFormProps) => {
   return (
     <FormField
       control={form.control}
-      name="type"
+      name={name}
       render={({ field }) => (
         <FormItem>
           <FormControl>
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-1">
-                <CalendarIcon className="h-4 w-4" />
-                <p className="text-small">{type || '개인 일정'}</p>
+                <p className="text-small">{field.value || defaultValue}</p>
+                <ChevronDown className="h-4 w-4" />
               </DropdownMenuTrigger>
 
               <DropdownMenuContent className="text-center">
-                <DropdownMenuLabel>반복 여부</DropdownMenuLabel>
-                {typeList.map((item, index) => {
-                  return (
-                    <DropdownMenuItem
-                      key={index}
-                      onClick={() => handleSelect(item)}
-                    >
-                      {item}
-                    </DropdownMenuItem>
-                  )
-                })}
+                <DropdownMenuLabel>{label}</DropdownMenuLabel>
+                {options.map((item, index) => (
+                  <DropdownMenuItem
+                    {...field}
+                    key={index}
+                    onClick={() => field.onChange(item)}
+                    className="justify-center"
+                  >
+                    {item}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </FormControl>
@@ -742,7 +641,7 @@ export function ScheduleTypeForm({
   )
 }
 
-export function RepeatDayForm({ form, value, setValue }: repeatDayFormType) {
+export const RepeatDayForm = ({ form }: formType) => {
   const days = ['일', '월', '화', '수', '목', '금', '토']
   const [selectedDays, setSelectedDays] = React.useState<string[]>(['일'])
 
@@ -788,50 +687,145 @@ export function ParticipateForm({
   form,
   participates,
   setParticipates,
-}: participateFormType) {
-  const [searchQuery, setSearchQuery] = React.useState<string>('')
-  const [filteredParticipates, setFilteredParticipates] =
-    React.useState<Participant[]>(participates)
+}: participateFormType) => {
+  const [searchTerm, setSearchTerm] = React.useState('')
+  const [searchResults, setSearchResults] = React.useState<participate[]>([])
 
-  const filterParticipates = (
-    query: string,
-    participates: Participant[],
-  ): Participant[] => {
-    return participates.filter(
-      (participant) =>
-        participant.name.toLowerCase().includes(query.toLowerCase()) ||
-        participant.email.toLowerCase().includes(query.toLowerCase()),
-    )
+  const defaultParticipants: participate[] = [
+    {
+      imageUrl: '',
+      name: '홍길동',
+      email: 'hong@example.com',
+      attend: '참석',
+    },
+    {
+      imageUrl: '',
+      name: '김철수',
+      email: 'kim@example.com',
+      attend: '불참',
+    },
+    {
+      imageUrl: '',
+      name: '이영희',
+      email: 'lee@example.com',
+      attend: '미정',
+    },
+  ]
+
+  React.useEffect(() => {
+    if (searchTerm.startsWith('@')) {
+      const filterTerm = searchTerm.slice(1).trim().toLowerCase()
+      const results = defaultParticipants.filter(
+        (participant) =>
+          participant.name.toLowerCase().includes(filterTerm) ||
+          participant.email.toLowerCase().includes(filterTerm),
+      )
+      setSearchResults(results)
+    } else if (searchTerm.trim() !== '') {
+      const filterTerm = searchTerm.trim().toLowerCase()
+      const results = defaultParticipants.filter((participant) =>
+        participant.email.toLowerCase().includes(filterTerm),
+      )
+      setSearchResults(results)
+    } else {
+      setSearchResults([])
+    }
+  }, [searchTerm])
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
   }
 
-  const participateSchema = z.object({
-    name: z.string(),
-    image: z.string(),
-    attend: z.string(),
-  })
+  const handleAddParticipant = (participant: participate) => {
+    setParticipates((prev) => [...prev, participant])
+    setSearchTerm('')
+    setSearchResults([])
+  }
 
-  // 검색어 또는 참여자 목록이 변경될 때 필터링된 참여자 목록을 업데이트
-  React.useEffect(() => {
-    setFilteredParticipates(filterParticipates(searchQuery, participates))
-  }, [searchQuery, participates])
+  const handleRemoveParticipant = (index: number) => {
+    setParticipates(participates.filter((_, i) => i !== index))
+  }
+
+  const getAttendClass = (attend: string) => {
+    switch (attend) {
+      case '참석':
+        return 'text-blue-500'
+      case '불참':
+        return 'text-slate-500'
+      case '미정':
+        return 'text-red-500'
+      default:
+        return ''
+    }
+  }
 
   return (
     <FormField
       control={form.control}
-      name="participates"
+      name="inviteList"
       render={({ field }) => (
         <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
           <FormLabel>참가자</FormLabel>
           <FormControl>
-            <Input placeholder="@이름, 이메일로 추가" {...field} />
+            <Input
+              placeholder="@이름, 이메일로 추가"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
           </FormControl>
+
+          <div className="webkit-scrollbar-display-none max-h-[150px] w-full overflow-y-auto">
+            {searchResults.length > 0 && (
+              <ul className="z-10 w-[384px] rounded-[8px] border border-slate-100 bg-white px-1 py-1 text-small shadow">
+                {searchResults.map((participant, index) => (
+                  <li
+                    key={index}
+                    value={index.toString()}
+                    className="cursor-pointer p-2 hover:bg-gray-100"
+                    onClick={() => handleAddParticipant(participant)}
+                  >
+                    {participant.name} ({participant.email})
+                  </li>
+                ))}
+              </ul>
+            )}
+            {participates.map((participant, index) => (
+              <div
+                key={index}
+                className="flex h-[36px] items-center gap-2 self-stretch px-[6px] py-[8px] text-detail"
+              >
+                <ProfileAvatar
+                  name={participant.name}
+                  imageUrl={participant.imageUrl}
+                  size="28px"
+                />
+                <p className="flex-[1_0_0] text-small">{participant.name}</p>
+                <p
+                  className={`text-detail ${getAttendClass(participant.attend)}`}
+                >
+                  {participant.attend}
+                </p>
+                <XIcon
+                  className="h-4 w-4 cursor-pointer"
+                  onClick={() => {
+                    handleRemoveParticipant(index)
+                  }}
+                />
+              </div>
+            ))}
+          </div>
         </FormItem>
       )}
     />
   )
 }
 
-export function EndDateForm({ form, name, label, ...rest }: defaultFormType) {
+export const EndDateForm = ({
+  form,
+  disabled,
+  minDate,
+  setSelectedEndDate,
+}: EndDateFormProps) => {
   const formatDate = (date: Date) => {
     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
     return `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
@@ -840,29 +834,32 @@ export function EndDateForm({ form, name, label, ...rest }: defaultFormType) {
   return (
     <FormField
       control={form.control}
-      name={name}
+      name="endDate"
       render={({ field }) => (
-        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-          <FormLabel className="text-p">{label}</FormLabel>
-          <FormControl className="flex items-start gap-[8px] self-stretch">
+        <FormItem className="flex-[1_0_0]">
+          <FormControl>
             <Popover>
               <PopoverTrigger asChild>
                 <Input
-                  {...rest}
                   {...field}
                   value={
                     field.value ? formatDate(new Date(field.value)) : '없음'
                   }
                   readOnly
+                  className="text-left"
+                  disabled={disabled}
                 />
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   initialFocus
                   mode="single"
-                  disabled={(date) => date <= new Date()}
+                  disabled={(date) => date < minDate}
                   selected={field.value ? new Date(field.value) : undefined}
-                  onSelect={field.onChange}
+                  onSelect={(date) => {
+                    field.onChange(date)
+                    setSelectedEndDate(date)
+                  }}
                 />
               </PopoverContent>
             </Popover>
@@ -877,22 +874,53 @@ export function DateTimePickerForm({
   form,
   name,
   label,
+  allDay,
+  setAllDay,
+  setSelectedDate,
+  maxDate,
   ...rest
 }: defaultFormType) {
   const [date, setDate] = React.useState<Date | undefined>(undefined)
   const [startDate, setStartDate] = React.useState<Date | undefined>(undefined)
   const [endDate, setEndDate] = React.useState<Date | undefined>(undefined)
 
+  const getDefaultStartDate = () => {
+    const now = new Date()
+    const defaultStartDate = new Date(now)
+    defaultStartDate.setMinutes(Math.floor(now.getMinutes() / 60) * 60)
+    defaultStartDate.setSeconds(0, 0)
+    return defaultStartDate
+  }
+
+  const getDefaultEndDate = (start: Date) => {
+    const end = new Date(start)
+    end.setHours(end.getHours() + 1)
+    return end
+  }
+
   const formatDate = (
     date: Date,
     start: Date | undefined,
     end: Date | undefined,
+    allDay: boolean,
   ) => {
-    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
-    const datePart = `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
+    const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()]
+    const datePart = `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getDate().toString().padStart(2, '0')} (${dayOfWeek})`
 
-    const formattedStartTime = start ? format(start, 'a h:mm') : ''
-    const formattedEndTime = end ? format(end, 'a h:mm') : ''
+    if (allDay) {
+      return datePart
+    }
+
+    const formatTime = (date: Date) => {
+      const hours = date.getHours()
+      const minutes = date.getMinutes().toString().padStart(2, '0')
+      const period = hours >= 12 ? '오후' : '오전'
+      const adjustedHours = hours % 12 === 0 ? 12 : hours % 12
+      return `${period} ${adjustedHours}:${minutes}`
+    }
+
+    const formattedStartTime = start ? formatTime(start) : ''
+    const formattedEndTime = end ? formatTime(end) : ''
 
     return formattedStartTime && formattedEndTime
       ? `${datePart} ${formattedStartTime} ~ ${formattedEndTime}`
@@ -905,48 +933,76 @@ export function DateTimePickerForm({
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
-        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-          <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Input
-                  placeholder="일정 시간"
-                  className="text-left"
-                  {...rest}
-                  {...field}
-                  value={
-                    field.value
-                      ? formatDate(new Date(field.value), startDate, endDate)
-                      : '일정 시간'
-                  }
-                  readOnly
-                />
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={field.value ? new Date(field.value) : undefined}
-                  onSelect={(selectedDate) => {
-                    setDate(selectedDate)
-                    field.onChange(selectedDate)
-                  }}
-                  initialFocus
-                />
-                <div className="border-t border-border p-3">
-                  <TimePickerDemo
-                    startDate={startDate}
-                    setStartDate={setStartDate}
-                    endDate={endDate}
-                    setEndDate={setEndDate}
+      render={({ field }) => {
+        React.useEffect(() => {
+          if (!field.value) {
+            const defaultStart = getDefaultStartDate()
+            const defaultEnd = getDefaultEndDate(defaultStart)
+            setStartDate(defaultStart)
+            setEndDate(defaultEnd)
+          }
+        }, [field.value])
+
+        return (
+          <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+            <FormLabel>{label}</FormLabel>
+            <FormControl>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Input
+                    placeholder="일정 시간"
+                    className="text-left"
+                    {...rest}
+                    {...field}
+                    value={
+                      field.value
+                        ? formatDate(
+                            new Date(field.value),
+                            startDate,
+                            endDate,
+                            allDay,
+                          )
+                        : formatDate(
+                            getDefaultStartDate(),
+                            startDate,
+                            endDate,
+                            allDay,
+                          )
+                    }
+                    readOnly
                   />
-                </div>
-              </PopoverContent>
-            </Popover>
-          </FormControl>
-        </FormItem>
-      )}
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={(selectedDate) => {
+                      setDate(selectedDate)
+                      const start = selectedDate || getDefaultStartDate()
+                      setStartDate(start)
+                      setEndDate(getDefaultEndDate(start))
+                      field.onChange(start)
+                      setSelectedDate(start)
+                    }}
+                    disabled={(date) => date > maxDate}
+                    initialFocus
+                  />
+
+                  <div className="border-t border-border p-3">
+                    <TimePickerDemo
+                      startDate={startDate}
+                      setStartDate={setStartDate}
+                      endDate={endDate}
+                      setEndDate={setEndDate}
+                      allDay={allDay}
+                    />
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </FormControl>
+          </FormItem>
+        )
+      }}
     />
   )
 }

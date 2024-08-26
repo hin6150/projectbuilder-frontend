@@ -1,4 +1,3 @@
-import { Contact } from 'lucide-react'
 import { z } from 'zod'
 
 // 개별 필드 정의
@@ -52,25 +51,18 @@ const period = z.object({
   to: z.date(),
 })
 
+const type = z.string()
+
 const description = z.string()
 
-const scheduletypeField = z.string()
+const startDate = z.date()
+const endDate = z.date().optional()
 
-const alldayField = z.boolean().optional()
+const visible = z.string().optional()
 
-const repeatField = z.string()
+const projectId = z.string().optional()
 
-const publicField = z.string()
-
-const participate = z.string()
-
-const cycleField = z.string()
-
-const repeatDay = z.string()
-
-const endDate = z.date()
-
-const teamName = z.string()
+const inviteList = z.array(z.string()).optional()
 
 export const formSchemaUserEdit = z.object({
   name: nameField,
@@ -109,43 +101,33 @@ export const formEmailProject = z.object({
   email: emailField,
 })
 
-export const formSchemaPersonalSchedule = z.object({
-  type: scheduletypeField,
-  title,
-  period,
-  description,
-  allday: alldayField,
-  repeat: repeatField,
-  publicContent: publicField,
+export const fromSchemaSchedule = z.object({
+  type: type,
+  title: title,
+  content: description,
+  startDate: startDate,
+  endDate: endDate,
+  visible: visible,
+  projectId: projectId,
+  inviteList: inviteList,
 })
 
-export const formSchemaTeamSchedule = z.object({
-  type: scheduletypeField,
-  title,
-  period,
-  description,
-  allday: alldayField,
-  repeat: repeatField,
-  participate,
-})
-
-export const formSchemaRepeatSchedule = z.object({
-  repeat: repeatField,
-  cycle: cycleField,
-  day: repeatDay,
-  end: endDate,
-})
+// export const formSchemaRepeatSchedule = z.object({
+//   period: period,
+//   repeat: repeatField,
+//   cycle: cycleField,
+//   day: repeatDay,
+//   endDate: endDate,
+// })
 
 export const formSchemaCheckSchedule = z.object({
-  type: scheduletypeField,
-  title,
-  period,
-  description,
-  publicContent: publicField,
-  allday: alldayField,
-  repeat: repeatField,
-  participate,
-  team: teamName,
+  title: title,
+  description: description,
+  startDate: startDate,
+  endDate: endDate,
+  visible: visible,
+  projectId: projectId,
+  inviteList: inviteList,
 })
 
 export const formatPhoneNumber = (value: string) => {

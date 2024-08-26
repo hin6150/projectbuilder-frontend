@@ -9,20 +9,19 @@ import {
   useInviteTeamInfo,
   useTeamInfoQuery,
 } from '@/api'
+import { ProjectUserRole } from '@/api/services/project/model'
 import { useModal } from '@/hooks/useModal'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { boolean, date, z } from 'zod'
-import { MailIcon, XIcon } from 'lucide-react'
-import { ProjectUserRole } from '@/api/services/project/model'
-import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { deleteProjectInfo } from '@/api/services/project/quries'
+import { MailIcon, XIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
 import {
   DatePickerInfoForm,
   DefaultInputForm,
@@ -128,7 +127,7 @@ export function ProjectCreateModal() {
   )
 }
 
-export function ProjectEditeModal({ project }: { project: ProjectInfo }) {
+export function ProjectEditModal({ project }: { project: ProjectInfo }) {
   const { closeModal } = useModal()
 
   const queryClient = useQueryClient()

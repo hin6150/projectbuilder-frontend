@@ -5,7 +5,7 @@ import Card from '@/components/Card/Card'
 import {
   ProjectCreateModal,
   ProjectDeleteModal,
-  ProjectEditeModal,
+  ProjectEditModal,
   ProjectInviteModal,
 } from '@/components/Modal/ProjectModal'
 import { Button } from '@/components/ui/button'
@@ -39,7 +39,7 @@ function Home() {
         return <ProjectCreateModal />
       case ModalTypes.EDIT:
         if (selectedProject != null) {
-          return <ProjectEditeModal project={selectedProject} />
+          return <ProjectEditModal project={selectedProject} />
         }
       case ModalTypes.DELETE:
         if (selectedProject != null) {
