@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react'
 import { useOneProjectInfoQuery } from '@/api/services/project/quries'
 import { da } from 'date-fns/locale'
 
-function Page() {
+const Page = () => {
   const path = usePathname()
   // const { data, isLoading } = useProjectInfoQuery()
   const id = path.split('/').pop()

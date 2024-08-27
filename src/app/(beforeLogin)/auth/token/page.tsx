@@ -14,9 +14,9 @@ interface AuthCallbackQueryParams {
   }
 }
 
-function AuthCallbackPage({
+const AuthCallbackPage = ({
   searchParams: { accessToken, refreshToken },
-}: AuthCallbackQueryParams) {
+}: AuthCallbackQueryParams) => {
   const router = useRouter()
   const queryClient = useQueryClient()
 

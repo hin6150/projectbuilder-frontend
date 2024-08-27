@@ -7,7 +7,7 @@ import { format } from 'date-fns'
 import { Check } from 'lucide-react'
 import { useAddBoard, useBoardListQuery } from '@/api/services/board/quries'
 import { useOneProjectInfoQuery } from '@/api/services/project/quries'
-import { BoardDto, BoardProps } from '@/api/services/board/modal'
+import { BoardDto, BoardProps } from '@/api/services/board/model'
 
 interface TeamCheckboxProps {
   id: string
@@ -803,7 +803,7 @@ const TeamBoard: React.FC<{ id: string }> = ({ id }) => {
   )
 }
 
-function ProjectContainer({ data, id }: { data: ProjectInfo; id: string }) {
+const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
   if (!data) {
     return <div>Loading...</div>
   }

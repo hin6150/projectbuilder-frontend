@@ -15,17 +15,16 @@ export const getInitials = (name: string) => {
       return name.slice(-2)
     }
     return name
-  } else {
-    const initials = name
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase())
-      .join('')
-
-    return initials
   }
+  const initials = name
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase())
+    .join('')
+
+  return initials
 }
 
-export function ProfileAvatar({ imageUrl, name, size }: AvatarProps) {
+export const ProfileAvatar = ({ imageUrl, name, size }: AvatarProps) => {
   const border = imageUrl ? 'border-white' : 'border-gray-200'
   return (
     <Avatar width={size} height={size} className={`border-2 ${border}`}>

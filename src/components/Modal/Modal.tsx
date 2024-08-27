@@ -1,7 +1,7 @@
 import { useModal } from '@/hooks/useModal'
 import { createPortal } from 'react-dom'
 
-function ModalMain({ children }: { children: React.ReactNode }) {
+const ModalMain = ({ children }: { children: React.ReactNode }) => {
   const { modals, closeModal, closing } = useModal()
 
   if (!modals.dimed.open) {
@@ -33,7 +33,7 @@ function ModalMain({ children }: { children: React.ReactNode }) {
   )
 }
 
-function ScheduleModalMain({ children }: { children: React.ReactNode }) {
+const ScheduleModalMain = ({ children }: { children: React.ReactNode }) => {
   const { modals, closing } = useModal()
 
   if (!modals.default.open) {

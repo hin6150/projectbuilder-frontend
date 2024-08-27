@@ -31,7 +31,7 @@ import { Button } from '../ui/button'
 import { Form } from '../ui/form'
 import { Modal } from './Modal'
 
-export function ProjectCreateModal() {
+export const ProjectCreateModal = () => {
   const { closeModal } = useModal()
   const queryClient = useQueryClient()
 
@@ -129,7 +129,7 @@ export function ProjectCreateModal() {
   )
 }
 
-export function ProjectEditModal({ project }: { project: ProjectInfo }) {
+export const ProjectEditModal = ({ project }: { project: ProjectInfo }) => {
   const { closeModal } = useModal()
 
   const queryClient = useQueryClient()
@@ -230,7 +230,7 @@ export function ProjectEditModal({ project }: { project: ProjectInfo }) {
   )
 }
 
-export function ProjectDeleteModal({ uid }: { uid: string }) {
+export const ProjectDeleteModal = ({ uid }: { uid: string }) => {
   const { closeModal } = useModal()
   const queryClient = useQueryClient()
 
@@ -282,7 +282,7 @@ export function ProjectDeleteModal({ uid }: { uid: string }) {
   )
 }
 
-export function ProjectInviteModal({ uid }: { uid: string }) {
+export const ProjectInviteModal = ({ uid }: { uid: string }) => {
   const { data } = useTeamInfoQuery({}, uid)
   const [inviteEmailList, setInviteEmailList] = useState<TeamInfo[]>([])
   const queryClient = useQueryClient()

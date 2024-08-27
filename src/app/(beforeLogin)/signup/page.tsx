@@ -17,7 +17,7 @@ import { formSchemaSignUp } from '@/hooks/useVaild'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
-function JoinForm() {
+const JoinForm = () => {
   const router = useRouter()
   const { data } = useUserInfoQuery()
 

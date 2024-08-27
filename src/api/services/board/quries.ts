@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query'
 import { CustomQueryOptions } from '@/api/type'
 import { BoardService } from './service'
-import { BoardDto, BoardResponse, InputBoard } from './modal'
+import { BoardDto, BoardResponse, InputBoard } from './model'
 
 export const { BoardListInfo, BoardInfo, AddBoard } = {
   BoardListInfo: (client: QueryClient, uid: string) => ({
@@ -15,8 +15,8 @@ export const { BoardListInfo, BoardInfo, AddBoard } = {
     queryFn: () => BoardService.boardListInfo(client, uid),
   }),
   BoardInfo: (client: QueryClient, uid: string) => ({
-    queryKey: ['board'],
-    qeuryFn: () => BoardService.boardInfo(client, uid),
+    queryKey: ['board', uid],
+    queryFn: () => BoardService.boardInfo(client, uid),
   }),
   AddBoard: (client: QueryClient, uid: string) => ({
     mutationFn: (dto: InputBoard) => BoardService.addBoard(client, uid, dto),

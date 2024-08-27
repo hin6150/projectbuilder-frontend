@@ -14,7 +14,7 @@ import { ModalTypes } from '@/hooks/useModal/useModal'
 import { PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 
-function Home() {
+const Home = () => {
   const { data, isLoading } = useProjectInfoQuery()
 
   const { openModal, modals } = useModal()

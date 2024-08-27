@@ -4,7 +4,7 @@ import { Icon } from '@/components/Icon'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 
-function Login() {
+const Login = () => {
   const router = useRouter()
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-[3rem]">

@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 import { APIBuilder } from '@/api/lib/fetcher'
-import { BoardDto, BoardResponse, InputBoard } from './modal'
+import { BoardDto, BoardResponse, InputBoard } from './model'
 
 export const BoardService = {
   async boardListInfo(client: QueryClient, uid: string) {
@@ -31,7 +31,7 @@ export const BoardService = {
       .call<BoardResponse<null>>({ body: JSON.stringify(dto) })
   },
 
-  async deleteBoard(client: QueryClient, uid: string, dto: InputBoard) {
+  async deleteBoard(client: QueryClient, uid: string) {
     return APIBuilder.delete(`/project/board/${uid}`)
       .withCredentials(client)
       .build()
