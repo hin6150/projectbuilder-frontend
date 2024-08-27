@@ -1,6 +1,6 @@
 'use client'
 import * as React from 'react'
-import { Calendar } from '@/components/ui/calendar'
+import { MiniCalendar } from '@/components/ui/calendar'
 import { useCalendar } from '@/hooks/useCalendar'
 import { usePathname } from 'next/navigation'
 import { useProjectInfoQuery } from '@/api'
@@ -30,6 +30,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     [key: string]: boolean
   }>({})
   const [myCalendar, setMyCalendar] = React.useState<boolean>(true)
+  const [date, setDate] = React.useState<Date | undefined>(new Date())
 
   React.useEffect(() => {
     if (data) {
@@ -62,8 +63,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return handlers[view] || handlers.list
   }, [view, handlePrev, handleNext])
 
+  const handleMonthChange = (newDate: Date) => {
+    setDate(newDate) // 새로운 날짜를 children에 반영
+  }
+
   const handleColorChange = (uid: string, newColor: string) => {
-    // Update your state or API with the new color here
+    //프로젝트 color API 연동
   }
 
   const handleFilterChange = (
@@ -80,7 +85,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     >
       <div className="m-auto flex w-[1180px]">
         <div className="flex flex-col gap-6">
-          <Calendar className="h-78 rounded-[8px] border border-gray-300 text-large" />
+          <MiniCalendar
+            date={state.date}
+            onMonthChange={onNext}
+            onPrev={onPrev}
+            onNext={onNext}
+            onToday={handleToday}
+            selected={date}
+            onSelect={setDate}
+            className="rounded-[8px] border text-large"
+          />
           <div className="flex flex-col gap-3 p-[10px]">
             <p className="text-body">내 캘린더</p>
             {data?.result.map((project) => (
