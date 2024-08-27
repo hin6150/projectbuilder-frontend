@@ -22,7 +22,7 @@ export const scheduleOptions = {
     endDate: string,
   ) => ({
     queryKey: ['schedules', startDate, endDate],
-    queryFn: () => scheduleService.getScheduleList(client, startDate, endDate),
+    queryFn: () => scheduleService.getScheduleList(client),
   }),
   getScheduleDetail: (client: QueryClient, id: string) => ({
     queryKey: ['schedule', id],
@@ -34,12 +34,8 @@ export const scheduleOptions = {
   useEditSchedule: (client: QueryClient, id: string, dto: EditScheduleDTO) => ({
     mutationFn: () => scheduleService.editSchedule(client, id, dto),
   }),
-  useDeleteSchedule: (
-    client: QueryClient,
-    id: string,
-    deleteType: DeleteScheduleType,
-  ) => ({
-    mutationFn: () => scheduleService.deleteSchedule(client, id, deleteType),
+  useDeleteSchedule: (client: QueryClient, id: string) => ({
+    mutationFn: () => scheduleService.deleteSchedule(client, id),
   }),
 }
 
@@ -101,7 +97,7 @@ export const useDeleteScheduleMutation = (
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...scheduleOptions.useDeleteSchedule(queryClient, id, deleteType),
+    ...scheduleOptions.useDeleteSchedule(queryClient, id),
     ...options,
   })
 }

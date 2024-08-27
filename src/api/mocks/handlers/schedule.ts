@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw'
 import { ScheduleVisibility } from '@/api/services/schedule/model'
 
 export const scheduleHandlers = [
-  http.get(`${process.env.NEXT_PUBLIC_API_URL}/schedule`, () => {
+  http.get(`${process.env.NEXT_PUBLIC_API_URL}/schedule/list`, () => {
     return HttpResponse.json({
       code: 200,
       result: [

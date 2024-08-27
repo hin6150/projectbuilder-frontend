@@ -11,13 +11,9 @@ import {
 } from './model'
 
 export const scheduleService = {
-  async getScheduleList(
-    client: QueryClient,
-    startDate: string,
-    endDate: string,
-  ) {
+  async getScheduleList(client: QueryClient) {
     return (
-      APIBuilder.get(`/schedule`)
+      APIBuilder.get(`/schedule/list`)
         // .withCredentials(client)
         .build()
         .call<ScheduleListResponse>()
@@ -44,20 +40,16 @@ export const scheduleService = {
 
   async editSchedule(client: QueryClient, id: string, dto: EditScheduleDTO) {
     return (
-      APIBuilder.patch('/schedule/${id}')
+      APIBuilder.patch(`/schedule/${id}`)
         // .withCredentials(client)
         .build()
         .call<DefaultResponse>({ body: JSON.stringify(dto) })
     )
   },
 
-  async deleteSchedule(
-    client: QueryClient,
-    id: string,
-    deleteType: DeleteScheduleType,
-  ) {
+  async deleteSchedule(client: QueryClient, id: string) {
     return (
-      APIBuilder.delete(`/schedule/${id}?type=${deleteType}`)
+      APIBuilder.delete(`/schedule/${id}`)
         // .withCredentials(client)
         .build()
         .call<DeleteScheduleResponse>()
