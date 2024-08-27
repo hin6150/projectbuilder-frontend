@@ -22,6 +22,7 @@ export const Monthly: React.FC<MonthlyProps> = ({
   const { modals, openModal } = useModal()
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
   const weeks = generateCalendar(date)
+  const today = new Date()
 
   const [selectedSchedule, setSelectedSchedule] =
     React.useState<ScheduleInfo | null>(null)
@@ -94,6 +95,10 @@ export const Monthly: React.FC<MonthlyProps> = ({
           <div className={weekClass} key={weekIndex}>
             {week.map(({ day, isThisMonth, date }, dayIndex) => {
               const schedules = getSchedulesForDay(date, isThisMonth)
+              const isToday =
+                today.getDate() === day &&
+                today.getMonth() === date.getMonth() &&
+                today.getFullYear() === date.getFullYear()
               return (
                 <div
                   className={`${dayClass} ${isThisMonth ? '' : 'text-gray-300'}`}
@@ -102,7 +107,13 @@ export const Monthly: React.FC<MonthlyProps> = ({
                   <div className="flex h-6 w-full flex-col">
                     {day !== null && (
                       <>
-                        <p className="p-2">{day}</p>
+                        <div>
+                          <p
+                            className={`p-2 ${isToday ? 'flex h-11 w-11 items-center justify-center rounded-full bg-black text-white' : ''}`}
+                          >
+                            {day}
+                          </p>
+                        </div>
                         <div className="flex flex-col gap-[2px]">
                           {schedules.map((schedule, index) => (
                             <div
@@ -113,7 +124,7 @@ export const Monthly: React.FC<MonthlyProps> = ({
                               className={`flex h-[25px] cursor-pointer items-center gap-1 overflow-hidden rounded-[5px] pl-1 ${getProjectColor(schedule.projectId ?? '')}`}
                             >
                               <div
-                                className={`h-1 w-1 shrink-0 rounded-full ${getDotColor(getProjectColor(schedule.projectId ?? ''))}`}
+                                className={`h-1 w-1 shrink-0 rounded-full ${getDotColor(getProjectColor(schedule.projectId ?? 'bg-red-300'))}`}
                               />
                               <p className="display-webkit-box box-orient-vertical line-clamp-2 w-[75px] text-detail">
                                 {formatTime(schedule.startDate)}
