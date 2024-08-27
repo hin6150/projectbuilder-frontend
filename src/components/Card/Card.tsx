@@ -7,6 +7,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 import {
   MoreVertical,
   PencilIcon,
@@ -19,26 +21,29 @@ import { ProfileAvatar } from '../Avatar/Avatar'
 const MAX_VISIBLE_MEMBERS = 5
 
 // Card.tsx
-const Card = ({
+function Card({
   data,
   setSelectedProject,
 }: {
   data: ProjectInfo
   setSelectedProject: any
-}) => {
-  const visibleMembers = data.user.slice(0, MAX_VISIBLE_MEMBERS)
-  const remainingMemberCount = data.user.length - MAX_VISIBLE_MEMBERS
+}) {
+  const visibleMembers = data.users?.slice(0, MAX_VISIBLE_MEMBERS)
+  const remainingMemberCount = data.users?.length - MAX_VISIBLE_MEMBERS
 
   const { openModal } = useModal()
 
   return (
-    <Link href={`/project/${data.uid}`}>
+    <Link href={`/project/${data.id}`}>
       <div className="flex w-[380px] flex-col gap-14 rounded-xl border-2 border-slate-200 p-6 shadow-base">
         <div className="flex flex-col gap-4">
           <p className="text-h3">{data.title}</p>
-          <p className="text-body">{data.subTitle}</p>
+          <p className="text-body">
+            {data.overview ? `${data.overview}` : '\u00A0'}
+          </p>
           <p className="text-inline-code text-gray-400">
-            {data.startDate} ~ {data.endDate}
+            {format(data.startDate, 'yy.MM.dd (EEE)', { locale: ko })} ~
+            {format(data.endDate, 'yy.MM.dd (EEE)', { locale: ko })}
           </p>
         </div>
 
@@ -98,6 +103,7 @@ const Card = ({
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
+                  setSelectedProject(data)
                   openModal('dimed', ModalTypes.DELETE)
                 }}
               >

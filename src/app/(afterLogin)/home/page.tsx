@@ -5,7 +5,7 @@ import Card from '@/components/Card/Card'
 import {
   ProjectCreateModal,
   ProjectDeleteModal,
-  ProjectEditeModal,
+  ProjectEditModal,
   ProjectInviteModal,
 } from '@/components/Modal/ProjectModal'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,7 @@ import { ModalTypes } from '@/hooks/useModal/useModal'
 import { PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 
-const Workspace = () => {
+const Home = () => {
   const { data, isLoading } = useProjectInfoQuery()
 
   const { openModal, modals } = useModal()
@@ -39,15 +39,15 @@ const Workspace = () => {
         return <ProjectCreateModal />
       case ModalTypes.EDIT:
         if (selectedProject != null) {
-          return <ProjectEditeModal project={selectedProject} />
+          return <ProjectEditModal project={selectedProject} />
         }
       case ModalTypes.DELETE:
         if (selectedProject != null) {
-          return <ProjectDeleteModal uid={selectedProject.uid} />
+          return <ProjectDeleteModal uid={selectedProject.id} />
         }
       case ModalTypes.INVITE:
         if (selectedProject != null) {
-          return <ProjectInviteModal uid={selectedProject.uid} />
+          return <ProjectInviteModal uid={selectedProject.id} />
         }
 
       default:
@@ -69,7 +69,7 @@ const Workspace = () => {
       <div className="flex flex-wrap gap-5">
         {data?.result.map((projectData) => (
           <Card
-            key={projectData.uid}
+            key={projectData.id}
             data={projectData}
             setSelectedProject={setSelectedProject}
           />
@@ -80,4 +80,4 @@ const Workspace = () => {
     </main>
   )
 }
-export default Workspace
+export default Home

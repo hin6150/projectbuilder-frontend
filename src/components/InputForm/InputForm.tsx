@@ -1,6 +1,6 @@
 'use client'
 
-import { mbtiOptions } from '@/api/services/user/model'
+import { mbtiOptions, toolList } from '@/api/services/user/model'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -36,7 +36,6 @@ import { Check, ChevronDown, ChevronsUpDown, XIcon } from 'lucide-react'
 import * as React from 'react'
 import { z } from 'zod'
 
-import { toolList } from '@/api/services/user/model'
 import { getInitials, ProfileAvatar } from '@/components/Avatar/Avatar'
 import { Icon } from '@/components/Icon'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -45,6 +44,7 @@ import { ModalTypes } from '@/hooks/useModal/useModal'
 import { formatPhoneNumber } from '@/hooks/useVaild'
 import { format, getDay } from 'date-fns'
 import { UseFormReturn } from 'react-hook-form'
+import { TimePickerDemo } from '../TimePicker/time-picker-demo'
 import { Calendar } from '../ui/calendar'
 import { Checkbox } from '../ui/checkbox'
 import {
@@ -55,7 +55,6 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { Textarea } from '../ui/textarea'
-import { TimePickerDemo } from '../TimePicker/time-picker-demo'
 
 interface entry {
   tool: string
@@ -134,7 +133,7 @@ interface EndDateFormProps {
   setSelectedEndDate: React.Dispatch<React.SetStateAction<Date | undefined>>
 }
 
-export const ToolInfoForm = ({ form, entries, setEntries }: infoFormType) => {
+export function ToolInfoForm({ form, entries, setEntries }: infoFormType) {
   const [addTool, setAddTool] = React.useState<string>('')
   const [toolEmail, setToolEmail] = React.useState<string>('')
 
@@ -231,7 +230,7 @@ export const ToolInfoForm = ({ form, entries, setEntries }: infoFormType) => {
   )
 }
 
-export const MBITInfoForm = ({ form, value, setValue }: mbtiFormType) => {
+export function MBITInfoForm({ form, value, setValue }: mbtiFormType) {
   const [mbtiOpen, setMbtiOpen] = React.useState<boolean>(false)
 
   return (
@@ -293,50 +292,56 @@ export const MBITInfoForm = ({ form, value, setValue }: mbtiFormType) => {
   )
 }
 
-export const AddressInfoForm = ({ form }: formType) => (
-  <FormField
-    control={form.control}
-    name="address"
-    render={({ field }) => (
-      <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-        <FormLabel className="text-p">거주지역</FormLabel>
-        <FormControl>
-          <Input
-            placeholder="거주지역"
-            value={field.value}
-            onChange={(e) => field.onChange(e.target.value)}
-          />
-        </FormControl>
-      </FormItem>
-    )}
-  />
-)
+export function AddressInfoForm({ form }: formType) {
+  return (
+    <FormField
+      control={form.control}
+      name="address"
+      render={({ field }) => (
+        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+          <FormLabel className="text-p">거주지역</FormLabel>
+          <FormControl>
+            <Input
+              placeholder="거주지역"
+              value={field.value}
+              onChange={(e) => field.onChange(e.target.value)}
+            />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
 
-export const PhoneInfoForm = ({ form }: formType) => (
-  <FormField
-    control={form.control}
-    name="phonenumber"
-    render={({ field }) => (
-      <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-        <FormLabel className="text-p">전화번호</FormLabel>
-        <FormControl>
-          <Input
-            placeholder="전화번호"
-            value={formatPhoneNumber(field.value)}
-            onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    )}
-  />
-)
+export function PhoneInfoForm({ form }: formType) {
+  return (
+    <FormField
+      control={form.control}
+      name="contact"
+      render={({ field }) => (
+        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+          <FormLabel className="text-p">전화번호</FormLabel>
+          <FormControl>
+            <Input
+              placeholder="전화번호"
+              value={formatPhoneNumber(field.value)}
+              onChange={(e) =>
+                field.onChange(formatPhoneNumber(e.target.value))
+              }
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  )
+}
 
-export const AvatarInfoForm = ({
+export function AvatarInfoForm({
   form,
   imageUrl,
   setImageUrl,
-}: avatarFormType) => {
+}: avatarFormType) {
   const [icon, setIcon] = React.useState<'camera' | 'cancel'>(() =>
     imageUrl ? 'cancel' : 'camera',
   )
@@ -408,32 +413,34 @@ export const AvatarInfoForm = ({
   )
 }
 
-export const DefaultInputForm = ({
+export function DefaultInputForm({
   form,
   name,
   label,
   ...rest
-}: defaultFormType) => (
-  <FormField
-    control={form.control}
-    name={name}
-    render={({ field }) => (
-      <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-        <FormLabel className="text-p">{label}</FormLabel>
-        <FormControl className="flex items-start gap-[8px] self-stretch">
-          <Input placeholder={label} {...rest} {...field} />
-        </FormControl>
-      </FormItem>
-    )}
-  />
-)
+}: defaultFormType) {
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+          <FormLabel className="text-p">{label}</FormLabel>
+          <FormControl className="flex items-start gap-[8px] self-stretch">
+            <Input placeholder={label} {...rest} {...field} />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
 
-export const DatePickerInfoForm = ({
+export function DatePickerInfoForm({
   form,
   name,
   label,
   ...rest
-}: defaultFormType) => {
+}: defaultFormType) {
   const formatDate = (date: Date) => {
     const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][getDay(date)]
     return `${format(date, 'yyyy.MM.dd')} (${dayOfWeek})`
@@ -480,72 +487,71 @@ export const DatePickerInfoForm = ({
   )
 }
 
-export const TextAreaForm = ({
-  form,
-  name,
-  label,
-  ...rest
-}: defaultFormType) => (
-  <FormField
-    control={form.control}
-    name={name}
-    render={({ field }) => (
-      <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
-        <FormLabel className="text-p">{label}</FormLabel>
-        <FormControl className="flex items-start gap-[8px] self-stretch">
-          <div className="grid w-full gap-2">
-            <Textarea
-              placeholder={label}
-              {...rest}
-              {...field}
-              className="resize-none border border-gray-300 placeholder:text-gray-400"
-            />
-            <p className="text-right text-subtle">
-              <span className="text-black">
-                {field.value ? field.value.length : 0}
-              </span>
-              <span className="text-gray-400"> / 100</span>
-            </p>
-          </div>
-        </FormControl>
-      </FormItem>
-    )}
-  />
-)
+export function TextAreaForm({ form, name, label, ...rest }: defaultFormType) {
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex flex-col items-start gap-[6px] self-stretch">
+          <FormLabel className="text-p">{label}</FormLabel>
+          <FormControl className="flex items-start gap-[8px] self-stretch">
+            <div className="grid w-full gap-2">
+              <Textarea
+                placeholder={label}
+                {...rest}
+                {...field}
+                className="resize-none border border-gray-300 placeholder:text-gray-400"
+              />
+              <p className="text-right text-subtle">
+                <span className="text-black">
+                  {field.value ? field.value.length : 0}
+                </span>
+                <span className="text-gray-400"> / 100</span>
+              </p>
+            </div>
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
 
-export const CheckBoxForm = ({ form, name }: checkBoxFormType) => (
-  <FormField
-    control={form.control}
-    name={name}
-    render={({ field }) => (
-      <FormItem>
-        <FormLabel />
-        <FormControl>
-          <div className="flex items-start gap-[8px]">
-            <Checkbox
-              id={name}
-              checked={field.value}
-              onCheckedChange={field.onChange}
-            />
-            <label htmlFor={name} className="text-small text-gray-500">
-              {name === 'marketing' ? (
-                '마케팅 메일 수신 동의 (선택)'
-              ) : (
-                <>
-                  <span className="text-blue-500 underline">
-                    {name === 'use' ? '이용약관' : '개인정보'}
-                  </span>
-                  {name === 'use' ? ' 동의 (필수)' : ' 이용 동의 (필수)'}
-                </>
-              )}
-            </label>
-          </div>
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    )}
-  />
-)
+export function CheckBoxForm({ form, name }: checkBoxFormType) {
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel />
+          <FormControl>
+            <div className="flex items-start gap-[8px]">
+              <Checkbox
+                id={name}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+              <label htmlFor={name} className="text-small text-gray-500">
+                {name === 'marketing' ? (
+                  '마케팅 메일 수신 동의 (선택)'
+                ) : (
+                  <>
+                    <span className="text-blue-500 underline">
+                      {name === 'use' ? '이용약관' : '개인정보'}
+                    </span>
+                    {name === 'use' ? ' 동의 (필수)' : ' 이용 동의 (필수)'}
+                  </>
+                )}
+              </label>
+            </div>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  )
+}
 
 export const SelectForm = ({
   form,
@@ -643,9 +649,8 @@ export const RepeatDayForm = ({ form }: formType) => {
     setSelectedDays((prevSelectedDays) => {
       if (prevSelectedDays.includes(day)) {
         return prevSelectedDays.filter((selectedDay) => selectedDay !== day)
-      } else {
-        return [...prevSelectedDays, day]
       }
+      return [...prevSelectedDays, day]
     })
   }
   return (
@@ -811,7 +816,7 @@ export const ParticipateForm = ({
           </div>
         </FormItem>
       )}
-    ></FormField>
+    />
   )
 }
 
