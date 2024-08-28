@@ -1,4 +1,5 @@
 'use client'
+
 import { useUserOptionalMutation } from '@/api'
 import {
   DefaultInputForm,
@@ -33,32 +34,20 @@ const page: React.FC = () => {
 
   const useOptionalMutation = useUserOptionalMutation(
     {
-      tool: Object.fromEntries(
+      tools: Object.fromEntries(
         entries.map((entry) => [entry.tool, entry.email]),
       ),
-      address: form.watch('address'),
-      stack: form
+      location: form.watch('address'),
+      stacks: form
         .watch('stack')
         .split(',')
         .map((stack) => stack.trim())
         .filter((stack) => stack !== ''),
-      MBTI: value,
+      mbti: value === '' ? null : value,
     },
     {
       onSuccess: () => {
-        console.log('Success:', {
-          tool: Object.fromEntries(
-            entries.map((entry) => [entry.tool, entry.email]),
-          ),
-          address: form.watch('address'),
-          stack: form
-            .watch('stack')
-            .split(',')
-            .map((stack) => stack.trim())
-            .filter((stack) => stack !== ''),
-          MBTI: value,
-        })
-        router.push('/workspace')
+        router.push('/home')
       },
       onError: (e) => {
         console.log(e)
@@ -69,19 +58,19 @@ const page: React.FC = () => {
   const onSubmit: SubmitHandler<
     z.infer<typeof formSchemaOptionalInfo>
   > = async (data) => {
-    console.log('Success:', {
-      tool: Object.fromEntries(
+    console.log('Test:', {
+      tools: Object.fromEntries(
         entries.map((entry) => [entry.tool, entry.email]),
       ),
-      address: form.watch('address'),
-      stack: form
+      location: form.watch('address'),
+      stacks: form
         .watch('stack')
         .split(',')
         .map((stack) => stack.trim())
         .filter((stack) => stack !== ''),
-      MBTI: value,
-    })
-    useOptionalMutation.mutate()
+      mbti: value === '' ? null : value,
+    }),
+      useOptionalMutation.mutate()
   }
 
   return (
@@ -112,8 +101,8 @@ const page: React.FC = () => {
             <div className="flex items-center justify-end gap-[8px] self-stretch">
               <Button
                 type="button"
-                onClick={() => router.push('/workspace')}
-                variant={'ghost'}
+                onClick={() => router.push('/home')}
+                variant="ghost"
               >
                 건너뛰기
               </Button>

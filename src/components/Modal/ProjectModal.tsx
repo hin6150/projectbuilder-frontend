@@ -9,13 +9,18 @@ import {
   useInviteTeamInfo,
   useTeamInfoQuery,
 } from '@/api'
+import { ProjectUserRole } from '@/api/services/project/model'
 import { useModal } from '@/hooks/useModal'
 import { formSchemaProject } from '@/hooks/useVaild'
 import { formEmailProject } from '@/hooks/useVaild/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
 import { MailIcon, XIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import {
   DatePickerInfoForm,
@@ -28,6 +33,7 @@ import { Modal } from './Modal'
 
 export const ProjectCreateModal = () => {
   const { closeModal } = useModal()
+  const queryClient = useQueryClient()
 
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
@@ -38,31 +44,42 @@ export const ProjectCreateModal = () => {
     },
   })
 
+  const successToast = () => {
+    const time = format(new Date(), 'yyyy년 MM월 dd일 HH시 ss분', {
+      locale: ko,
+    })
+
+    toast(`${form.watch('title')} 프로젝트 생성 완료`, {
+      duration: 3000,
+      description: time.replace(/(\b0)(\d)/g, '$2'),
+    })
+  }
+
   const addProjectInfo = useAddProjectInfo(
     {
       title: form.watch('title'),
-      subTitle: form.watch('description'),
+      overview: form.watch('description'),
       startDate: form.watch('period').from.toISOString(),
       endDate: form.watch('period').to.toISOString(),
+      color: '#7c67bb',
     },
     {
       onSuccess: () => {
-        console.log('Success:', {
-          title: form.watch('title'),
-          subTitle: form.watch('description'),
-          startDate: form.watch('period').from.toISOString(),
-          endDate: form.watch('period').to.toISOString(),
-        })
+        queryClient.invalidateQueries({ queryKey: ['projectList'] })
+        successToast()
+
+        closeModal('dimed')
       },
-      onError: (e) => {
-        console.log(e)
+      onError: () => {
+        toast(`${form.watch('title')} 프로젝트 생성 실패`, {
+          duration: 3000,
+        })
       },
     },
   )
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
     addProjectInfo.mutate()
-    closeModal('dimed')
   }
 
   return (
@@ -112,8 +129,10 @@ export const ProjectCreateModal = () => {
   )
 }
 
-export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
+export const ProjectEditModal = ({ project }: { project: ProjectInfo }) => {
   const { closeModal } = useModal()
+
+  const queryClient = useQueryClient()
 
   const form = useForm({
     resolver: zodResolver(formSchemaProject),
@@ -123,33 +142,44 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
         from: new Date(project.startDate),
         to: new Date(project.endDate),
       },
-      description: project.subTitle || '',
+      description: project.overview || '',
     },
   })
+
+  const ShowToast = () => {
+    const time = format(new Date(), 'yyyy년 MM월 dd일 HH시 ss분', {
+      locale: ko,
+    })
+
+    toast(`${form.watch('title')} 프로젝트 수정 완료`, {
+      duration: 3000,
+      description: time.replace(/(\b0)(\d)/g, '$2'),
+    })
+  }
+
   const editProjectInfo = useEditProjectInfo(
     {
       title: form.watch('title'),
-      subTitle: form.watch('description'),
+      overview: form.watch('description'),
       startDate: form.watch('period').from.toISOString(),
       endDate: form.watch('period').to.toISOString(),
+      color: '#7c67bb',
     },
+    project.id,
     {
       onSuccess: () => {
-        console.log('Success:', {
-          title: form.watch('title'),
-          subTitle: form.watch('description'),
-          startDate: form.watch('period').from.toISOString(),
-          endDate: form.watch('period').to.toISOString(),
-        })
+        queryClient.invalidateQueries({ queryKey: ['projectList'] })
+        ShowToast()
+
+        closeModal('dimed')
       },
-      onError: (e) => {
-        console.log(e)
+      onError: () => {
+        toast(`${form.watch('title')} 프로젝트 수정 실패`, { duration: 3000 })
       },
     },
   )
 
   function onSubmit(values: z.infer<typeof formSchemaProject>) {
-    closeModal('dimed')
     editProjectInfo.mutate()
   }
 
@@ -202,14 +232,27 @@ export const ProjectEditeModal = ({ project }: { project: ProjectInfo }) => {
 
 export const ProjectDeleteModal = ({ uid }: { uid: string }) => {
   const { closeModal } = useModal()
+  const queryClient = useQueryClient()
+
+  const ShowToast = () => {
+    const time = format(new Date(), 'yyyy년 MM월 dd일 HH시 ss분', {
+      locale: ko,
+    })
+
+    toast(`프로젝트 삭제 완료`, {
+      duration: 2000,
+      description: time.replace(/(\b0)(\d)/g, '$2'),
+    })
+  }
 
   const deleteProjectInfo = useDeleteProjectInfo(uid, {
     onSuccess: () => {
-      console.log('프로젝트 삭제 성공:', uid)
+      queryClient.invalidateQueries({ queryKey: ['projectList'] })
+      ShowToast()
       closeModal('dimed')
     },
-    onError: (err: Error) => {
-      console.error('프로젝트 삭제 실패:', err)
+    onError: () => {
+      toast(`프로젝트 삭제 실패`, { duration: 3000 })
     },
   })
 
@@ -242,6 +285,7 @@ export const ProjectDeleteModal = ({ uid }: { uid: string }) => {
 export const ProjectInviteModal = ({ uid }: { uid: string }) => {
   const { data } = useTeamInfoQuery({}, uid)
   const [inviteEmailList, setInviteEmailList] = useState<TeamInfo[]>([])
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (data != null) {
@@ -261,15 +305,12 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
 
   const inviteTeamInfo = useInviteTeamInfo(
     {
-      uid: uid,
       email: form.watch('email'),
     },
+    uid,
     {
       onSuccess: () => {
-        console.log('Success:', {
-          uid: uid,
-          email: form.watch('email'),
-        })
+        queryClient.invalidateQueries({ queryKey: ['teamList', 'projectList'] })
       },
       onError: (e) => {
         console.log(e)
@@ -277,29 +318,22 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
     },
   )
 
-  const deleteTeamInfo = useDeleteTeamInfo(
-    {
-      uid: uid,
-      email: form.watch('email'),
+  const deleteTeamInfo = useDeleteTeamInfo(uid, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teamList', 'projectList'] })
     },
-    {
-      onSuccess: () => {
-        console.log('Success:', {
-          uid: uid,
-          email: form.watch('email'),
-        })
-      },
-      onError: (e) => {
-        console.log(e)
-      },
+    onError: (e) => {
+      console.log(e)
     },
-  )
+  })
+
+  const isEmailDuplicate = (email: string) => {
+    return !inviteEmailList.some((item) => item.email === email)
+  }
 
   const handleRemove = async (index: number) => {
-    // Call deleteTeamInfo and wait for it to complete
     try {
-      await deleteTeamInfo.mutateAsync() // Use mutateAsync for async operations
-      // Proceed to remove the item from the list
+      await deleteTeamInfo.mutateAsync({ email: inviteEmailList[index].email })
       setInviteEmailList(inviteEmailList.filter((_, i) => i !== index))
     } catch (error) {
       console.error('Error deleting team info:', error)
@@ -309,15 +343,15 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
   function onSubmit(values: z.infer<typeof formEmailProject>) {
     setInviteEmailList([
       ...inviteEmailList,
-      { email: form.watch('email') ?? '', state: ProjectInviteStatus.Invited },
+      // { email: form.watch('email') ?? '', state: ProjectInviteStatus.Invited },
     ])
+
     inviteTeamInfo.mutate()
-    form.reset()
+    // form.reset()
 
     console.log(values)
     // closeModal()
   }
-
   return (
     <Modal>
       <p className="text-h4">프로젝트 팀원 초대</p>
@@ -334,7 +368,11 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
               type="submit"
               title="초대"
               disabled={!form.formState.isValid}
-              variant={form.formState.isValid ? 'default' : 'disabled'}
+              variant={
+                form.formState.isValid && isEmailDuplicate(form.watch('email'))
+                  ? 'default'
+                  : 'disabled'
+              }
             >
               <p>초대하기</p>
             </Button>
@@ -342,10 +380,12 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
         </Form>
         <div className="flex flex-col gap-2">
           {inviteEmailList.map((data, index) => {
+            if (data.role === ProjectUserRole.Master) return null
+
             const color =
-              data.state == ProjectInviteStatus.Invited
+              data.choice === ProjectInviteStatus.Invited
                 ? 'text-gray-500'
-                : data.state == ProjectInviteStatus.Acceped
+                : data.choice === ProjectInviteStatus.Acceped
                   ? 'text-blue-500'
                   : 'text-red-500'
             return (
@@ -358,7 +398,7 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
                   <p className="text-subtle">{data.email}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className={`text-small ${color}`}>{data.state}</p>
+                  <p className={`text-small ${color}`}>{data.choice}</p>
                   <XIcon
                     size={16}
                     onClick={() => handleRemove(index)}

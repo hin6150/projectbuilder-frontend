@@ -67,10 +67,10 @@ const inviteList = z.array(z.string()).optional()
 export const formSchemaUserEdit = z.object({
   name: nameField,
   email: emailField,
-  phonenumber: phonenumberField,
-  address: addressField,
-  stack: stackField,
-  MBTI: mbtiField,
+  contact: phonenumberField,
+  location: addressField,
+  stacks: stackField,
+  mbti: mbtiField,
   entries: entriesField,
   imageUrl: imageUrlField,
 })
@@ -78,7 +78,7 @@ export const formSchemaUserEdit = z.object({
 export const formSchemaSignUp = z.object({
   name: nameField,
   email: emailField,
-  phonenumber: phonenumberField,
+  contact: phonenumberField,
   use: useField,
   privacy: privacyField,
   marketing: marketingField,
@@ -92,9 +92,9 @@ export const formSchemaOptionalInfo = z.object({
 })
 
 export const formSchemaProject = z.object({
-  title: title,
-  period: period,
-  description: description,
+  title,
+  period,
+  description,
 })
 
 export const formEmailProject = z.object({

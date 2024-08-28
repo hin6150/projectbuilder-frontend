@@ -1,31 +1,43 @@
 import { StringDecoder } from 'string_decoder'
 
 export const enum ProjectInviteStatus {
-  Invited = '초대완료',
+  Invited = '전송',
   Acceped = '수락',
   Denied = '거절',
 }
+export const enum ProjectUserRole {
+  Master = 'MASTER',
+  Writer = 'WRITER',
+  Owner = 'OWNER',
+  Guest = 'GUEST',
+}
 
-interface ProjectUserInfo {
-  uid: string
+export interface ProjectUserInfo {
+  id: string
   avatar: string | undefined
   name: string
   email: string
+  stack: string[]
 }
 
 export interface ProjectInfo {
-  uid: string
+  id: string
   title: string
-  subTitle: string
-  user: ProjectUserInfo[]
+  overview: string
+  users: ProjectUserInfo[]
   startDate: string
   endDate: string
   color: string
 }
 
+export interface ProjectListInfoResponse {
+  code: string
+  result: ProjectInfo[] | undefined
+}
+
 export interface ProjectInfoResponse {
   code: string
-  result: ProjectInfo[]
+  result: ProjectInfo | undefined
 }
 
 export interface TeamInfoResponse {
@@ -34,32 +46,35 @@ export interface TeamInfoResponse {
 }
 
 export interface TeamInfo {
+  id: string
+  name: string
   email: string
-  state: ProjectInviteStatus
+  choice: ProjectInviteStatus
+  role: ProjectUserRole
 }
 
 export interface InviteTeamDto {
-  uid: string
   email: string
 }
 
 export interface DeleteTeamDto {
-  uid: string
   email: string
 }
 
 export interface AddProjectDTO {
   title: string
-  subTitle: string
+  overview: string
   startDate: string
   endDate: string
+  color: string
 }
 
 export interface EditProjectDTO {
   title: string
-  subTitle: string
+  overview: string
   startDate: string
   endDate: string
+  color: string
 }
 
 export interface DefaultResponse {
