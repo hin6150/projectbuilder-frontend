@@ -994,20 +994,182 @@ const Board: React.FC<BoardProps> = ({ items }) => {
 type TeamMember = {
   id: number
   name: string
-  role: string
+  mbti: string
   imageUrl: string
 }
 
-const teamMembers: TeamMember[] = [
-  { id: 1, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member1.jpg' },
-  { id: 2, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member2.jpg' },
-  { id: 3, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member3.jpg' },
-  { id: 4, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member4.jpg' },
-  { id: 5, name: '홍길동', role: 'ESTJ', imageUrl: '/images/member5.jpg' },
-  { id: 6, name: '홍길동', role: '탈퇴한 사용자', imageUrl: '' }, // No image URL to demonstrate the default case
-]
+interface TeamMemberModalProps {
+  isOpen: boolean
+  onClose: () => void
+  memberInfo: {
+    name: string
+    contact: string
+    location: string
+    mbti: string
+    techStack: string
+    email: string[]
+  }
+}
+
+const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
+  isOpen,
+  onClose,
+  memberInfo,
+}) => {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="w-[448px] rounded-md bg-white p-6 shadow-lg">
+        <h2 className="mb-4 text-center text-lg font-bold">팀원 정보</h2>
+
+        <div className="mb-4 flex items-center gap-[16px]">
+          <label className="block w-[100px] text-sm font-medium text-gray-700">
+            이름:
+          </label>
+          {memberInfo.name}
+        </div>
+
+        <div className="mb-4 flex items-center gap-[16px]">
+          <label className="block w-[100px] text-sm font-medium text-gray-700">
+            개인 연락처:
+          </label>
+          {memberInfo.contact}
+        </div>
+
+        <div className="mb-4 flex items-center gap-[16px]">
+          <label className="block w-[100px] text-sm font-medium text-gray-700">
+            거주지역:
+          </label>
+          {memberInfo.location}
+        </div>
+
+        <div className="mb-4 flex items-center gap-[16px]">
+          <label className="block w-[100px] text-sm font-medium text-gray-700">
+            MBTI:
+          </label>
+          {memberInfo.mbti}
+        </div>
+
+        <div className="mb-4 flex items-center gap-[16px]">
+          <label className="block w-[100px] text-sm font-medium text-gray-700">
+            보유 기술 스택:
+          </label>
+          {memberInfo.techStack}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            이메일:
+          </label>
+          <div className="mb-4">
+            {memberInfo.email.map((email, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between px-[8px] py-[6px]"
+              >
+                <div className="flex items-center gap-[8px]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M13.334 2.66699H2.66732C1.93094 2.66699 1.33398 3.26395 1.33398 4.00033V12.0003C1.33398 12.7367 1.93094 13.3337 2.66732 13.3337H13.334C14.0704 13.3337 14.6673 12.7367 14.6673 12.0003V4.00033C14.6673 3.26395 14.0704 2.66699 13.334 2.66699Z"
+                      stroke="#334155"
+                      stroke-width="1.33333"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M14.6673 4.66699L8.68732 8.46699C8.4815 8.59594 8.24353 8.66433 8.00065 8.66433C7.75777 8.66433 7.5198 8.59594 7.31398 8.46699L1.33398 4.66699"
+                      stroke="#334155"
+                      stroke-width="1.33333"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <span>{email}</span>
+                </div>
+
+                <span className="cursor-pointer text-gray-500">Figma</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-center">
+          <button
+            onClick={onClose}
+            className="w-[186px] rounded bg-blue-500 px-4 py-2 text-white"
+          >
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const TeamBoard: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedMember, setSelectedMember] = useState<any | null>(null)
+
+  const teamMembers = [
+    {
+      id: 1,
+      name: '홍길동',
+      mbti: 'ESTJ',
+      imageUrl: '',
+      contact: '010-0000-0000',
+      location: '경기도 수원시 영통구',
+      techStack: 'Next.Js, React, Front-End',
+      email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
+    },
+    {
+      id: 2,
+      name: '김재연',
+      mbti: 'ESTJ',
+      imageUrl: '',
+      contact: '010-0000-0000',
+      location: '경기도 수원시 영통구',
+      techStack: 'Next.Js, React, Front-End',
+      email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
+    },
+    {
+      id: 3,
+      name: '김재연2',
+      mbti: 'ESTJ',
+      imageUrl: '',
+      contact: '010-0000-0000',
+      location: '경기도 수원시 영통구',
+      techStack: 'Next.Js, React, Front-End',
+      email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
+    },
+    {
+      id: 4,
+      name: '김재연3',
+      mbti: 'ESTJ',
+      imageUrl: '',
+      contact: '010-0000-0000',
+      location: '경기도 수원시 영통구',
+      techStack: 'Next.Js, React, Front-End',
+      email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
+    },
+  ]
+
+  const handleCardClick = (member: any) => {
+    setSelectedMember(member)
+    setIsModalOpen(true)
+  }
+
+  const handleModalClose = () => {
+    setIsModalOpen(false)
+    setSelectedMember(null)
+  }
+
   return (
     <div className="py-8">
       <h2 className="mb-6 text-2xl font-bold">팀원 정보</h2>
@@ -1015,7 +1177,8 @@ const TeamBoard: React.FC = () => {
         {teamMembers.map((member) => (
           <div
             key={member.id}
-            className="rounded-md border border-slate-200 bg-white p-[8px] shadow"
+            onClick={() => handleCardClick(member)}
+            className="cursor-pointer rounded-md border border-slate-200 bg-white p-[8px] shadow"
           >
             <div className="flex h-[90px] items-center justify-center bg-gray-200">
               {member.imageUrl ? (
@@ -1030,11 +1193,19 @@ const TeamBoard: React.FC = () => {
             </div>
             <div className="py-[8px]">
               <h3 className="text-[14px] font-semibold">{member.name}</h3>
-              <p className="text-[12px] text-gray-600">{member.role}</p>
+              <p className="text-[12px] text-gray-600">{member.mbti}</p>
             </div>
           </div>
         ))}
       </div>
+
+      {selectedMember && (
+        <TeamMemberModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          memberInfo={selectedMember}
+        />
+      )}
     </div>
   )
 }
