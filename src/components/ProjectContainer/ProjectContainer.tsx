@@ -41,13 +41,23 @@ interface StatusDropdownProps {
   onClose: () => void
 }
 
-interface ModalProps {
+interface CategoryDropdownProps {
+  currentCategory: string
+  onChangeCategory: (newCategory: string) => void
+  onClose: () => void
+}
+
+interface DeleteModalProps {
   isOpen: boolean
   onClose: () => void
   onDelete: () => void
 }
 
-const DeleteModal: React.FC<ModalProps> = ({ isOpen, onClose, onDelete }) => {
+const DeleteModal: React.FC<DeleteModalProps> = ({
+  isOpen,
+  onClose,
+  onDelete,
+}) => {
   if (!isOpen) return null
 
   return (
@@ -78,15 +88,168 @@ const DeleteModal: React.FC<ModalProps> = ({ isOpen, onClose, onDelete }) => {
   )
 }
 
-const StatusDropdown: React.FC<StatusDropdownProps> = ({
+interface CreateModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onCreate: (post: {
+    title: string
+    assignee: string
+    status: string
+    category: string
+    content: string
+  }) => void
+}
+
+const CreatePostModal: React.FC<CreateModalProps> = ({
+  isOpen,
+  onClose,
+  onCreate,
+}) => {
+  const [title, setTitle] = useState('')
+  const [assignee, setAssignee] = useState('')
+  const [status, setStatus] = useState('긴급')
+  const [category, setCategory] = useState('이슈')
+  const [content, setContent] = useState('')
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false)
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false)
+
+  if (!isOpen) return null
+
+  const handleCreate = () => {
+    onCreate({ title, assignee, status, category, content })
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="w-[448px] rounded-md bg-white p-6 shadow-lg">
+        <div className="flex justify-between">
+          <h2 className="mb-4 flex text-center text-lg font-bold">
+            게시글 작성
+          </h2>
+          <div
+            className="relative font-pretendard text-[14px] font-medium leading-[14px]"
+            onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+          >
+            <div className="flex gap-[4px] px-4 py-2">
+              {category}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path
+                  d="M4 6L8 10L12 6"
+                  stroke="#374151"
+                  stroke-width="1.33333"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            {isCategoryDropdownOpen && (
+              <CategoryDropdown
+                currentCategory={category}
+                onChangeCategory={setCategory}
+                onClose={() => setIsCategoryDropdownOpen(false)}
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            게시글 제목
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="mt-[6px] w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="제목"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            담당자
+          </label>
+          <input
+            type="text"
+            value={assignee}
+            onChange={(e) => setAssignee(e.target.value)}
+            className="mt-[6px] w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="@이름, 이메일로 담당자 추가"
+          />
+        </div>
+
+        <div className="relative mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            진행 상태
+          </label>
+          <div
+            className="mt-1 w-full cursor-pointer rounded border bg-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+          >
+            <div className="px-4 py-2">{status}</div>
+          </div>
+          {isStatusDropdownOpen && (
+            <StatusDropdown
+              className="top-13 w-full"
+              currentStatus={status}
+              onChangeStatus={setStatus}
+              onClose={() => setIsStatusDropdownOpen(false)}
+            />
+          )}
+        </div>
+
+        <div className="mb-4 h-[117px] w-full">
+          <label className="block text-sm font-medium text-gray-700">
+            게시글 내용
+          </label>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="mt-[6px] h-full w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="내용을 적어 주세요."
+          />
+        </div>
+
+        <div className="mt-12 flex justify-center space-x-4">
+          <button
+            onClick={onClose}
+            className="w-[186px] rounded bg-[#DBEAFE] px-4 py-2 text-[#3B82F6]"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleCreate}
+            className="w-[186px] rounded bg-[#007AFF] px-4 py-2 text-white"
+          >
+            생성
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const StatusDropdown: React.FC<
+  StatusDropdownProps & { className?: string }
+> = ({
   currentStatus,
   onChangeStatus,
   onClose,
+  className = 'w-[130px] top-4', // Default width
 }) => {
   const statuses = ['긴급', '진행중', '완료']
 
   return (
-    <div className="absolute top-4 z-10 mt-2 w-[130px] overflow-hidden rounded-md border bg-white shadow-lg">
+    <div
+      className={`absolute z-10 mt-2 overflow-hidden rounded-md border bg-white shadow-lg ${className}`}
+    >
       {statuses.map((status) => (
         <div
           key={status}
@@ -118,6 +281,52 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
             />
           </svg>
           {status}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
+  currentCategory,
+  onChangeCategory,
+  onClose,
+}) => {
+  const categories = ['이슈', '피드백']
+
+  return (
+    <div className="absolute right-2 z-10 mt-2 w-[120px] overflow-hidden rounded-md border bg-white shadow-lg">
+      {categories.map((category) => (
+        <div
+          key={category}
+          className={`flex cursor-pointer items-center px-4 py-2 text-center hover:bg-gray-100 ${
+            category === currentCategory ? 'font-bold text-blue-600' : ''
+          }`}
+          onClick={() => {
+            onChangeCategory(category)
+            onClose()
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            className="mr-2"
+            style={{
+              visibility: category === currentCategory ? 'visible' : 'hidden',
+            }}
+          >
+            <path
+              d="M13.3332 4L5.99984 11.3333L2.6665 8"
+              stroke="#334155"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          {category}
         </div>
       ))}
     </div>
@@ -231,21 +440,33 @@ interface FilterBarProps {
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
-  const [isModalOpen, setModalOpen] = useState(false)
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false)
 
   const handleDeleteClick = () => {
-    setModalOpen(true)
+    setDeleteModalOpen(true)
   }
 
   const handleCloseModal = () => {
-    setModalOpen(false)
+    setDeleteModalOpen(false)
   }
 
   const handleDeleteItems = () => {
     // 삭제 로직 구현
     console.log('Items deleted')
-    setModalOpen(false)
+    setDeleteModalOpen(false)
   }
+
+  const handleCreatePost = (post: {
+    title: string
+    assignee: string
+    status: string
+    category: string
+  }) => {
+    console.log('Post Created:', post)
+    // Add your post creation logic here
+  }
+
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false)
   const [isDropdownVisible, setDropdownVisible] = useState(false)
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
@@ -283,7 +504,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
   return (
     <div className="relative flex items-center space-x-2 p-2">
       <DeleteModal
-        isOpen={isModalOpen}
+        isOpen={isDeleteModalOpen}
         onClose={handleCloseModal}
         onDelete={handleDeleteItems}
       />
@@ -448,9 +669,17 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
           </div>
         )}
       </div>
-      <button className="rounded-[6px] border-[1px] px-4 py-2 transition duration-200 hover:bg-blue-600 hover:text-white">
+      <button
+        onClick={() => setCreateModalOpen(true)}
+        className="rounded-[6px] border-[1px] px-4 py-2 transition duration-200 hover:bg-blue-600 hover:text-white"
+      >
         + 게시글 작성
       </button>
+      <CreatePostModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onCreate={handleCreatePost}
+      />
     </div>
   )
 }
