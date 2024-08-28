@@ -117,11 +117,11 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[160px] items-start">
               <DropdownMenuLabel>필터</DropdownMenuLabel>
-              {projectData?.result.map((project) => (
+              {projectData?.result?.map((project) => (
                 <DropdownMenuCheckboxItem
-                  key={project.uid}
-                  checked={!!selectedProject[project.uid]}
-                  onCheckedChange={() => handleCheckedChange(project.uid)}
+                  key={project.id}
+                  checked={!!selectedProject[project.id]}
+                  onCheckedChange={() => handleCheckedChange(project.id)}
                 >
                   {project.title}
                 </DropdownMenuCheckboxItem>
