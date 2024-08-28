@@ -9,7 +9,7 @@ import { CustomQueryOptions } from '@/api/type'
 import { BoardService } from './service'
 import { BoardDto, BoardResponse, InputBoard } from './model'
 
-export const { BoardListInfo, BoardInfo, AddBoard } = {
+export const BoardOptions = {
   BoardListInfo: (client: QueryClient, uid: string) => ({
     queryKey: ['boardList'],
     queryFn: () => BoardService.boardListInfo(client, uid),
@@ -21,6 +21,9 @@ export const { BoardListInfo, BoardInfo, AddBoard } = {
   AddBoard: (client: QueryClient, uid: string) => ({
     mutationFn: (dto: InputBoard) => BoardService.addBoard(client, uid, dto),
   }),
+  DeleteBoard: (client: QueryClient, uid: string) => ({
+    mutationFn: () => BoardService.deleteBoard(client, uid),
+  }),
 }
 
 export const useBoardListQuery = (
@@ -30,7 +33,7 @@ export const useBoardListQuery = (
   const queryClient = useQueryClient()
 
   return useQuery<BoardResponse<BoardDto[]>>({
-    ...BoardListInfo(queryClient, uid),
+    ...BoardOptions.BoardListInfo(queryClient, uid),
     ...options,
   })
 }
@@ -41,18 +44,29 @@ export const useBoardQuery = (
   const queryClient = useQueryClient()
 
   return useQuery<BoardResponse<BoardDto>>({
-    ...BoardInfo(queryClient, uid),
+    ...BoardOptions.BoardInfo(queryClient, uid),
     ...options,
   })
 }
-export const useAddBoard = (
+export const useAddBoardMutation = (
   uid: string,
   options: MutationOptions<BoardResponse<string>, Error, InputBoard> = {},
 ) => {
   const queryClient = useQueryClient()
 
   return useMutation<BoardResponse<string>, Error, InputBoard>({
-    ...AddBoard(queryClient, uid),
+    ...BoardOptions.AddBoard(queryClient, uid),
+    ...options,
+  })
+}
+export const useDeleteBoardMutation = (
+  uid: string,
+  options: MutationOptions<BoardResponse<null>, Error> = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation<BoardResponse<null>, Error>({
+    ...BoardOptions.DeleteBoard(queryClient, uid),
     ...options,
   })
 }

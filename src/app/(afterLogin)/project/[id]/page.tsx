@@ -9,16 +9,8 @@ import { da } from 'date-fns/locale'
 
 const Page = () => {
   const path = usePathname()
-  // const { data, isLoading } = useProjectInfoQuery()
   const id = path.split('/').pop()
   const { data, isLoading } = useOneProjectInfoQuery(id)
-
-  // useEffect(() => {
-  //   if (data && id) {
-  //     const project = data.result.find((project) => project.id === id)
-  //     setSelectedProject(project || null)
-  //   }
-  // }, [data, id])
 
   if (isLoading) {
     return null

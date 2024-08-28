@@ -12,14 +12,15 @@ export interface InputBoard {
   content: string
   category: BoardCategory
   progress: BoardProgress
-  masterId: number[]
+  masterId: number[] | []
 }
 export interface BoardDto {
   title: string
   content: string
   category: BoardCategory
   progress: BoardProgress
-  masters: MasterDto[]
+  masters: MasterDto[] | []
+  createdAt: string
 }
 interface MasterDto {
   id: number

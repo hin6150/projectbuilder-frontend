@@ -21,13 +21,13 @@ import { ProfileAvatar } from '../Avatar/Avatar'
 const MAX_VISIBLE_MEMBERS = 5
 
 // Card.tsx
-function Card({
+const Card = ({
   data,
   setSelectedProject,
 }: {
   data: ProjectInfo
   setSelectedProject: any
-}) {
+}) => {
   const visibleMembers = data.users?.slice(0, MAX_VISIBLE_MEMBERS)
   const remainingMemberCount = data.users?.length - MAX_VISIBLE_MEMBERS
 

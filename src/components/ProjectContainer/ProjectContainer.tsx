@@ -5,9 +5,21 @@ import { ko } from 'date-fns/locale'
 import { ProjectInfo, useProjectInfoQuery } from '@/api'
 import { format } from 'date-fns'
 import { Check } from 'lucide-react'
-import { useAddBoard, useBoardListQuery } from '@/api/services/board/quries'
+import {
+  useAddBoardMutation,
+  useBoardListQuery,
+  useDeleteBoardMutation,
+} from '@/api/services/board/quries'
 import { useOneProjectInfoQuery } from '@/api/services/project/quries'
-import { BoardDto, BoardProps } from '@/api/services/board/model'
+import {
+  BoardCategory,
+  BoardDto,
+  BoardProgress,
+  BoardProps,
+  InputBoard,
+} from '@/api/services/board/model'
+import { QueryClient, useQueryClient } from '@tanstack/react-query'
+import { error } from 'console'
 
 interface TeamCheckboxProps {
   id: string
@@ -39,13 +51,23 @@ interface StatusDropdownProps {
   onClose: () => void
 }
 
-interface ModalProps {
-  isOpen: boolean
+interface CategoryDropdownProps {
+  currentCategory: string
+  onChangeCategory: (newCategory: string) => void
   onClose: () => void
-  onDelete: () => void
 }
 
-const DeleteModal: React.FC<ModalProps> = ({ isOpen, onClose, onDelete }) => {
+interface DeleteModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onDelete: (uid: string) => void
+}
+
+const DeleteModal: React.FC<DeleteModalProps> = ({
+  isOpen,
+  onClose,
+  onDelete,
+}) => {
   if (!isOpen) return null
 
   return (
@@ -65,7 +87,7 @@ const DeleteModal: React.FC<ModalProps> = ({ isOpen, onClose, onDelete }) => {
             취소
           </button>
           <button
-            onClick={onDelete}
+            onClick={onDelete()}
             className="w-[186px] rounded bg-[#007AFF] px-4 py-2 text-white"
           >
             삭제
@@ -76,15 +98,169 @@ const DeleteModal: React.FC<ModalProps> = ({ isOpen, onClose, onDelete }) => {
   )
 }
 
-const StatusDropdown: React.FC<StatusDropdownProps> = ({
+interface CreateModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onCreate: (post: InputBoard) => void
+}
+
+const CreatePostModal: React.FC<CreateModalProps> = ({
+  isOpen,
+  onClose,
+  onCreate,
+}) => {
+  const [title, setTitle] = useState('')
+  const [masterId, setMaster] = useState<number[]>([])
+  const [progress, setProgress] = useState<BoardProgress>(BoardProgress.problem)
+  const [category, setCategory] = useState<BoardCategory>(BoardCategory.issue)
+  const [content, setContent] = useState('')
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false)
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false)
+
+  if (!isOpen) return null
+
+  const handleCreate = () => {
+    onCreate({ title, masterId, progress, category, content })
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="w-[448px] rounded-md bg-white p-6 shadow-lg">
+        <div className="flex justify-between">
+          <h2 className="mb-4 flex text-center text-lg font-bold">
+            게시글 작성
+          </h2>
+          <div
+            className="relative font-pretendard text-[14px] font-medium leading-[14px]"
+            onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+          >
+            <div className="flex gap-[4px] px-4 py-2">
+              {category}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path
+                  d="M4 6L8 10L12 6"
+                  stroke="#374151"
+                  stroke-width="1.33333"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            {isCategoryDropdownOpen && (
+              <CategoryDropdown
+                currentCategory={category}
+                onChangeCategory={setCategory}
+                onClose={() => setIsCategoryDropdownOpen(false)}
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            게시글 제목
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="mt-[6px] w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="제목"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            담당자
+          </label>
+          <input
+            type="text"
+            value={masterId}
+            onChange={(e) =>
+              setMaster(
+                e.target.value
+                  .split(',')
+                  .map((item) => parseInt(item.trim(), 10))
+                  .filter((item) => !isNaN(item)),
+              )
+            }
+            className="mt-[6px] w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="@이름, 이메일로 담당자 추가"
+          />
+        </div>
+
+        <div className="relative mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            진행 상태
+          </label>
+          <div
+            className="mt-1 w-full cursor-pointer rounded border bg-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+          >
+            <div className="px-4 py-2">{progress}</div>
+          </div>
+          {isStatusDropdownOpen && (
+            <StatusDropdown
+              className="top-13 w-full"
+              currentStatus={progress}
+              onChangeStatus={setProgress}
+              onClose={() => setIsStatusDropdownOpen(false)}
+            />
+          )}
+        </div>
+
+        <div className="mb-4 h-[117px] w-full">
+          <label className="block text-sm font-medium text-gray-700">
+            게시글 내용
+          </label>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="mt-[6px] h-full w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="내용을 적어 주세요."
+          />
+        </div>
+
+        <div className="mt-12 flex justify-center space-x-4">
+          <button
+            onClick={onClose}
+            className="w-[186px] rounded bg-[#DBEAFE] px-4 py-2 text-[#3B82F6]"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleCreate}
+            className="w-[186px] rounded bg-[#007AFF] px-4 py-2 text-white"
+          >
+            생성
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const StatusDropdown: React.FC<
+  StatusDropdownProps & { className?: string }
+> = ({
   currentStatus,
   onChangeStatus,
   onClose,
+  className = 'w-[130px] top-4', // Default width
 }) => {
   const statuses = ['긴급', '진행중', '완료']
 
   return (
-    <div className="absolute top-4 z-10 mt-2 w-[130px] overflow-hidden rounded-md border bg-white shadow-lg">
+    <div
+      className={`absolute z-10 mt-2 overflow-hidden rounded-md border bg-white shadow-lg ${className}`}
+    >
       {statuses.map((status) => (
         <div
           key={status}
@@ -116,6 +292,52 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
             />
           </svg>
           {status}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
+  currentCategory,
+  onChangeCategory,
+  onClose,
+}) => {
+  const categories = ['이슈', '피드백']
+
+  return (
+    <div className="absolute right-2 z-10 mt-2 w-[120px] overflow-hidden rounded-md border bg-white shadow-lg">
+      {categories.map((category) => (
+        <div
+          key={category}
+          className={`flex cursor-pointer items-center px-4 py-2 text-center hover:bg-gray-100 ${
+            category === currentCategory ? 'font-bold text-blue-600' : ''
+          }`}
+          onClick={() => {
+            onChangeCategory(category)
+            onClose()
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            className="mr-2"
+            style={{
+              visibility: category === currentCategory ? 'visible' : 'hidden',
+            }}
+          >
+            <path
+              d="M13.3332 4L5.99984 11.3333L2.6665 8"
+              stroke="#334155"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          {category}
         </div>
       ))}
     </div>
@@ -160,65 +382,6 @@ const scheduleData = {
   ],
 } // api 연동시 수정해야함!
 
-const items: BoardItem[] = [
-  // {
-  //   type: '이슈',
-  //   title: '긴급 배포 이슈',
-  //   assignee: 'CN +2',
-  //   createdDate: '2024. 07. 19',
-  //   status: '긴급',
-  // },
-  // {
-  //   type: '피드백',
-  //   title: '스프린트 3 디자인 A안 B안 비교',
-  //   assignee: 'CN +2',
-  //   createdDate: '2024. 07. 19',
-  //   status: '진행중',
-  // },
-  // {
-  //   type: '이슈',
-  //   title: 'AWS 배포 비용 문제',
-  //   assignee: 'CN +2',
-  //   createdDate: '2024. 07. 19',
-  //   status: '진행중',
-  // },
-  // {
-  //   type: '이슈',
-  //   title: '프론트엔드 개발자 필요@@',
-  //   assignee: 'CN +2',
-  //   createdDate: '2024. 07. 19',
-  //   status: '진행중',
-  // },
-  // {
-  //   type: '피드백',
-  //   title: '스프린트 3 기획 리뷰',
-  //   assignee: 'CN +2',
-  //   createdDate: '2024. 07. 19',
-  //   status: '진행중',
-  // },
-  // {
-  //   type: '이슈',
-  //   title: '긴급 배포 이슈',
-  //   assignee: 'CN +2',
-  //   createdDate: '2024. 07. 19',
-  //   status: '완료',
-  // },
-  // {
-  //   type: '이슈',
-  //   title: '긴급 배포 이슈',
-  //   assignee: 'CN +2',
-  //   createdDate: '2024. 07. 19',
-  //   status: '완료',
-  // },
-  // {
-  //   type: '이슈',
-  //   title: '긴급 배포 이슈',
-  //   assignee: 'CN +2',
-  //   createdDate: '2024. 07. 19',
-  //   status: '완료',
-  // },
-]
-
 type FilterChangeProps = {
   statuses: string[]
   assignees: string[]
@@ -230,21 +393,40 @@ interface FilterBarProps {
 }
 
 const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, id }) => {
-  const [isModalOpen, setModalOpen] = useState(false)
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false)
+  const queryClient = useQueryClient()
 
   const handleDeleteClick = () => {
-    setModalOpen(true)
+    setDeleteModalOpen(true)
   }
 
   const handleCloseModal = () => {
-    setModalOpen(false)
+    setDeleteModalOpen(false)
   }
 
-  const handleDeleteItems = () => {
-    // 삭제 로직 구현
-    console.log('Items deleted')
-    setModalOpen(false)
+  const handleDeleteItems = (uid: string) => {
+    DeleteBoard(uid).mutate()
+    setDeleteModalOpen(false)
   }
+  const handleCreatePost = (dto: InputBoard) => {
+    AddBoard.mutate(dto)
+  }
+
+  const AddBoard = useAddBoardMutation(id, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boardList'] })
+    },
+    onError: () => console.log('error'),
+  })
+  const DeleteBoard = (uid: string) =>
+    useDeleteBoardMutation(uid, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['boardList'] })
+      },
+      onError: () => console.log('error'),
+    })
+
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false)
   const [isDropdownVisible, setDropdownVisible] = useState(false)
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
@@ -279,16 +461,10 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, id }) => {
     })
   }, [selectedStatuses, selectedAssignees, search, onFilterChange])
 
-  const AddBoard = useAddBoard(id, {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['boardList'] })
-    },
-  })
-
   return (
     <div className="relative flex items-center space-x-2 p-2">
       <DeleteModal
-        isOpen={isModalOpen}
+        isOpen={isDeleteModalOpen}
         onClose={handleCloseModal}
         onDelete={handleDeleteItems}
       />
@@ -453,9 +629,17 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, id }) => {
           </div>
         )}
       </div>
-      <button className="rounded-[6px] border-[1px] px-4 py-2 transition duration-200 hover:bg-blue-600 hover:text-white">
+      <button
+        onClick={() => setCreateModalOpen(true)}
+        className="rounded-[6px] border-[1px] px-4 py-2 transition duration-200 hover:bg-blue-600 hover:text-white"
+      >
         + 게시글 작성
       </button>
+      <CreatePostModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onCreate={handleCreatePost}
+      />
     </div>
   )
 }
@@ -552,7 +736,7 @@ const Board: React.FC<BoardProps> = ({ items }) => {
 
   const handleChangeStatus = (index: number, newStatus: string) => {
     // Replace this with your method of updating the item status in state or backend
-    items[index].status = newStatus
+    items[index].progress = newStatus
   }
 
   const renderStatus = (status: string, index: number) => {
@@ -682,7 +866,6 @@ const Board: React.FC<BoardProps> = ({ items }) => {
       </div>
     )
   }
-
   return (
     <div className="h-[356px]">
       <div>
@@ -749,16 +932,22 @@ const Board: React.FC<BoardProps> = ({ items }) => {
                 <td className="w-[50px] border-b px-5 py-2">
                   <Checkbox onChange={() => handleSelectItem(item.title)} />
                 </td>
-                <td className="w-[100px] border-b px-4 py-2">{item.type}</td>
+                <td className="w-[100px] border-b px-4 py-2">
+                  {item.category}
+                </td>
                 <td className="w-[200px] border-b px-4 py-2">{item.title}</td>
                 <td className="w-[150px] border-b px-4 py-2">
-                  {item.assignee}
+                  {item.masters.length === 0
+                    ? null
+                    : item.masters.length === 1
+                      ? item.masters[0].name
+                      : `${item.masters[0].name} + ${item.masters.length - 1}`}
                 </td>
                 <td className="w-[150px] border-b px-4 py-2">
-                  {item.createdDate}
+                  {format(item.createdAt, 'yy.MM.dd (EEE)', { locale: ko })}
                 </td>
                 <td className="relative w-[100px] border-b px-4 py-2">
-                  {renderStatus(item.status, index)}
+                  {renderStatus(item.progress, index)}
                 </td>
               </tr>
             ))}
@@ -768,40 +957,224 @@ const Board: React.FC<BoardProps> = ({ items }) => {
     </div>
   )
 }
+type TeamMember = {
+  id: number
+  name: string
+  mbti: string
+  imageUrl: string
+}
 
-const TeamBoard: React.FC<{ id: string }> = ({ id }) => {
-  const { data, isLoading } = useOneProjectInfoQuery(id)
+interface TeamMemberModalProps {
+  isOpen: boolean
+  onClose: () => void
+  memberInfo: {
+    name: string
+    contact: string
+    location: string
+    mbti: string
+    techStack: string
+    email: string[]
+  }
+}
+
+const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
+  isOpen,
+  onClose,
+  memberInfo,
+}) => {
+  if (!isOpen) return null
 
   return (
-    <div className="py-8">
-      <h2 className="mb-6 text-2xl font-bold">팀원 정보</h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-        {data?.result.users.map((member) => (
-          <div
-            key={member.id}
-            className="rounded-md border border-slate-200 bg-white p-[8px] shadow"
-          >
-            <div className="flex h-[90px] items-center justify-center bg-gray-200">
-              {member.imageUrl ? (
-                <img
-                  src={member.imageUrl}
-                  alt={member.name}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="text-gray-400">No Image</div>
-              )}
-            </div>
-            <div className="py-[8px]">
-              <h3 className="text-[14px] font-semibold">{member.name}</h3>
-              <p className="text-[12px] text-gray-600">{member.role}</p>
-            </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="w-[448px] rounded-md bg-white p-6 shadow-lg">
+        <h2 className="mb-4 text-center text-lg font-bold">팀원 정보</h2>
+
+        <div className="mb-4 flex items-center gap-[16px]">
+          <label className="block w-[100px] text-sm font-medium text-gray-700">
+            이름:
+          </label>
+          {memberInfo.name}
+        </div>
+
+        <div className="mb-4 flex items-center gap-[16px]">
+          <label className="block w-[100px] text-sm font-medium text-gray-700">
+            개인 연락처:
+          </label>
+          {memberInfo.contact}
+        </div>
+
+        <div className="mb-4 flex items-center gap-[16px]">
+          <label className="block w-[100px] text-sm font-medium text-gray-700">
+            거주지역:
+          </label>
+          {memberInfo.location}
+        </div>
+
+        <div className="mb-4 flex items-center gap-[16px]">
+          <label className="block w-[100px] text-sm font-medium text-gray-700">
+            MBTI:
+          </label>
+          {memberInfo.mbti}
+        </div>
+
+        <div className="mb-4 flex items-center gap-[16px]">
+          <label className="block w-[100px] text-sm font-medium text-gray-700">
+            보유 기술 스택:
+          </label>
+          {memberInfo.techStack}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            이메일:
+          </label>
+          <div className="mb-4">
+            {memberInfo.email.map((email, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between px-[8px] py-[6px]"
+              >
+                <div className="flex items-center gap-[8px]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M13.334 2.66699H2.66732C1.93094 2.66699 1.33398 3.26395 1.33398 4.00033V12.0003C1.33398 12.7367 1.93094 13.3337 2.66732 13.3337H13.334C14.0704 13.3337 14.6673 12.7367 14.6673 12.0003V4.00033C14.6673 3.26395 14.0704 2.66699 13.334 2.66699Z"
+                      stroke="#334155"
+                      stroke-width="1.33333"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M14.6673 4.66699L8.68732 8.46699C8.4815 8.59594 8.24353 8.66433 8.00065 8.66433C7.75777 8.66433 7.5198 8.59594 7.31398 8.46699L1.33398 4.66699"
+                      stroke="#334155"
+                      stroke-width="1.33333"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <span>{email}</span>
+                </div>
+
+                <span className="cursor-pointer text-gray-500">Figma</span>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        <div className="flex justify-center">
+          <button
+            onClick={onClose}
+            className="w-[186px] rounded bg-blue-500 px-4 py-2 text-white"
+          >
+            확인
+          </button>
+        </div>
       </div>
     </div>
   )
 }
+
+// const TeamBoard: React.FC = () => {
+//   const [isModalOpen, setIsModalOpen] = useState(false)
+//   const [selectedMember, setSelectedMember] = useState<any | null>(null)
+
+//   const teamMembers = [
+//     {
+//       id: 1,
+//       name: '홍길동',
+//       mbti: 'ESTJ',
+//       imageUrl: '',
+//       contact: '010-0000-0000',
+//       location: '경기도 수원시 영통구',
+//       techStack: 'Next.Js, React, Front-End',
+//       email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
+//     },
+//     {
+//       id: 2,
+//       name: '김재연',
+//       mbti: 'ESTJ',
+//       imageUrl: '',
+//       contact: '010-0000-0000',
+//       location: '경기도 수원시 영통구',
+//       techStack: 'Next.Js, React, Front-End',
+//       email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
+//     },
+//     {
+//       id: 3,
+//       name: '김재연2',
+//       mbti: 'ESTJ',
+//       imageUrl: '',
+//       contact: '010-0000-0000',
+//       location: '경기도 수원시 영통구',
+//       techStack: 'Next.Js, React, Front-End',
+//       email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
+//     },
+//     {
+//       id: 4,
+//       name: '김재연3',
+//       mbti: 'ESTJ',
+//       imageUrl: '',
+//       contact: '010-0000-0000',
+//       location: '경기도 수원시 영통구',
+//       techStack: 'Next.Js, React, Front-End',
+//       email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
+//     },
+//   ]
+
+//   const handleCardClick = (member: any) => {
+//     setSelectedMember(member)
+//     setIsModalOpen(true)
+//   }
+
+//   const handleModalClose = () => {
+//     setIsModalOpen(false)
+//     setSelectedMember(null)
+//   }
+
+//   return (
+//     <div className="py-8">
+//       <h2 className="mb-6 text-2xl font-bold">팀원 정보</h2>
+//       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+//         {data?.result.users.map((member) => (
+//           <div
+//             key={member.id}
+//             onClick={() => handleCardClick(member)}
+//             className="cursor-pointer rounded-md border border-slate-200 bg-white p-[8px] shadow"
+//           >
+//             <div className="flex h-[90px] items-center justify-center bg-gray-200">
+//               {member.imageUrl ? (
+//                 <img
+//                   src={member.imageUrl}
+//                   alt={member.name}
+//                   className="h-full w-full object-cover"
+//                 />
+//               ) : (
+//                 <div className="text-gray-400">No Image</div>
+//               )}
+//             </div>
+//             <div className="py-[8px]">
+//               <h3 className="text-[14px] font-semibold">{member.name}</h3>
+//               <p className="text-[12px] text-gray-600">{member.mbti}</p>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+
+//       {selectedMember && (
+//         <TeamMemberModal
+//           isOpen={isModalOpen}
+//           onClose={handleModalClose}
+//           memberInfo={selectedMember}
+//         />
+//       )}
+//     </div>
+//   )
+// }
 
 const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
   if (!data) {
@@ -819,10 +1192,10 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
 
   const filteredItems = boardList.filter((item) => {
     const matchesStatus =
-      filters.statuses.length === 0 || filters.statuses.includes(item.status)
+      filters.statuses.length === 0 || filters.statuses.includes(item.progress)
     const matchesAssignee =
       filters.assignees.length === 0 ||
-      filters.assignees.includes(item.assignee)
+      filters.assignees.includes(item.category)
     const matchesSearch = item.title.includes(filters.search)
     return matchesStatus && matchesAssignee && matchesSearch
   })
@@ -867,7 +1240,7 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
       <hr className="mb-[36px] border-t border-gray-300" />
       <div className="flex justify-between">
         <h1 className="text-2xl font-bold">보드</h1>
-        <FilterBar onFilterChange={setFilters} />
+        <FilterBar onFilterChange={setFilters} id={id} />
       </div>
       <div className="container p-[24px]">
         <Board items={filteredItems} />
@@ -902,9 +1275,7 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
           timeslots={scheduleData.timeslots}
         />
       </div>
-      <div>
-        <TeamBoard id={id} />
-      </div>
+      <div>{/* <TeamBoard id={id} /> */}</div>
     </div>
   )
 }
