@@ -9,7 +9,7 @@ export const NotificationService = {
       .build()
       .call<NotificationResponse<Notification[]>>()
   },
-  async notifycationPost(
+  async notificationPost(
     client: QueryClient,
     uid: string,
     dto: InputNotification,

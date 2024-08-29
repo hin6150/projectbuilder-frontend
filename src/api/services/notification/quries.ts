@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query'
 import { CustomQueryOptions } from '@/api/type'
 import { NotificationService } from './service'
-import { InputNotification, NotificationResponse } from './model'
+import { InputNotification, Notification, NotificationResponse } from './model'
 
 export const NotificationOptions = {
   NotificationList: (client: QueryClient) => ({
@@ -17,7 +17,7 @@ export const NotificationOptions = {
   }),
   NotificationPost: (client: QueryClient, uid: string) => ({
     mutationFn: (dto: InputNotification) =>
-      NotificationService.notifycationPost(client, uid, dto),
+      NotificationService.notificationPost(client, uid, dto),
   }),
 }
 export const useNotificationListQuery = (

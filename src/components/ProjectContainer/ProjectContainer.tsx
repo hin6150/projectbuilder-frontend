@@ -700,6 +700,8 @@ const Board: React.FC<BoardProps> = ({
   }, [items, sortConfig])
 
   const requestSort = (key: string) => {
+    let typeKey = key as keyof BoardDto
+
     let direction = 'ascending'
     if (
       sortConfig &&
@@ -708,7 +710,7 @@ const Board: React.FC<BoardProps> = ({
     ) {
       direction = 'descending'
     }
-    setSortConfig({ key, direction })
+    setSortConfig({ key: typeKey, direction })
   }
 
   const renderSortIcon = (key: string) => {
