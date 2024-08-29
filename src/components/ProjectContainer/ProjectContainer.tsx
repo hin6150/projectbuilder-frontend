@@ -9,6 +9,7 @@ import {
   useAddBoardMutation,
   useBoardListQuery,
   useDeleteBoardMutation,
+  useUpdateBoardMutation,
 } from '@/api/services/board/quries'
 import { useOneProjectInfoQuery } from '@/api/services/project/quries'
 import {
@@ -21,6 +22,7 @@ import {
 import { QueryClient, useQueryClient } from '@tanstack/react-query'
 import { error, time } from 'console'
 import { ProjectUserInfo } from '@/api/services/project/model'
+import { toast } from 'sonner'
 
 interface TeamCheckboxProps {
   id: string
@@ -417,8 +419,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
       queryClient.invalidateQueries({ queryKey: ['boardList'] })
       setSelectedItems([])
       setDeleteModalOpen(false)
+
+      toast('보드 삭제 성공', { duration: 3000 })
     },
-    onError: () => console.log('error'),
+    onError: () => toast('보드 삭제 실패', { duration: 3000 }),
   })
   const handleDeleteItems = (items: string[]) => {
     items.forEach((item) => DeleteBoard.mutate(item))
@@ -426,8 +430,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
   const AddBoard = useAddBoardMutation(id, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boardList'] })
+      toast('보드 생성 성공', { duration: 3000 })
     },
-    onError: () => console.log('error'),
+    onError: () => toast('보드 생성 실패', { duration: 3000 }),
   })
   const handleCreatePost = (dto: InputBoard) => {
     AddBoard.mutate(dto)
@@ -662,6 +667,7 @@ const Board: React.FC<BoardProps> = ({
     direction: string
   } | null>(null)
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const qeuryClient = useQueryClient()
 
   const handleSelectItem = (id: string) => {
     setSelectedItems((prevSelectedItems) =>
@@ -741,16 +747,34 @@ const Board: React.FC<BoardProps> = ({
     )
   }
 
+  const UpdateBoard = useUpdateBoardMutation({
+    onSuccess: () => {
+      qeuryClient.invalidateQueries({ queryKey: ['boardList'] })
+      toast('보드 수정 성공', { duration: 3000 })
+    },
+    onError: () => toast('보드 수정 실패', { duration: 3000 }),
+  })
+
   const handleStatusClick = (index: number) => {
     setActiveDropdown(activeDropdown === index ? null : index)
   }
 
   const handleChangeStatus = (index: number, newStatus: string) => {
-    // Replace this with your method of updating the item status in state or backend
+    const uid = items[index].id
+
+    const updatedBoard: InputBoard = {
+      id: items[index].id,
+      title: items[index].title,
+      content: items[index].content,
+      category: items[index].category,
+      progress: newStatus,
+      mastersId: items[index].masters.map((master) => master.id),
+    }
+    UpdateBoard.mutate(updatedBoard)
     items[index].progress = newStatus
   }
 
-  const renderStatus = (status: string, index: number) => {
+  const renderStatus = (item: BoardDto, status: string, index: number) => {
     if (status === '긴급') {
       return (
         <div
@@ -812,6 +836,7 @@ const Board: React.FC<BoardProps> = ({
       )
     }
   }
+
   if (items.length === 0) {
     return (
       <div className="h-[356px]">
@@ -957,13 +982,13 @@ const Board: React.FC<BoardProps> = ({
                     ? null
                     : item.masters.length === 1
                       ? item.masters[0].name
-                      : `${item.masters[0].name} + ${item.masters.length - 1}`}
+                      : `${item.masters[0].name} +${item.masters.length - 1}`}
                 </td>
                 <td className="w-[150px] border-b px-4 py-2">
                   {format(item.createdAt, 'yy.MM.dd (EEE)', { locale: ko })}
                 </td>
                 <td className="relative w-[100px] border-b px-4 py-2">
-                  {renderStatus(item.progress, index)}
+                  {renderStatus(item, item.progress, index)}
                 </td>
               </tr>
             ))}

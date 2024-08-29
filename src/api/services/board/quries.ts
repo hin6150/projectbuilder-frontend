@@ -24,6 +24,9 @@ export const BoardOptions = {
   DeleteBoard: (client: QueryClient) => ({
     mutationFn: (uid: string) => BoardService.deleteBoard(client, uid),
   }),
+  UpdateBoard: (client: QueryClient) => ({
+    mutationFn: (dto: InputBoard) => BoardService.updateBoard(client, dto),
+  }),
 }
 
 export const useBoardListQuery = (
@@ -66,6 +69,16 @@ export const useDeleteBoardMutation = (
 
   return useMutation<BoardResponse<null>, Error, string>({
     ...BoardOptions.DeleteBoard(queryClient),
+    ...options,
+  })
+}
+export const useUpdateBoardMutation = (
+  options: MutationOptions<BoardResponse<null>, Error, InputBoard> = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation<BoardResponse<null>, Error, InputBoard>({
+    ...BoardOptions.UpdateBoard(queryClient),
     ...options,
   })
 }

@@ -314,7 +314,10 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
         queryClient.invalidateQueries({ queryKey: ['projectList'] })
       },
       onError: (e) => {
-        console.log(e)
+        if (e.message === '404') {
+          toast('없는 유저입니다.', { duration: 3000 })
+        }
+        form.reset()
       },
     },
   )

@@ -28,6 +28,7 @@ const ProjectInviteModal: React.FC<{
   const notificationPost = useNotificationPost(notification.id, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notificationList'] })
+      queryClient.invalidateQueries({ queryKey: ['projectList'] })
     },
   })
 
@@ -81,8 +82,14 @@ const ProjectInviteModal: React.FC<{
         <div className="flex font-pretendard text-sm font-medium leading-[1.71429] text-black">
           <div className="w-[100px]">프로젝트 기간:</div>
           <span className="font-pretendard text-sm font-normal leading-[1.71429] text-black">
-            {/* {format(project.startDate, 'yy.MM.dd (EEE)', { locale: ko })} ~
-            {format(project.endDate, 'yy.MM.dd (EEE)', { locale: ko })}{' '} */}
+            {project?.startDate && project?.endDate ? (
+              <>
+                {format(project.startDate, 'yy.MM.dd (EEE)', { locale: ko })} ~
+                {format(project.endDate, 'yy.MM.dd (EEE)', { locale: ko })}
+              </>
+            ) : (
+              <div />
+            )}
           </span>
         </div>
         <div className="flex font-pretendard text-sm font-medium leading-[1.71429] text-black">
