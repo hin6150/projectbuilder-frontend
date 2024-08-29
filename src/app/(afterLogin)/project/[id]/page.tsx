@@ -5,12 +5,13 @@ import { usePathname } from 'next/navigation'
 import { useProjectInfoQuery, ProjectInfo } from '@/api'
 import { useState, useEffect } from 'react'
 import { useOneProjectInfoQuery } from '@/api/services/project/quries'
-import { da } from 'date-fns/locale'
 
 const Page = () => {
   const path = usePathname()
-  const id = path.split('/').pop()
-  const { data, isLoading } = useOneProjectInfoQuery(id as string)
+  const id = path.split('/').pop() || null
+  const { data, isLoading } = useOneProjectInfoQuery(id as string, {
+    enabled: !!id,
+  })
 
   if (isLoading) {
     return null
@@ -26,7 +27,7 @@ const Page = () => {
 
   return (
     <div>
-      <ProjectContainer data={data.result} id={id as string} />
+      <ProjectContainer data={data.result} />
     </div>
   )
 }

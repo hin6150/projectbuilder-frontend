@@ -8,7 +8,7 @@ export const enum BoardProgress {
   problem = '긴급',
 }
 export interface InputBoard {
-  id: string
+  id?: string
   title: string
   content: string
   category: BoardCategory

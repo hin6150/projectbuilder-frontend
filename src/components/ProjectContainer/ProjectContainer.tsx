@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, SetStateAction } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ko } from 'date-fns/locale'
@@ -11,7 +11,10 @@ import {
   useDeleteBoardMutation,
   useUpdateBoardMutation,
 } from '@/api/services/board/quries'
-import { useOneProjectInfoQuery } from '@/api/services/project/quries'
+import {
+  projectInfo,
+  useOneProjectInfoQuery,
+} from '@/api/services/project/quries'
 import {
   BoardCategory,
   BoardDto,
@@ -50,13 +53,13 @@ export interface BoardItem {
 
 interface StatusDropdownProps {
   currentStatus: string
-  onChangeStatus: (newStatus: string) => void
+  onChangeStatus: (newStatus: BoardProgress) => void
   onClose: () => void
 }
 
 interface CategoryDropdownProps {
   currentCategory: string
-  onChangeCategory: (newCategory: string) => void
+  onChangeCategory: React.Dispatch<SetStateAction<BoardCategory>>
   onClose: () => void
 }
 
@@ -258,7 +261,11 @@ const StatusDropdown: React.FC<
   onClose,
   className = 'w-[130px] top-4', // Default width
 }) => {
-  const statuses = ['긴급', '진행중', '완료']
+  const statuses = [
+    BoardProgress.problem,
+    BoardProgress.progress,
+    BoardProgress.done,
+  ]
 
   return (
     <div
@@ -306,7 +313,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
   onChangeCategory,
   onClose,
 }) => {
-  const categories = ['이슈', '피드백']
+  const categories = [BoardCategory.issue, BoardCategory.feadback]
 
   return (
     <div className="absolute right-2 z-10 mt-2 w-[120px] overflow-hidden rounded-md border bg-white shadow-lg">
@@ -663,7 +670,7 @@ const Board: React.FC<BoardProps> = ({
   setSelectedItems,
 }) => {
   const [sortConfig, setSortConfig] = useState<{
-    key: string
+    key: keyof BoardDto
     direction: string
   } | null>(null)
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
@@ -759,7 +766,7 @@ const Board: React.FC<BoardProps> = ({
     setActiveDropdown(activeDropdown === index ? null : index)
   }
 
-  const handleChangeStatus = (index: number, newStatus: string) => {
+  const handleChangeStatus = (index: number, newStatus: BoardProgress) => {
     const uid = items[index].id
 
     const updatedBoard: InputBoard = {
@@ -774,67 +781,45 @@ const Board: React.FC<BoardProps> = ({
     items[index].progress = newStatus
   }
 
-  const renderStatus = (item: BoardDto, status: string, index: number) => {
-    if (status === '긴급') {
-      return (
-        <div
-          className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-red-200 px-[8px]"
-          onClick={() => handleStatusClick(index)}
-        >
-          <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
-          <span className="w-full text-center">긴급</span>
-          {activeDropdown === index && (
-            <StatusDropdown
-              currentStatus={status}
-              onChangeStatus={(newStatus) =>
-                handleChangeStatus(index, newStatus)
-              }
-              onClose={() => setActiveDropdown(null)}
-            />
-          )}
-        </div>
-      )
-    }
-    if (status === '진행중') {
-      return (
-        <div
-          className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-blue-200 px-[8px]"
-          onClick={() => handleStatusClick(index)}
-        >
-          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-          <span className="w-full text-center">진행중</span>
-          {activeDropdown === index && (
-            <StatusDropdown
-              currentStatus={status}
-              onChangeStatus={(newStatus) =>
-                handleChangeStatus(index, newStatus)
-              }
-              onClose={() => setActiveDropdown(null)}
-            />
-          )}
-        </div>
-      )
-    }
-    if (status === '완료') {
-      return (
-        <div
-          className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-green-200 px-[8px]"
-          onClick={() => handleStatusClick(index)}
-        >
-          <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
-          <span className="w-full text-center">완료</span>
-          {activeDropdown === index && (
-            <StatusDropdown
-              currentStatus={status}
-              onChangeStatus={(newStatus) =>
-                handleChangeStatus(index, newStatus)
-              }
-              onClose={() => setActiveDropdown(null)}
-            />
-          )}
-        </div>
-      )
-    }
+  const renderStatus = (status: BoardProgress, index: number) => {
+    return (
+      <div
+        className={`relative flex w-[75px] cursor-pointer items-center rounded-[15px] ${
+          status === BoardProgress.problem
+            ? 'bg-red-200'
+            : status === BoardProgress.progress
+              ? 'bg-blue-200'
+              : 'bg-green-200'
+        } px-[8px]`}
+        onClick={() => handleStatusClick(index)}
+      >
+        <span
+          className={`h-2.5 w-2.5 rounded-full ${
+            status === BoardProgress.problem
+              ? 'bg-red-500'
+              : status === BoardProgress.progress
+                ? 'bg-blue-500'
+                : 'bg-green-500'
+          }`}
+        />
+        <span className="w-full text-center">
+          {status === BoardProgress.problem
+            ? '긴급'
+            : status === BoardProgress.progress
+              ? '진행중'
+              : '완료'}
+        </span>
+        {activeDropdown === index && (
+          <StatusDropdown
+            currentStatus={status}
+            onChangeStatus={(newStatus: BoardProgress) =>
+              handleChangeStatus(index, newStatus)
+            }
+            onClose={() => setActiveDropdown(null)}
+          />
+        )}
+      </div>
+    )
   }
 
   if (items.length === 0) {
@@ -988,7 +973,7 @@ const Board: React.FC<BoardProps> = ({
                   {format(item.createdAt, 'yy.MM.dd (EEE)', { locale: ko })}
                 </td>
                 <td className="relative w-[100px] border-b px-4 py-2">
-                  {renderStatus(item, item.progress, index)}
+                  {renderStatus(item.progress, index)}
                 </td>
               </tr>
             ))}
@@ -1108,12 +1093,11 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
   )
 }
 
-const TeamBoard = (id: string) => {
+const TeamBoard = ({ project }: { project: ProjectInfo }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedMember, setSelectedMember] = useState<ProjectUserInfo | null>(
     null,
   )
-
   const handleCardClick = (member: ProjectUserInfo) => {
     setSelectedMember(member)
     setIsModalOpen(true)
@@ -1124,13 +1108,11 @@ const TeamBoard = (id: string) => {
     setSelectedMember(null)
   }
 
-  const project = useOneProjectInfoQuery(id).data?.result as ProjectInfo
-
   return (
     <div className="py-8">
       <h2 className="mb-6 text-2xl font-bold">팀원 정보</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-        {project.users.map((member) => (
+        {project.users?.map((member) => (
           <div
             key={member.id}
             onClick={() => handleCardClick(member)}
@@ -1169,7 +1151,7 @@ const TeamBoard = (id: string) => {
   )
 }
 
-const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
+const ProjectContainer = ({ data }: { data: ProjectInfo }) => {
   if (!data) {
     return <div>Loading...</div>
   }
@@ -1182,7 +1164,7 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
     search: '',
   })
 
-  const boardResponse = useBoardListQuery(id)
+  const boardResponse = useBoardListQuery(data.id)
   const boardList = boardResponse.data?.result || []
 
   const filteredItems = boardList.filter((item) => {
@@ -1196,10 +1178,6 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
   })
 
   const [date, setDate] = React.useState<Date | undefined>(new Date())
-
-  useEffect(() => {
-    console.log(selectedItems)
-  }, [selectedItems])
 
   return (
     <div className="Container">
@@ -1241,7 +1219,7 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
         <h1 className="text-2xl font-bold">보드</h1>
         <FilterBar
           onFilterChange={setFilters}
-          id={id}
+          id={data.id}
           selectedItems={selectedItems}
           setSelectedItems={setSelectedItems}
         />
@@ -1284,7 +1262,7 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
         />
       </div>
       <div>
-        <TeamBoard id={id} />
+        <TeamBoard project={data} />
       </div>
     </div>
   )

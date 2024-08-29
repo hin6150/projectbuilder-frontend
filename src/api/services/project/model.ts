@@ -17,6 +17,7 @@ export interface ProjectUserInfo {
   imageUrl: string | undefined
   name: string
   email: string
+  contact: string
   stackNames: string[]
   location: string
   tools: tooldto[] | []
