@@ -78,8 +78,8 @@ export const Monthly: React.FC<MonthlyProps> = ({
   }
 
   return (
-    <div className="flex h-[932px] w-[864px] flex-shrink-0 flex-col items-start gap-[10px] p-4">
-      <div className="flex items-center justify-between self-stretch">
+    <div className="flex h-auto w-[864px] flex-shrink-0 flex-col gap-[10px] p-4">
+      <div className="flex w-full items-center justify-between self-stretch">
         {yoils.map((yoil) => (
           <p
             className={`${yoilClass} ${yoil === '일' || yoil === '토' ? 'text-gray-500' : ''}`}
@@ -89,8 +89,8 @@ export const Monthly: React.FC<MonthlyProps> = ({
           </p>
         ))}
       </div>
-      <div className="h-[1px] w-[832px] bg-gray-300" />
-      <div className="flex h-[764px] flex-shrink-0 flex-col items-start self-stretch rounded-[4px] border-r border-t border-gray-200">
+      <div className="h-[1px] w-full bg-gray-300" />
+      <div className="flex h-[764px] w-full flex-shrink-0 flex-col items-start self-stretch rounded-[4px] border-r border-t border-gray-200">
         {weeks.map((week, weekIndex) => (
           <div className={weekClass} key={weekIndex}>
             {week.map(({ day, isThisMonth, date }, dayIndex) => {
@@ -104,7 +104,7 @@ export const Monthly: React.FC<MonthlyProps> = ({
                   className={`${dayClass} ${isThisMonth ? '' : 'text-gray-300'}`}
                   key={dayIndex}
                 >
-                  <div className="flex h-6 w-full flex-col">
+                  <div className="flex h-auto flex-col">
                     {day !== null && (
                       <>
                         <div>
