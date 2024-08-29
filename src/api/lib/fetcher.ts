@@ -11,6 +11,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8080'
 export class Fetcher {
   private baseUrl: string
 
+  private unAuthorizedHandler: () => void = () => {}
+
+  private tokenRefreshHandler: (access: string, refresh: string) => void =
+    async () => {}
+
   private errorHandler: (error: Error) => void = () => {}
 
   public constructor(baseUrl: string) {
@@ -19,6 +24,16 @@ export class Fetcher {
 
   public setErrorHandler(handler: (error: Error) => void) {
     this.errorHandler = handler
+  }
+
+  public setTokenRefreshHandler(
+    handler: (access: string, refresh: string) => void,
+  ) {
+    this.tokenRefreshHandler = handler
+  }
+
+  public setUnAuthorizedHandler(handler: () => void) {
+    this.unAuthorizedHandler = handler
   }
 
   private async request<ResponseType>(
@@ -66,8 +81,8 @@ export class Fetcher {
     const access = client.getQueryData<string>(['access'])
     const refresh = client.getQueryData<string>(['refresh'])
 
-    if (!access && !refresh && location) {
-      location.href = '/login'
+    if (!access && !refresh && global.window !== undefined) {
+      this.unAuthorizedHandler()
     }
 
     if (!access && refresh) {
@@ -144,8 +159,12 @@ export class Fetcher {
         throw new Error('토큰 갱신에 실패하였습니다.')
       }
 
-      Cookies.set('access', newAccessToken)
-      // Cookies.set('refresh', newRefreshToken)
+      Cookies.set('access', newAccessToken, {
+        expires: new Date('2038-01-19T03:14:07.000Z'),
+      })
+      // Cookies.set('refresh', newRefreshToken, {
+      //   expires: new Date('2038-01-19T03:14:07.000Z'),
+      // })
 
       client.setQueryData(['access'], newAccessToken)
       // client.setQueryData(['refresh'], newRefreshToken)
@@ -153,7 +172,7 @@ export class Fetcher {
       if (global.location) {
         // global.location.href = '/login'
       }
-      throw new Error('토큰 갱신에 실패하였습니다.')
+      this.unAuthorizedHandler()
     }
   }
 
