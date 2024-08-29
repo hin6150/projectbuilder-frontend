@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { Button } from '../ui/button'
 import { useModal } from '@/hooks/useModal'
 import {
   DropdownMenu,
@@ -8,6 +7,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ScheduleInfo, useProjectInfoQuery } from '@/api'
+import { ModalTypes } from '@/hooks/useModal/useModal'
 import {
   Select,
   SelectContent,
@@ -17,10 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { ScheduleInfo, useProjectInfoQuery } from '@/api'
-import { ModalTypes } from '@/hooks/useModal/useModal'
+import { Button } from '../ui/button'
 import {
   ScheduleCreateModal,
   ScheduleRepeatModal,

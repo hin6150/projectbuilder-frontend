@@ -15,6 +15,7 @@ export interface InputBoard {
   mastersId: number[] | []
 }
 export interface BoardDto {
+  id: string
   title: string
   content: string
   category: BoardCategory
@@ -36,4 +37,6 @@ export interface BoardResponse<T> {
 
 export interface BoardProps {
   items: BoardDto[]
+  SelectedItems: string[]
+  setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>
 }

@@ -163,7 +163,7 @@ const PostContainer: React.FC<PostContainerProps> = ({
         <div className="flex justify-between">
           <div className="flex gap-[16px]">
             <div className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-red-200 px-[8px]">
-              <span className="h-2.5 w-2.5 rounded-full bg-red-500"></span>
+              <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
               <span className="w-full text-center">긴급</span>
             </div>
             <div className="text-h3">{title}</div>

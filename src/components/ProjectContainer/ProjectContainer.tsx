@@ -61,13 +61,15 @@ interface CategoryDropdownProps {
 interface DeleteModalProps {
   isOpen: boolean
   onClose: () => void
-  onDelete: (uid: string) => void
+  onDelete: (items: string[]) => void
+  selectedItems: string[]
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
   isOpen,
   onClose,
   onDelete,
+  selectedItems,
 }) => {
   if (!isOpen) return null
 
@@ -88,7 +90,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
             취소
           </button>
           <button
-            onClick={onDelete()}
+            onClick={() => onDelete(selectedItems)}
             className="w-[186px] rounded bg-[#007AFF] px-4 py-2 text-white"
           >
             삭제
@@ -389,9 +391,16 @@ type FilterChangeProps = {
 interface FilterBarProps {
   onFilterChange: (filters: FilterChangeProps) => void
   id: string
+  selectedItems: string[]
+  setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>
 }
 
-const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, id }) => {
+const FilterBar: React.FC<FilterBarProps> = ({
+  onFilterChange,
+  id,
+  selectedItems,
+  setSelectedItems,
+}) => {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false)
   const queryClient = useQueryClient()
 
@@ -403,27 +412,26 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, id }) => {
     setDeleteModalOpen(false)
   }
 
-  const handleDeleteItems = (uid: string) => {
-    DeleteBoard(uid).mutate()
-    setDeleteModalOpen(false)
+  const DeleteBoard = useDeleteBoardMutation({
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boardList'] })
+      setSelectedItems([])
+      setDeleteModalOpen(false)
+    },
+    onError: () => console.log('error'),
+  })
+  const handleDeleteItems = (items: string[]) => {
+    items.forEach((item) => DeleteBoard.mutate(item))
   }
-  const handleCreatePost = (dto: InputBoard) => {
-    AddBoard.mutate(dto)
-  }
-
   const AddBoard = useAddBoardMutation(id, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boardList'] })
     },
     onError: () => console.log('error'),
   })
-  const DeleteBoard = (uid: string) =>
-    useDeleteBoardMutation(uid, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['boardList'] })
-      },
-      onError: () => console.log('error'),
-    })
+  const handleCreatePost = (dto: InputBoard) => {
+    AddBoard.mutate(dto)
+  }
 
   const [isCreateModalOpen, setCreateModalOpen] = useState(false)
   const [isDropdownVisible, setDropdownVisible] = useState(false)
@@ -466,6 +474,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, id }) => {
         isOpen={isDeleteModalOpen}
         onClose={handleCloseModal}
         onDelete={handleDeleteItems}
+        selectedItems={selectedItems}
       />
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -643,8 +652,16 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange, id }) => {
   )
 }
 
-const Board: React.FC<BoardProps> = ({ items }) => {
-  const [selectedItems, setSelectedItems] = useState<string[]>([])
+const Board: React.FC<BoardProps> = ({
+  items,
+  SelectedItems,
+  setSelectedItems,
+}) => {
+  const [sortConfig, setSortConfig] = useState<{
+    key: string
+    direction: string
+  } | null>(null)
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
 
   const handleSelectItem = (id: string) => {
     setSelectedItems((prevSelectedItems) =>
@@ -653,11 +670,6 @@ const Board: React.FC<BoardProps> = ({ items }) => {
         : [...prevSelectedItems, id],
     )
   }
-  const [sortConfig, setSortConfig] = useState<{
-    key: string
-    direction: string
-  } | null>(null)
-  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
 
   const sortedItems = React.useMemo(() => {
     if (sortConfig !== null) {
@@ -929,7 +941,12 @@ const Board: React.FC<BoardProps> = ({ items }) => {
             {sortedItems.map((item, index) => (
               <tr key={index}>
                 <td className="w-[50px] border-b px-5 py-2">
-                  <Checkbox onChange={() => handleSelectItem(item.title)} />
+                  <Checkbox
+                    checked={SelectedItems.includes(item.id)}
+                    onCheckedChange={() => {
+                      handleSelectItem(item.id)
+                    }}
+                  />
                 </td>
                 <td className="w-[100px] border-b px-4 py-2">
                   {item.category}
@@ -1132,6 +1149,8 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
     return <div>Loading...</div>
   }
 
+  const [selectedItems, setSelectedItems] = useState<string[]>([])
+
   const [filters, setFilters] = useState<FilterChangeProps>({
     statuses: [],
     assignees: [],
@@ -1152,6 +1171,10 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
   })
 
   const [date, setDate] = React.useState<Date | undefined>(new Date())
+
+  useEffect(() => {
+    console.log(selectedItems)
+  }, [selectedItems])
 
   return (
     <div className="Container">
@@ -1191,10 +1214,19 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
       <hr className="mb-[36px] border-t border-gray-300" />
       <div className="flex justify-between">
         <h1 className="text-2xl font-bold">보드</h1>
-        <FilterBar onFilterChange={setFilters} id={id} />
+        <FilterBar
+          onFilterChange={setFilters}
+          id={id}
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
+        />
       </div>
       <div className="container p-[24px]">
-        <Board items={filteredItems} />
+        <Board
+          items={filteredItems}
+          SelectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
+        />
       </div>
       <hr className="border-t border-gray-300" />
       <div className="py-[36px] text-h3">캘린더</div>

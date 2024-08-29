@@ -32,7 +32,7 @@ export const BoardService = {
   },
 
   async deleteBoard(client: QueryClient, uid: string) {
-    return APIBuilder.delete(`/project/board/${uid}`)
+    return APIBuilder.delete(`/project/{projectId}/board/${uid}`)
       .withCredentials(client)
       .build()
       .call<BoardResponse<null>>()
