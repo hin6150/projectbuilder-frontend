@@ -4,14 +4,13 @@ import * as React from 'react'
 import { useProjectInfoQuery, useScheduleListQuery } from '@/api'
 import { useCalendarContext } from '../layout'
 import { List } from '@/components/Calendar/List'
-import { format } from 'date-fns'
+import { endOfMonth, format, startOfMonth } from 'date-fns'
 
 export default function Page() {
   const { state, selectedProject, myCalendar } = useCalendarContext()
 
-  const startDate = format(state.date, 'yyyy-MM-dd')
-  const endDate = format(state.date, 'yyyy-MM-dd')
-
+  const startDate = format(startOfMonth(state.date), 'yyyy-MM-dd')
+  const endDate = format(endOfMonth(state.date), 'yyyy-MM-dd')
   const { data: scheduleResponse } = useScheduleListQuery(startDate, endDate)
   const { data: projectResponse } = useProjectInfoQuery()
 

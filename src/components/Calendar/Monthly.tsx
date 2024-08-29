@@ -34,7 +34,7 @@ export const Monthly: React.FC<MonthlyProps> = ({
 
   const getProjectColor = (projectId: string) => {
     return (
-      projects?.find((project) => project.uid === projectId)?.color || '#ccc'
+      projects?.find((project) => project.id === projectId)?.color || '#ccc'
     )
   }
 
@@ -145,7 +145,7 @@ export const Monthly: React.FC<MonthlyProps> = ({
         ))}
       </div>
       {modals.default.open &&
-        modals.default.type == ModalTypes.CHECK &&
+        modals.default.type === ModalTypes.CHECK &&
         selectedSchedule && (
           <ScheduleCheckModal scheduleId={selectedSchedule?.id} />
         )}

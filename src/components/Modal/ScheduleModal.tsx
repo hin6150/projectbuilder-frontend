@@ -25,6 +25,7 @@ import {
   useProjectInfoQuery,
   useScheduleDetailQuery,
 } from '@/api'
+import { useQueryClient } from '@tanstack/react-query'
 import { formatDateTime } from '@/hooks/useCalendar'
 import {
   DateTimePickerForm,
@@ -79,6 +80,8 @@ const getRepeatOptions = (date: Date) => {
 
 export const ScheduleCreateModal = () => {
   const { closeModal } = useModal()
+  const queryClient = useQueryClient()
+
   const [allDay, setAllDay] = React.useState(false)
   const [participates, setParticipates] = React.useState<Participate[]>([])
   const [selectedDate, setSelectedDate] = React.useState(new Date())
@@ -120,6 +123,9 @@ export const ScheduleCreateModal = () => {
     },
     {
       onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['schedules'],
+        })
         console.log('Success', {
           title: form.watch('title'),
           content: form.watch('content'),
@@ -279,6 +285,8 @@ export const ScheduleCreateModal = () => {
 
 export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
   const { closeModal } = useModal()
+  const queryClient = useQueryClient()
+
   const [allDay, setAllDay] = React.useState(false)
   const [participates, setParticipates] = React.useState<Participate[]>([])
   const [selectedDate, setSelectedDate] = React.useState(new Date())
@@ -322,19 +330,23 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
       startDate: form.watch('startDate').toISOString(),
       endDate: form.watch('endDate').toISOString(),
       visible: form.watch('visible') as ScheduleVisibility | undefined,
-      projectId: form.watch('projectId'),
-      inviteList: form.watch('inviteList'),
+      // projectId: form.watch('projectId'),
+      // inviteList: form.watch('inviteList'),
     },
     {
       onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['schedules'],
+        })
+
         console.log('Success', {
           title: form.watch('title'),
           content: form.watch('content'),
           startDate: form.watch('startDate').toISOString(),
           endDate: form.watch('endDate').toISOString(),
           visible: form.watch('visible') as ScheduleVisibility | undefined,
-          projectId: form.watch('projectId'),
-          inviteList: form.watch('inviteList'),
+          // projectId: form.watch('projectId'),
+          // inviteList: form.watch('inviteList'),
         })
       },
       onError: (e) => {
@@ -350,7 +362,7 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
       form.setValue('startDate', new Date(schedules.result.startDate))
       form.setValue('endDate', new Date(schedules.result.endDate ?? ''))
       form.setValue('visible', schedules.result.visible ?? '')
-      form.setValue('projectId', schedules.result.projectId ?? '')
+      // form.setValue('projectId', schedules.result.projectId ?? '')
       // form.setValue('inviteList', schedules.result.inviteList||[])
     }
   }, [schedules])
@@ -400,9 +412,9 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
                     checked={allDay}
                     onCheckedChange={() => setAllDay(!allDay)}
                   />
-                  <label htmlFor="allday" className="text-small">
+                  <Label htmlFor="allday" className="text-small">
                     하루 종일
-                  </label>
+                  </Label>
                 </div>
                 {form.watch('type') === '개인 일정' ? (
                   <div className="flex items-center gap-1">
@@ -802,10 +814,16 @@ export const ScheduleDeleteModal = ({
   deleteType: DeleteScheduleType
 }) => {
   const { closeModal } = useModal()
+  const queryClient = useQueryClient()
+
   const form = useForm()
 
   const deleteScheduleInfo = useDeleteScheduleMutation(scheduleId, deleteType, {
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['schedules'],
+      })
+
       console.log('Delete Success:', scheduleId)
       closeModal('dimed')
     },
