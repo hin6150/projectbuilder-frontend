@@ -10,7 +10,7 @@ import { da } from 'date-fns/locale'
 const Page = () => {
   const path = usePathname()
   const id = path.split('/').pop()
-  const { data, isLoading } = useOneProjectInfoQuery(id)
+  const { data, isLoading } = useOneProjectInfoQuery(id as string)
 
   if (isLoading) {
     return null
@@ -26,7 +26,7 @@ const Page = () => {
 
   return (
     <div>
-      <ProjectContainer data={data.result} id={id} />
+      <ProjectContainer data={data.result} id={id as string} />
     </div>
   )
 }

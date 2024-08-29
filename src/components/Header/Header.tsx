@@ -1,6 +1,6 @@
 import { CalendarCheckIcon, LogOutIcon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
-import React from 'react'
+import React, { useState } from 'react'
 import { ProfileAvatar } from '../Avatar/Avatar'
 import {
   DropdownMenu,
@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import NotificationDropdown from '../Notification/Notification'
-import { useState } from 'react'
 
 const Header: React.FC = () => {
   return (
@@ -17,7 +16,7 @@ const Header: React.FC = () => {
       <div className="text-h3">오늘 회의</div>
       <DropdownMenu>
         <div className="flex">
-          <NotificationDropdown></NotificationDropdown>
+          <NotificationDropdown />
           <DropdownMenuTrigger>
             <ProfileAvatar name="cv" size="40" />
           </DropdownMenuTrigger>

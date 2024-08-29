@@ -19,7 +19,8 @@ import {
   InputBoard,
 } from '@/api/services/board/model'
 import { QueryClient, useQueryClient } from '@tanstack/react-query'
-import { error } from 'console'
+import { error, time } from 'console'
+import { ProjectUserInfo } from '@/api/services/project/model'
 
 interface TeamCheckboxProps {
   id: string
@@ -110,7 +111,7 @@ const CreatePostModal: React.FC<CreateModalProps> = ({
   onCreate,
 }) => {
   const [title, setTitle] = useState('')
-  const [masterId, setMaster] = useState<number[]>([])
+  const [mastersId, setMaster] = useState<string>('')
   const [progress, setProgress] = useState<BoardProgress>(BoardProgress.problem)
   const [category, setCategory] = useState<BoardCategory>(BoardCategory.issue)
   const [content, setContent] = useState('')
@@ -120,7 +121,12 @@ const CreatePostModal: React.FC<CreateModalProps> = ({
   if (!isOpen) return null
 
   const handleCreate = () => {
-    onCreate({ title, masterId, progress, category, content })
+    const masters = mastersId
+      .split(',')
+      .map((num) => parseInt(num.trim(), 10))
+      .filter((num) => !isNaN(num))
+
+    onCreate({ title, mastersId: masters, progress, category, content })
     onClose()
   }
 
@@ -182,15 +188,8 @@ const CreatePostModal: React.FC<CreateModalProps> = ({
           </label>
           <input
             type="text"
-            value={masterId}
-            onChange={(e) =>
-              setMaster(
-                e.target.value
-                  .split(',')
-                  .map((item) => parseInt(item.trim(), 10))
-                  .filter((item) => !isNaN(item)),
-              )
-            }
+            value={mastersId}
+            onChange={(e) => setMaster(e.target.value)}
             className="mt-[6px] w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="@이름, 이메일로 담당자 추가"
           />
@@ -957,24 +956,10 @@ const Board: React.FC<BoardProps> = ({ items }) => {
     </div>
   )
 }
-type TeamMember = {
-  id: number
-  name: string
-  mbti: string
-  imageUrl: string
-}
-
 interface TeamMemberModalProps {
   isOpen: boolean
   onClose: () => void
-  memberInfo: {
-    name: string
-    contact: string
-    location: string
-    mbti: string
-    techStack: string
-    email: string[]
-  }
+  memberInfo: ProjectUserInfo
 }
 
 const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
@@ -993,35 +978,35 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
           <label className="block w-[100px] text-sm font-medium text-gray-700">
             이름:
           </label>
-          {memberInfo.name}
+          {memberInfo?.name}
         </div>
 
         <div className="mb-4 flex items-center gap-[16px]">
           <label className="block w-[100px] text-sm font-medium text-gray-700">
             개인 연락처:
           </label>
-          {memberInfo.contact}
+          {memberInfo?.contact}
         </div>
 
         <div className="mb-4 flex items-center gap-[16px]">
           <label className="block w-[100px] text-sm font-medium text-gray-700">
             거주지역:
           </label>
-          {memberInfo.location}
+          {memberInfo?.location}
         </div>
 
         <div className="mb-4 flex items-center gap-[16px]">
           <label className="block w-[100px] text-sm font-medium text-gray-700">
             MBTI:
           </label>
-          {memberInfo.mbti}
+          {memberInfo?.mbti}
         </div>
 
         <div className="mb-4 flex items-center gap-[16px]">
           <label className="block w-[100px] text-sm font-medium text-gray-700">
             보유 기술 스택:
           </label>
-          {memberInfo.techStack}
+          {memberInfo?.stackNames.join(', ')}
         </div>
 
         <div className="mb-4">
@@ -1029,7 +1014,7 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
             이메일:
           </label>
           <div className="mb-4">
-            {memberInfo.email.map((email, index) => (
+            {memberInfo?.tools.map((item, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between px-[8px] py-[6px]"
@@ -1057,10 +1042,12 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
                       stroke-linejoin="round"
                     />
                   </svg>
-                  <span>{email}</span>
+                  <span>{item.email}</span>
                 </div>
 
-                <span className="cursor-pointer text-gray-500">Figma</span>
+                <span className="cursor-pointer text-gray-500">
+                  {item.toolName}
+                </span>
               </div>
             ))}
           </div>
@@ -1079,102 +1066,66 @@ const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
   )
 }
 
-// const TeamBoard: React.FC = () => {
-//   const [isModalOpen, setIsModalOpen] = useState(false)
-//   const [selectedMember, setSelectedMember] = useState<any | null>(null)
+const TeamBoard = (id: string) => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedMember, setSelectedMember] = useState<ProjectUserInfo | null>(
+    null,
+  )
 
-//   const teamMembers = [
-//     {
-//       id: 1,
-//       name: '홍길동',
-//       mbti: 'ESTJ',
-//       imageUrl: '',
-//       contact: '010-0000-0000',
-//       location: '경기도 수원시 영통구',
-//       techStack: 'Next.Js, React, Front-End',
-//       email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
-//     },
-//     {
-//       id: 2,
-//       name: '김재연',
-//       mbti: 'ESTJ',
-//       imageUrl: '',
-//       contact: '010-0000-0000',
-//       location: '경기도 수원시 영통구',
-//       techStack: 'Next.Js, React, Front-End',
-//       email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
-//     },
-//     {
-//       id: 3,
-//       name: '김재연2',
-//       mbti: 'ESTJ',
-//       imageUrl: '',
-//       contact: '010-0000-0000',
-//       location: '경기도 수원시 영통구',
-//       techStack: 'Next.Js, React, Front-End',
-//       email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
-//     },
-//     {
-//       id: 4,
-//       name: '김재연3',
-//       mbti: 'ESTJ',
-//       imageUrl: '',
-//       contact: '010-0000-0000',
-//       location: '경기도 수원시 영통구',
-//       techStack: 'Next.Js, React, Front-End',
-//       email: ['hin6150@gmail.com', 'hin6150@gmail.com', 'hin6150@gmail.com'],
-//     },
-//   ]
+  const handleCardClick = (member: ProjectUserInfo) => {
+    setSelectedMember(member)
+    setIsModalOpen(true)
+  }
 
-//   const handleCardClick = (member: any) => {
-//     setSelectedMember(member)
-//     setIsModalOpen(true)
-//   }
+  const handleModalClose = () => {
+    setIsModalOpen(false)
+    setSelectedMember(null)
+  }
 
-//   const handleModalClose = () => {
-//     setIsModalOpen(false)
-//     setSelectedMember(null)
-//   }
+  const project = useOneProjectInfoQuery(id).data?.result as ProjectInfo
 
-//   return (
-//     <div className="py-8">
-//       <h2 className="mb-6 text-2xl font-bold">팀원 정보</h2>
-//       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-//         {data?.result.users.map((member) => (
-//           <div
-//             key={member.id}
-//             onClick={() => handleCardClick(member)}
-//             className="cursor-pointer rounded-md border border-slate-200 bg-white p-[8px] shadow"
-//           >
-//             <div className="flex h-[90px] items-center justify-center bg-gray-200">
-//               {member.imageUrl ? (
-//                 <img
-//                   src={member.imageUrl}
-//                   alt={member.name}
-//                   className="h-full w-full object-cover"
-//                 />
-//               ) : (
-//                 <div className="text-gray-400">No Image</div>
-//               )}
-//             </div>
-//             <div className="py-[8px]">
-//               <h3 className="text-[14px] font-semibold">{member.name}</h3>
-//               <p className="text-[12px] text-gray-600">{member.mbti}</p>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
+  return (
+    <div className="py-8">
+      <h2 className="mb-6 text-2xl font-bold">팀원 정보</h2>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+        {project.users.map((member) => (
+          <div
+            key={member.id}
+            onClick={() => handleCardClick(member)}
+            className="cursor-pointer rounded-md border border-slate-200 bg-white p-[8px] shadow"
+          >
+            <div className="flex h-[90px] items-center justify-center bg-gray-200">
+              {member.imageUrl ? (
+                <img
+                  src={member.imageUrl}
+                  alt={member.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="text-gray-400">No Image</div>
+              )}
+            </div>
+            <div className="py-[8px]">
+              <h3 className="text-[14px] font-semibold">{member.name}</h3>
+              <p className="text-[12px] text-gray-600">{member.mbti}</p>
+              <span className="font-semibold">
+                {member.stackNames.join(', ')}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
 
-//       {selectedMember && (
-//         <TeamMemberModal
-//           isOpen={isModalOpen}
-//           onClose={handleModalClose}
-//           memberInfo={selectedMember}
-//         />
-//       )}
-//     </div>
-//   )
-// }
+      {selectedMember && (
+        <TeamMemberModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          memberInfo={selectedMember}
+        />
+      )}
+    </div>
+  )
+}
 
 const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
   if (!data) {
@@ -1275,7 +1226,9 @@ const ProjectContainer = ({ data, id }: { data: ProjectInfo; id: string }) => {
           timeslots={scheduleData.timeslots}
         />
       </div>
-      <div>{/* <TeamBoard id={id} /> */}</div>
+      <div>
+        <TeamBoard id={id} />
+      </div>
     </div>
   )
 }
