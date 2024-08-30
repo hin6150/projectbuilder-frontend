@@ -16,51 +16,39 @@ export const scheduleService = {
     startDate: string,
     endDate: string,
   ) {
-    return (
-      APIBuilder.get(`/schedule`)
-        // .withCredentials(client)
-        .build()
-        .call<ScheduleListResponse>()
+    return APIBuilder.get(
+      `/schedule/list?startDate=${startDate}&endDate=${endDate}`,
     )
+      .withCredentials(client)
+      .build()
+      .call<ScheduleListResponse>()
   },
 
   async getScheduleDetail(client: QueryClient, id: string) {
-    return (
-      APIBuilder.get(`/schedule/${id}`)
-        // .withCredentials(client)
-        .build()
-        .call<ScheduleDetailResponse>()
-    )
+    return APIBuilder.get(`/schedule/${id}`)
+      .withCredentials(client)
+      .build()
+      .call<ScheduleDetailResponse>()
   },
 
   async addSchedule(client: QueryClient, dto: AddScheduleDTO) {
-    return (
-      APIBuilder.post('/schedule')
-        // .withCredentials(client)
-        .build()
-        .call<DefaultResponse>({ body: JSON.stringify(dto) })
-    )
+    return APIBuilder.post('/schedule')
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
 
   async editSchedule(client: QueryClient, id: string, dto: EditScheduleDTO) {
-    return (
-      APIBuilder.patch('/schedule/${id}')
-        // .withCredentials(client)
-        .build()
-        .call<DefaultResponse>({ body: JSON.stringify(dto) })
-    )
+    return APIBuilder.put(`/schedule/${id}`)
+      .withCredentials(client)
+      .build()
+      .call<DefaultResponse>({ body: JSON.stringify(dto) })
   },
 
-  async deleteSchedule(
-    client: QueryClient,
-    id: string,
-    deleteType: DeleteScheduleType,
-  ) {
-    return (
-      APIBuilder.delete(`/schedule/${id}?type=${deleteType}`)
-        // .withCredentials(client)
-        .build()
-        .call<DeleteScheduleResponse>()
-    )
+  async deleteSchedule(client: QueryClient, id: string, type: string) {
+    return APIBuilder.delete(`/schedule/${id}?type=${type}`)
+      .withCredentials(client)
+      .build()
+      .call<DeleteScheduleResponse>()
   },
 }

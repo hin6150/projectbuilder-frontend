@@ -1,7 +1,7 @@
 'use client'
 import * as React from 'react'
 import { yoilClass } from './style'
-import { format, addDays, startOfWeek, isSameDay } from 'date-fns'
+import { format, addDays, startOfWeek, isSameDay, isToday } from 'date-fns'
 import { ScheduleInfo } from '@/api'
 import { hours, TimeSlot } from '@/hooks/useCalendar/useCalendarUtils'
 import { useModal } from '@/hooks/useModal'
@@ -16,11 +16,15 @@ interface WeeklyProps {
 
 export const Weekly: React.FC<WeeklyProps> = ({ date, schedules }) => {
   const { modals, openModal } = useModal()
+  const today = new Date()
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
   const weekStart = startOfWeek(date, { weekStartsOn: 0 })
   const weekDates = yoils.map((_, index) => {
     const date = addDays(weekStart, index)
-    return format(date, 'd') + ' ' + yoils[index]
+    return {
+      formatted: format(date, 'd') + ' ' + yoils[index],
+      isToday: isSameDay(date, today),
+    }
   })
 
   const [selectedSchedule, setSelectedSchedule] =
@@ -44,16 +48,16 @@ export const Weekly: React.FC<WeeklyProps> = ({ date, schedules }) => {
     <div className="flex w-[864px] shrink-0 flex-col items-start gap-[10px] p-4">
       <div className="flex items-center justify-between self-stretch">
         <div className="flex h-[48px] w-[80px]" />
-        {weekDates.map((dateAndYoil, index) => (
+        {weekDates.map((day, index) => (
           <p
             className={`${yoilClass} ${
               yoils[index] === '일' || yoils[index] === '토'
                 ? 'text-gray-500'
                 : ''
-            }`}
+            } ${day.isToday ? 'flex rounded-full bg-slate-100' : ''}`}
             key={index}
           >
-            {dateAndYoil}
+            {day.formatted}
           </p>
         ))}
       </div>

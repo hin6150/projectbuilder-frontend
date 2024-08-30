@@ -20,12 +20,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
+import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
+import { useProjectInfoQuery, useScheduleListQuery } from '@/api'
+import { ModalTypes } from '@/hooks/useModal/useModal'
 import { Button } from '../ui/button'
+
 import {
   ScheduleCreateModal,
   ScheduleRepeatModal,
   RepeatScheduleDeleteModal,
 } from '../Modal/ScheduleModal'
+import { Daily } from '../Calendar/Daily'
+import { useCalendarContext } from '@/app/(afterLogin)/schedule/page'
+import { format } from 'date-fns'
+import { List } from '../Calendar/List'
+import { Weekly } from '../Calendar/Weekly'
+import { Monthly } from '../Calendar/Monthly'
 
 type ViewType = 'monthly' | 'weekly' | 'daily' | 'list'
 
@@ -53,29 +63,41 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onFilterChange,
 }) => {
   const { modals, openModal } = useModal()
-  const { data: projectData } = useProjectInfoQuery()
-  const router = useRouter()
+  const { state, selectedProject, myCalendar } = useCalendarContext()
 
-  const [selectedProject, setSelectedProject] = useState<SelectedProjects>({})
-  const [myCalendar, setMyCalendar] = useState<Checked>(true)
+  const startDate = format(state.date, 'yyyy-MM-dd')
+  const endDate = format(state.date, 'yyyy-MM-dd')
+
+  const { data: scheduleResponse } = useScheduleListQuery(startDate, endDate)
+  const { data: projectResponse } = useProjectInfoQuery()
+
+  const schedules = scheduleResponse?.result
+  const projects = projectResponse?.result
+
+  const filteredSchedules = schedules?.filter((schedule) => {
+    const isProjectSelected = selectedProject[schedule.projectId || '']
+    return isProjectSelected || !schedule.projectId || myCalendar
+  })
+
+  // const [selectedProject, setSelectedProject] = useState<SelectedProjects>({})
+  // const [myCalendar, setMyCalendar] = useState<Checked>(true)
   const [selectedView, setSelectedView] = useState<ViewType>(view)
 
-  const handleCheckedChange = (uid: string) => {
-    const updatedProjects = {
-      ...selectedProject,
-      [uid]: !selectedProject[uid],
-    }
-    setSelectedProject(updatedProjects)
-    onFilterChange(updatedProjects, myCalendar)
-  }
+  // const handleCheckedChange = (uid: string) => {
+  //   const updatedProjects = {
+  //     ...selectedProject,
+  //     [uid]: !selectedProject[uid],
+  //   }
+  //   setSelectedProject(updatedProjects)
+  //   onFilterChange(updatedProjects, myCalendar)
+  // }
 
-  const handleMyCalendarChange = (checked: Checked) => {
-    setMyCalendar(checked)
-    onFilterChange(selectedProject, checked)
-  }
+  // const handleMyCalendarChange = (checked: Checked) => {
+  //   setMyCalendar(checked)
+  //   onFilterChange(selectedProject, checked)
+  // }
 
   const handleSelectChange = (value: ViewType) => {
-    router.push(`/schedule/${value.toLowerCase()}`)
     setSelectedView(value)
   }
 
@@ -117,18 +139,18 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[160px] items-start">
               <DropdownMenuLabel>필터</DropdownMenuLabel>
-              {projectData?.result.map((project) => (
+              {projects?.map((project) => (
                 <DropdownMenuCheckboxItem
-                  key={project.uid}
-                  checked={!!selectedProject[project.uid]}
-                  onCheckedChange={() => handleCheckedChange(project.uid)}
+                  key={project.id}
+                  checked={!!selectedProject[project.id]}
+                  // onCheckedChange={() => handleCheckedChange(project.id)}
                 >
                   {project.title}
                 </DropdownMenuCheckboxItem>
               ))}
               <DropdownMenuCheckboxItem
                 checked={myCalendar}
-                onCheckedChange={handleMyCalendarChange}
+                // onCheckedChange={handleMyCalendarChange}
               >
                 내 캘린더
               </DropdownMenuCheckboxItem>
@@ -166,6 +188,30 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
           </Select>
         </div>
       </div>
+      {selectedView === 'daily' ? (
+        <Daily
+          date={state.date}
+          schedules={filteredSchedules}
+          projects={projects?.map((project) => ({
+            uid: project.id,
+            title: project.title,
+          }))}
+        />
+      ) : null}
+      {selectedView === 'list' ? (
+        <List schedules={filteredSchedules} projects={projects} />
+      ) : null}
+      {selectedView === 'weekly' ? (
+        <Weekly date={state.date} schedules={filteredSchedules} />
+      ) : null}
+      {selectedView === 'monthly' ? (
+        <Monthly
+          date={state.date}
+          schedules={filteredSchedules}
+          projects={projects}
+        />
+      ) : null}
+
       {modals.default.open && modals.default.type === ModalTypes.CREATE && (
         <ScheduleCreateModal />
       )}

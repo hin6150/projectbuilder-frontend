@@ -22,6 +22,7 @@ export const Monthly: React.FC<MonthlyProps> = ({
   const { modals, openModal } = useModal()
   const yoils = ['일', '월', '화', '수', '목', '금', '토']
   const weeks = generateCalendar(date)
+  const today = new Date()
 
   const [selectedSchedule, setSelectedSchedule] =
     React.useState<ScheduleInfo | null>(null)
@@ -33,7 +34,7 @@ export const Monthly: React.FC<MonthlyProps> = ({
 
   const getProjectColor = (projectId: string) => {
     return (
-      projects?.find((project) => project.uid === projectId)?.color || '#ccc'
+      projects?.find((project) => project.id === projectId)?.color || '#ccc'
     )
   }
 
@@ -77,8 +78,8 @@ export const Monthly: React.FC<MonthlyProps> = ({
   }
 
   return (
-    <div className="flex h-[932px] w-[864px] flex-shrink-0 flex-col items-start gap-[10px] p-4">
-      <div className="flex items-center justify-between self-stretch">
+    <div className="flex h-auto w-[864px] flex-shrink-0 flex-col gap-[10px] p-4">
+      <div className="flex w-full items-center justify-between self-stretch">
         {yoils.map((yoil) => (
           <p
             className={`${yoilClass} ${yoil === '일' || yoil === '토' ? 'text-gray-500' : ''}`}
@@ -88,21 +89,31 @@ export const Monthly: React.FC<MonthlyProps> = ({
           </p>
         ))}
       </div>
-      <div className="h-[1px] w-[832px] bg-gray-300" />
-      <div className="flex h-[764px] flex-shrink-0 flex-col items-start self-stretch rounded-[4px] border-r border-t border-gray-200">
+      <div className="h-[1px] w-full bg-gray-300" />
+      <div className="flex h-[764px] w-full flex-shrink-0 flex-col items-start self-stretch rounded-[4px] border-r border-t border-gray-200">
         {weeks.map((week, weekIndex) => (
           <div className={weekClass} key={weekIndex}>
             {week.map(({ day, isThisMonth, date }, dayIndex) => {
               const schedules = getSchedulesForDay(date, isThisMonth)
+              const isToday =
+                today.getDate() === day &&
+                today.getMonth() === date.getMonth() &&
+                today.getFullYear() === date.getFullYear()
               return (
                 <div
                   className={`${dayClass} ${isThisMonth ? '' : 'text-gray-300'}`}
                   key={dayIndex}
                 >
-                  <div className="flex h-6 w-full flex-col">
+                  <div className="flex h-auto flex-col">
                     {day !== null && (
                       <>
-                        <p className="p-2">{day}</p>
+                        <div>
+                          <p
+                            className={`p-2 ${isToday ? 'flex h-11 w-11 items-center justify-center rounded-full bg-black text-white' : ''}`}
+                          >
+                            {day}
+                          </p>
+                        </div>
                         <div className="flex flex-col gap-[2px]">
                           {schedules.map((schedule, index) => (
                             <div
@@ -113,7 +124,7 @@ export const Monthly: React.FC<MonthlyProps> = ({
                               className={`flex h-[25px] cursor-pointer items-center gap-1 overflow-hidden rounded-[5px] pl-1 ${getProjectColor(schedule.projectId ?? '')}`}
                             >
                               <div
-                                className={`h-1 w-1 shrink-0 rounded-full ${getDotColor(getProjectColor(schedule.projectId ?? ''))}`}
+                                className={`h-1 w-1 shrink-0 rounded-full ${getDotColor(getProjectColor(schedule.projectId ?? 'bg-red-300'))}`}
                               />
                               <p className="display-webkit-box box-orient-vertical line-clamp-2 w-[75px] text-detail">
                                 {formatTime(schedule.startDate)}
@@ -134,7 +145,7 @@ export const Monthly: React.FC<MonthlyProps> = ({
         ))}
       </div>
       {modals.default.open &&
-        modals.default.type == ModalTypes.CHECK &&
+        modals.default.type === ModalTypes.CHECK &&
         selectedSchedule && (
           <ScheduleCheckModal scheduleId={selectedSchedule?.id} />
         )}

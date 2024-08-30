@@ -37,9 +37,9 @@ export const scheduleOptions = {
   useDeleteSchedule: (
     client: QueryClient,
     id: string,
-    deleteType: DeleteScheduleType,
+    type: DeleteScheduleType,
   ) => ({
-    mutationFn: () => scheduleService.deleteSchedule(client, id, deleteType),
+    mutationFn: () => scheduleService.deleteSchedule(client, id, type),
   }),
 }
 

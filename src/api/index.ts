@@ -57,3 +57,14 @@ export {
   useEditScheduleMutation,
   useDeleteScheduleMutation,
 } from './services/schedule/quries'
+
+//Meeting
+export type {
+  RecommedMeetingDto,
+  RecommedMeetingTime,
+  RecommedMeetingResponse,
+} from './services/meeting/model'
+export {
+  useRecommedMeetingTimesQuery,
+  useRecommedMeetingTimesMutation,
+} from './services/meeting/quries'

@@ -31,14 +31,22 @@ export const Daily: React.FC<DailyProps> = ({ date, schedules, projects }) => {
     openModal('default', ModalTypes.CHECK)
   }
 
-  // const filterPersonalSchedules = (schedules: ScheduleInfo[]) => {
-  //   return schedules.filter((schedule) => schedule.projectId === null)
-  // }
+  const filterAllDaySchedules = (schedules: ScheduleInfo[]) => {
+    return schedules.filter((schedule) => {
+      return schedule.startDate.toString() === schedule.endDate.toString()
+    })
+  }
+
+  const filterPersonalSchedules = (schedules: ScheduleInfo[]) => {
+    return schedules.filter((schedule) => schedule.projectId === null)
+  }
 
   const renderEvents = (projectId: string | null, hour: number) => {
-    const events = (schedules || []).filter(
-      (schedule: ScheduleInfo) => schedule.projectId === projectId,
-    )
+    const events = projectId
+      ? (schedules || []).filter(
+          (schedule: ScheduleInfo) => schedule.projectId === projectId,
+        )
+      : filterPersonalSchedules(schedules || [])
 
     return (
       <EventRenderer
@@ -55,12 +63,12 @@ export const Daily: React.FC<DailyProps> = ({ date, schedules, projects }) => {
     <div className="flex w-[864px] shrink-0 flex-col items-start gap-[10px] p-4">
       <div className="flex items-center justify-between self-stretch">
         <div className="flex h-[48px] w-[80px]" />
-        {/* <p className="flex-[1_0_0] gap-[10px] text-center text-large">
+        <p className="flex-[1_0_0] gap-[10px] text-center text-large">
           나의 일정
-        </p> */}
+        </p>
         {projects?.map((project) => (
           <p
-            className="flex-[1_0_0] gap-[10px] text-center text-large"
+            className="flex-1 gap-[10px] text-center text-large"
             key={project.uid}
           >
             {project.title}
@@ -72,6 +80,9 @@ export const Daily: React.FC<DailyProps> = ({ date, schedules, projects }) => {
         <div className="flex items-center self-stretch border-b border-gray-300">
           <div className="flex items-center justify-center gap-[10px] p-[10px]">
             <p className="text-subtle">하루종일</p>
+            {filterAllDaySchedules(schedules || []).map((schedule) => (
+              <TimeSlot key={schedule.id}>{renderEvents(null, 10)}</TimeSlot>
+            ))}
           </div>
         </div>
 
@@ -84,6 +95,7 @@ export const Daily: React.FC<DailyProps> = ({ date, schedules, projects }) => {
             <div className="absolute bottom-[-10px] left-[15px] text-subtle">
               {hour}
             </div>
+            <TimeSlot key="personal">{renderEvents(null, index)}</TimeSlot>
             {projects?.map((project) => (
               <TimeSlot key={project.uid}>
                 {renderEvents(project.uid, index)}

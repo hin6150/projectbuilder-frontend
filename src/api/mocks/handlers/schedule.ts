@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw'
 import { ScheduleVisibility } from '@/api/services/schedule/model'
 
 export const scheduleHandlers = [
-  http.get(`${process.env.NEXT_PUBLIC_API_URL}/schedule`, () => {
+  http.get(`${process.env.NEXT_PUBLIC_API_URL}/schedule/list`, () => {
     return HttpResponse.json({
       code: 200,
       result: [
@@ -32,6 +32,14 @@ export const scheduleHandlers = [
         },
         {
           id: '4',
+          title: '데모데모 데이',
+          startDate: '2024-08-28 4:00',
+          endDate: '2024-08-28 12:00',
+          visible: ScheduleVisibility.PUBLIC,
+          projectId: 'd470a00c-63f4-4234-bd1f-64fbcf4ba1b6',
+        },
+        {
+          id: '5',
           title: '일정이름 입니다',
           startDate: '2024-08-31',
           endDate: '2024-08-31',
