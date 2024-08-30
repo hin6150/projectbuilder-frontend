@@ -101,7 +101,7 @@ export const useDeleteScheduleMutation = (
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...scheduleOptions.useDeleteSchedule(queryClient, id),
+    ...scheduleOptions.useDeleteSchedule(queryClient, id, deleteType),
     ...options,
   })
 }

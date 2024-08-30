@@ -134,8 +134,8 @@ export const ScheduleCreateModal = () => {
             (form.watch('endDate') as Date | undefined)?.toISOString() ??
             undefined,
           visible: form.watch('visible') as ScheduleVisibility | undefined,
-          projectId: form.watch('projectId'),
-          inviteList: form.watch('inviteList'),
+          // projectId: form.watch('projectId'),
+          // inviteList: form.watch('inviteList'),
         })
       },
       onError: (e) => {
@@ -317,7 +317,7 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
       startDate: new Date(),
       endDate: new Date(),
       visible: 'PRIVATE',
-      projectId: '',
+      projectId: undefined,
       inviteList: [],
     },
   })
@@ -330,8 +330,8 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
       startDate: form.watch('startDate').toISOString(),
       endDate: form.watch('endDate').toISOString(),
       visible: form.watch('visible') as ScheduleVisibility | undefined,
-      // projectId: form.watch('projectId'),
-      // inviteList: form.watch('inviteList'),
+      projectId: form.watch('projectId'),
+      inviteList: form.watch('inviteList'),
     },
     {
       onSuccess: () => {
@@ -345,8 +345,8 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
           startDate: form.watch('startDate').toISOString(),
           endDate: form.watch('endDate').toISOString(),
           visible: form.watch('visible') as ScheduleVisibility | undefined,
-          // projectId: form.watch('projectId'),
-          // inviteList: form.watch('inviteList'),
+          projectId: form.watch('projectId'),
+          inviteList: form.watch('inviteList'),
         })
       },
       onError: (e) => {
@@ -362,8 +362,8 @@ export const ScheduleEditModal = ({ scheduleId }: { scheduleId: string }) => {
       form.setValue('startDate', new Date(schedules.result.startDate))
       form.setValue('endDate', new Date(schedules.result.endDate ?? ''))
       form.setValue('visible', schedules.result.visible ?? '')
-      // form.setValue('projectId', schedules.result.projectId ?? '')
-      // form.setValue('inviteList', schedules.result.inviteList||[])
+      // form.setValue('projectId', schedules.result.projectId)
+      // form.setValue('inviteList', schedules.result.inviteList || [])
     }
   }, [schedules])
 

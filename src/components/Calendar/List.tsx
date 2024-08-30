@@ -60,7 +60,7 @@ export function List({ schedules, projects }: ListProps) {
 
   const getProjectColor = (projectId: string) => {
     return (
-      projects?.find((project) => project.uid === projectId)?.color || '#ccc'
+      projects?.find((project) => project.id === projectId)?.color || '#ccc'
     )
   }
 

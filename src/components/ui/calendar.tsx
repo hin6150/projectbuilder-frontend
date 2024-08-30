@@ -96,12 +96,8 @@ function MiniCalendar({
   onMonthChange,
   ...props
 }: MiniCalendarProps) {
-  const today = new Date()
   const formattedDate = format(date, 'yyyy년 MM월')
-  const start = startOfWeek(today, { weekStartsOn: 0 }) // 주의 시작일을 일요일로 설정
-  const end = endOfWeek(today, { weekStartsOn: 0 }) // 주의 끝일을 토요일로 설정
   const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토']
-  const isCurrentWeek = isWithinInterval(today, { start, end })
 
   const handleDayClick = (date: Date) => {
     if (onSelect) {
@@ -111,7 +107,7 @@ function MiniCalendar({
   return (
     <DayPicker
       onMonthChange={onMonthChange}
-      selected={selected}
+      selected={date}
       showOutsideDays={showOutsideDays}
       className={cn('p-3', className)}
       classNames={{

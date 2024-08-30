@@ -31,6 +31,12 @@ export const Daily: React.FC<DailyProps> = ({ date, schedules, projects }) => {
     openModal('default', ModalTypes.CHECK)
   }
 
+  const filterAllDaySchedules = (schedules: ScheduleInfo[]) => {
+    return schedules.filter((schedule) => {
+      return schedule.startDate.toString() === schedule.endDate.toString()
+    })
+  }
+
   const filterPersonalSchedules = (schedules: ScheduleInfo[]) => {
     return schedules.filter((schedule) => schedule.projectId === null)
   }
@@ -62,7 +68,7 @@ export const Daily: React.FC<DailyProps> = ({ date, schedules, projects }) => {
         </p>
         {projects?.map((project) => (
           <p
-            className="flex-[1_0_0] gap-[10px] text-center text-large"
+            className="flex-1 gap-[10px] text-center text-large"
             key={project.uid}
           >
             {project.title}
@@ -74,6 +80,9 @@ export const Daily: React.FC<DailyProps> = ({ date, schedules, projects }) => {
         <div className="flex items-center self-stretch border-b border-gray-300">
           <div className="flex items-center justify-center gap-[10px] p-[10px]">
             <p className="text-subtle">하루종일</p>
+            {filterAllDaySchedules(schedules || []).map((schedule) => (
+              <TimeSlot key={schedule.id}>{renderEvents(null, 10)}</TimeSlot>
+            ))}
           </div>
         </div>
 

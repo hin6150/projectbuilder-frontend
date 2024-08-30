@@ -27,7 +27,7 @@ const Header: React.FC = () => {
               </div>
             </DropdownMenuItem>
           </Link>
-          <Link href="/schedule/monthly">
+          <Link href="/schedule">
             <DropdownMenuItem>
               <div className="flex items-center gap-2 p-2">
                 <CalendarCheckIcon size={16} />
