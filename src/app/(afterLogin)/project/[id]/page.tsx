@@ -7,22 +7,16 @@ import { useOneProjectInfoQuery } from '@/api/services/project/quries'
 
 const Page = () => {
   const path = usePathname()
-  // const { data, isLoading } = useProjectInfoQuery()
-  const id = path.split('/').pop() as string | null
-  const { data, isLoading } = useOneProjectInfoQuery(id ?? '')
 
+  const id = path.split('/').pop() || null
+  const { data, isLoading } = useOneProjectInfoQuery(id as string, {
+    enabled: !!id,
+  })
   const { data: meetingData } = useRecommedMeetingTimesQuery({
     projectId: id!,
     startDate: '2024-09-01', // 예시: 시작 날짜
     endDate: '2024-09-30', // 예시: 종료 날짜
   })
-
-  // useEffect(() => {
-  //   if (data && id) {
-  //     const project = data.result.find((project) => project.id === id)
-  //     setSelectedProject(project || null)
-  //   }
-  // }, [data, id])
 
   if (isLoading) {
     return null
@@ -38,7 +32,7 @@ const Page = () => {
 
   return (
     <>
-      {/* <ProjectContainer data={data.result} id={id} /> */}
+      {/* <ProjectContainer data={data.result} /> */}
 
       <div className="flex flex-col gap-3 p-[10px]">
         <p className="text-body">프로젝트 팀원</p>

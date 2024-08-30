@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 import { MSWComponent } from '@/api/MSWComponent'
+import { InitialSetting } from '@/components/InitialSetting'
 import { ModalContextProvider } from '@/hooks/useModal/useModal'
 import { cn } from '@/lib/utils'
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
@@ -24,6 +25,7 @@ export default function RootLayout({
           <MSWComponent>
             <ReactQueryProvider>
               <ModalContextProvider>
+                <InitialSetting />
                 <div>{children}</div>
                 <div id="scheduleModal" />
                 <div id="modal" />
@@ -33,6 +35,7 @@ export default function RootLayout({
         ) : (
           <ReactQueryProvider>
             <ModalContextProvider>
+              <InitialSetting />
               <div>{children}</div>
               <div id="scheduleModal" />
               <div id="modal" />

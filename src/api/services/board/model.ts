@@ -1,3 +1,5 @@
+import { Comment } from "../comment/model"
+
 export const enum BoardCategory {
   issue = '이슈',
   feadback = '피드백',
@@ -8,18 +10,23 @@ export const enum BoardProgress {
   problem = '긴급',
 }
 export interface InputBoard {
+  id?: string
   title: string
   content: string
   category: BoardCategory
   progress: BoardProgress
-  masterId: number[]
+  mastersId: number[] | []
 }
 export interface BoardDto {
+  id: string
   title: string
   content: string
+  userName: string
   category: BoardCategory
   progress: BoardProgress
-  masters: MasterDto[]
+  masters: MasterDto[] | []
+  createdAt: string
+  comments: Comment[] | []
 }
 interface MasterDto {
   id: number
@@ -35,4 +42,6 @@ export interface BoardResponse<T> {
 
 export interface BoardProps {
   items: BoardDto[]
+  SelectedItems: string[]
+  setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>
 }

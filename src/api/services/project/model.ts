@@ -14,10 +14,18 @@ export const enum ProjectUserRole {
 
 export interface ProjectUserInfo {
   id: string
-  avatar: string | undefined
+  imageUrl: string | undefined
   name: string
   email: string
-  stack: string[]
+  contact: string
+  stackNames: string[]
+  location: string
+  tools: tooldto[] | []
+  mbti: string
+}
+interface tooldto {
+  toolName: string
+  email: string
 }
 
 export interface ProjectInfo {

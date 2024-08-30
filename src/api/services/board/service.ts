@@ -11,7 +11,7 @@ export const BoardService = {
   },
 
   async boardInfo(client: QueryClient, uid: string) {
-    return APIBuilder.get(`/project/board/${uid}`)
+    return APIBuilder.get(`/project/{projectId}/board/${uid}`)
       .withCredentials(client)
       .build()
       .call<BoardResponse<BoardDto>>()
@@ -24,15 +24,15 @@ export const BoardService = {
       .call<BoardResponse<string>>({ body: JSON.stringify(dto) })
   },
 
-  async updateBoard(client: QueryClient, uid: string, dto: InputBoard) {
-    return APIBuilder.put(`/project/board/${uid}`)
+  async updateBoard(client: QueryClient, dto: InputBoard) {
+    return APIBuilder.put(`/project/{projectId}/board/${dto.id}`)
       .withCredentials(client)
       .build()
       .call<BoardResponse<null>>({ body: JSON.stringify(dto) })
   },
 
   async deleteBoard(client: QueryClient, uid: string) {
-    return APIBuilder.delete(`/project/board/${uid}`)
+    return APIBuilder.delete(`/project/{projectId}/board/${uid}`)
       .withCredentials(client)
       .build()
       .call<BoardResponse<null>>()
