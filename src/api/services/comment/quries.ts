@@ -1,6 +1,6 @@
 import { MutationOptions, QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CommentService } from "./service";
-import { Comment, CommentResponse } from "./model";
+import { Comment, CommentResponse, InputComment } from "./model";
 import { CustomQueryOptions } from "@/api/type";
 
 const CommentQueryOptions = {
@@ -9,13 +9,13 @@ const CommentQueryOptions = {
     queryFn: () => CommentService.commentListInfo(client, uid)
   }),
   addComment: (client: QueryClient, uid: string) => ({
-    mutationFn: (dto: Comment) => CommentService.addComment(client, uid, dto) 
+    mutationFn: (dto: InputComment) => CommentService.addComment(client, uid, dto) 
   }),
   updateComment: (client: QueryClient, uid: string) => ({
-    mutationFn: (dto: Comment) => CommentService.updateComment(client, uid, dto) 
+    mutationFn: (dto: InputComment) => CommentService.updateComment(client, uid, dto) 
   }),
-  deleteComment: (client: QueryClient, uid: string) => ({
-    mutationFn: (dto: Comment) => CommentService.deleteComment(client, uid, dto) 
+  deleteComment: (client: QueryClient) => ({
+    mutationFn: (uid: string) => CommentService.deleteComment(client, uid) 
   }),
 }
 
@@ -32,34 +32,33 @@ export const useCommentListQuery = (
 }
 export const useAddCommentMutation= (
   uid: string,
-  options: MutationOptions<CommentResponse<string>, Error, Comment> = {},
+  options: MutationOptions<CommentResponse<string>, Error, InputComment> = {},
 ) => {
   const queryClient = useQueryClient()
 
-  return useMutation<CommentResponse<string>, Error, Comment>({
+  return useMutation<CommentResponse<string>, Error, InputComment>({
     ...CommentQueryOptions.addComment(queryClient, uid),
     ...options,
   })
 }
 export const useUpdateCommentMutation= (
   uid: string,
-  options: MutationOptions<CommentResponse<null>, Error, Comment> = {},
+  options: MutationOptions<CommentResponse<null>, Error, InputComment> = {},
 ) => {
   const queryClient = useQueryClient()
 
-  return useMutation<CommentResponse<null>, Error, Comment>({
+  return useMutation<CommentResponse<null>, Error, InputComment>({
     ...CommentQueryOptions.updateComment(queryClient, uid),
     ...options,
   })
 }
 export const useDeleteCommentMutation= (
-  uid: string,
-  options: MutationOptions<CommentResponse<null>, Error, Comment> = {},
+  options: MutationOptions<CommentResponse<null>, Error, string> = {},
 ) => {
   const queryClient = useQueryClient()
 
-  return useMutation<CommentResponse<null>, Error, Comment>({
-    ...CommentQueryOptions.deleteComment(queryClient, uid),
+  return useMutation<CommentResponse<null>, Error, string>({
+    ...CommentQueryOptions.deleteComment(queryClient),
     ...options,
   })
 }

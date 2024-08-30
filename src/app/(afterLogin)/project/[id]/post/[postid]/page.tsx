@@ -7,11 +7,12 @@ import {
   useAddCommentMutation,
   useCommentListQuery,
   useDeleteCommentMutation,
+  useUpdateCommentMutation,
 } from '@/api/services/comment/quries'
 import { ProfileAvatar } from '@/components/Avatar/Avatar'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { ko } from 'date-fns/locale'
+import { da, ko } from 'date-fns/locale'
 import { useParams, usePathname } from 'next/navigation'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
@@ -19,7 +20,7 @@ import { toast } from 'sonner'
 interface CommentContainerProps {
   comment: Comment
   onEdit: (newComment: string) => void
-  onDelete: () => void
+  onDelete: (data: Comment) => void
 }
 const CommentContainer: React.FC<CommentContainerProps> = ({
   comment,
@@ -28,14 +29,24 @@ const CommentContainer: React.FC<CommentContainerProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editedContent, setEditedContent] = useState('')
+  const queryClient = useQueryClient()
 
   const handleEditClick = () => {
     setIsEditing(true)
     setEditedContent(comment.description)
   }
 
+  const updateComment = useUpdateCommentMutation(comment?.id ?? '', {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['commentList'] })
+      queryClient.invalidateQueries({ queryKey: ['board'] })
+      toast(`댓글 수정 성공`)
+    },
+  })
+
   const handleSaveClick = () => {
     onEdit(editedContent)
+    updateComment.mutate({ description: editedContent })
     setIsEditing(false)
   }
 
@@ -77,7 +88,7 @@ const CommentContainer: React.FC<CommentContainerProps> = ({
           ) : (
             <>
               <SvgIcon name="edit" onClick={handleEditClick} />
-              <SvgIcon name="delete" />
+              <SvgIcon name="delete" onClick={() => onDelete(comment)} />
             </>
           )}
         </div>
@@ -106,9 +117,7 @@ const PostContainer: React.FC<{
 
   console.log(board)
 
-  if (!board) return <div>board가 없음</div>
-
-  const AddComment = useAddCommentMutation(board.id, {
+  const addComment = useAddCommentMutation(board?.id, {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['board'] })
       queryClient.invalidateQueries({ queryKey: ['commentList'] })
@@ -117,8 +126,18 @@ const PostContainer: React.FC<{
     onError: () => toast(`댓글 생성 실패`),
   })
 
-  const handleDelete = () => {
-    console.log('댓글이 삭제되었습니다.') // api 연동하기
+  const deleteComment = useDeleteCommentMutation({
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['board'] })
+      queryClient.invalidateQueries({ queryKey: ['commentList'] })
+      toast('댓글 삭제 성공')
+    },
+    onError: () => toast(`댓글 삭제 실패`),
+  })
+
+  const handleDelete = (data: Comment) => {
+    deleteComment.mutate(data?.id ?? '')
+    console.log('댓글이 삭제되었습니다.')
   }
 
   const handleEdit = (newComment: string) => {}
@@ -130,72 +149,73 @@ const PostContainer: React.FC<{
   }
 
   const handleCommentSubmit = () => {
-    console.log(comment)
-
-    AddComment.mutate({ description: comment })
-
+    addComment.mutate({ description: comment })
     setComment('')
   }
 
   return (
     <div className="h-screen">
-      <div className="mt-[14px] flex flex-col gap-[24px] rounded-md border-2 border-slate-200 p-[24px]">
-        <div className="flex justify-between">
-          <div className="flex gap-[16px]">
-            <div className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-red-200 px-[8px]">
-              <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
-              <span className="w-full text-center">{board.progress}</span>
+      {board && (
+        <>
+          <div className="mt-[14px] flex flex-col gap-[24px] rounded-md border-2 border-slate-200 p-[24px]">
+            <div className="flex justify-between">
+              <div className="flex gap-[16px]">
+                <div className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-red-200 px-[8px]">
+                  <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                  <span className="w-full text-center">{board?.progress}</span>
+                </div>
+                <div className="text-h3">{board?.title}</div>
+                <div className="flex items-end font-pretendard text-[14px] font-semibold leading-[20px] text-gray-400">
+                  {board?.category}
+                </div>
+              </div>
+              <div className="flex gap-[12px]">
+                <SvgIcon name="edit" />
+                <SvgIcon name="delete" />
+              </div>
             </div>
-            <div className="text-h3">{board.title}</div>
-            <div className="flex items-end font-pretendard text-[14px] font-semibold leading-[20px] text-gray-400">
-              {board.category}
+            <div className="flex gap-[8px]">
+              <div className="author">{board?.userName}</div>
+              <div className="flex items-end text-[12px] text-gray-500">
+                {format(board.createdAt, 'yy.MM.dd (EEE)', { locale: ko })}
+              </div>
+            </div>
+            <hr className="border-t border-gray-300" />
+            <div className="flex text-blue-500">
+              {board?.masters.map((user) => `@${user.name}`).join(' ')}
+            </div>
+            <div className="flex">{board?.content}</div>
+          </div>
+          <div className="flex h-[65vh] flex-col justify-between">
+            {comments?.map((comment) => (
+              <CommentContainer
+                comment={comment}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+            <div className="flex flex-col gap-[10px] pb-[48px]">
+              <div className="font-inter mt-3 text-xl font-medium leading-4 text-black">
+                댓글
+              </div>
+              <textarea
+                value={comment}
+                onChange={handleCommentChange}
+                className="h-[80px] w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="댓글을 적어 주세요."
+              />
+              <div className="flex flex-row justify-end">
+                <button
+                  onClick={handleCommentSubmit}
+                  className="w-[89px] rounded border px-[16px] py-[8px] font-pretendard text-sm font-normal leading-6 text-slate-900"
+                >
+                  등록
+                </button>
+              </div>
             </div>
           </div>
-          <div className="flex gap-[12px]">
-            <SvgIcon name="edit" />
-            <SvgIcon name="delete" />
-          </div>
-        </div>
-        <div className="flex gap-[8px]">
-          <div className="author">{board.userName}</div>
-          <div className="flex items-end text-[12px] text-gray-500">
-            {format(board.createdAt, 'yy.MM.dd (EEE)', { locale: ko })}
-          </div>
-        </div>
-        <hr className="border-t border-gray-300" />
-        <div className="flex text-blue-500">
-          {board.masters.map((user) => `@${user.name}`).join(' ')}
-        </div>
-        <div className="flex">{board.content}</div>
-      </div>
-      <div className="flex h-[65vh] flex-col justify-between">
-        {comments?.map((comment) => (
-          <CommentContainer
-            comment={comment}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ))}
-        <div className="flex flex-col gap-[10px] pb-[48px]">
-          <div className="font-inter mt-3 text-xl font-medium leading-4 text-black">
-            댓글
-          </div>
-          <textarea
-            value={comment}
-            onChange={handleCommentChange}
-            className="h-[80px] w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="댓글을 적어 주세요."
-          />
-          <div className="flex flex-row justify-end">
-            <button
-              onClick={handleCommentSubmit}
-              className="w-[89px] rounded border px-[16px] py-[8px] font-pretendard text-sm font-normal leading-6 text-slate-900"
-            >
-              등록
-            </button>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }
