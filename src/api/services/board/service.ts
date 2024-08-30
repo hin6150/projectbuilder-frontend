@@ -11,7 +11,7 @@ export const BoardService = {
   },
 
   async boardInfo(client: QueryClient, uid: string) {
-    return APIBuilder.get(`/project/board/${uid}`)
+    return APIBuilder.get(`/project/{projectId}/board/${uid}`)
       .withCredentials(client)
       .build()
       .call<BoardResponse<BoardDto>>()

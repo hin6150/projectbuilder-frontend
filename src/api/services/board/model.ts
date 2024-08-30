@@ -1,3 +1,5 @@
+import { Comment } from "../comment/model"
+
 export const enum BoardCategory {
   issue = '이슈',
   feadback = '피드백',
@@ -19,10 +21,12 @@ export interface BoardDto {
   id: string
   title: string
   content: string
+  userName: string
   category: BoardCategory
   progress: BoardProgress
   masters: MasterDto[] | []
   createdAt: string
+  comments: Comment[] | []
 }
 interface MasterDto {
   id: number

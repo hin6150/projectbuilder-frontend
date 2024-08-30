@@ -1,7 +1,7 @@
 import React, { useState, useEffect, SetStateAction } from 'react'
 import { Calendar } from '@/components/ui/calendar'
 import { Checkbox } from '@/components/ui/checkbox'
-import { ko } from 'date-fns/locale'
+import { id, ko } from 'date-fns/locale'
 import { ProjectInfo, useProjectInfoQuery } from '@/api'
 import { format } from 'date-fns'
 import { Check } from 'lucide-react'
@@ -26,6 +26,7 @@ import { QueryClient, useQueryClient } from '@tanstack/react-query'
 import { error, time } from 'console'
 import { ProjectUserInfo } from '@/api/services/project/model'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface TeamCheckboxProps {
   id: string
@@ -674,7 +675,8 @@ const Board: React.FC<BoardProps> = ({
     direction: string
   } | null>(null)
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
-  const qeuryClient = useQueryClient()
+  const queryClient = useQueryClient()
+  const route = useRouter()
 
   const handleSelectItem = (id: string) => {
     setSelectedItems((prevSelectedItems) =>
@@ -758,7 +760,7 @@ const Board: React.FC<BoardProps> = ({
 
   const UpdateBoard = useUpdateBoardMutation({
     onSuccess: () => {
-      qeuryClient.invalidateQueries({ queryKey: ['boardList'] })
+      queryClient.invalidateQueries({ queryKey: ['boardList'] })
       toast('보드 수정 성공', { duration: 3000 })
     },
     onError: () => toast('보드 수정 실패', { duration: 3000 }),
@@ -951,8 +953,16 @@ const Board: React.FC<BoardProps> = ({
         <table className="w-full bg-white">
           <tbody>
             {sortedItems.map((item, index) => (
-              <tr key={index}>
-                <td className="w-[50px] border-b px-5 py-2">
+              <tr
+                key={index}
+                onClick={() =>
+                  route.push(`${window.location.pathname}/post/${item.id}`)
+                }
+              >
+                <td
+                  className="w-[50px] border-b px-5 py-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Checkbox
                     checked={SelectedItems.includes(item.id)}
                     onCheckedChange={() => {
@@ -963,7 +973,12 @@ const Board: React.FC<BoardProps> = ({
                 <td className="w-[100px] border-b px-4 py-2">
                   {item.category}
                 </td>
-                <td className="w-[200px] border-b px-4 py-2">{item.title}</td>
+                <td
+                  className="w-[200px] border-b px-4 py-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {item.title}
+                </td>
                 <td className="w-[150px] border-b px-4 py-2">
                   {item.masters.length === 0
                     ? null
@@ -974,7 +989,10 @@ const Board: React.FC<BoardProps> = ({
                 <td className="w-[150px] border-b px-4 py-2">
                   {format(item.createdAt, 'yy.MM.dd (EEE)', { locale: ko })}
                 </td>
-                <td className="relative w-[100px] border-b px-4 py-2">
+                <td
+                  className="relative w-[100px] border-b px-4 py-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {renderStatus(item.progress, index)}
                 </td>
               </tr>

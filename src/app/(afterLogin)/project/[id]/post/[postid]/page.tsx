@@ -1,52 +1,37 @@
 'use client'
 
+import { BoardDto, BoardResponse } from '@/api/services/board/model'
+import { useBoardQuery } from '@/api/services/board/quries'
+import { Comment, CommentResponse } from '@/api/services/comment/model'
+import {
+  useAddCommentMutation,
+  useCommentListQuery,
+  useDeleteCommentMutation,
+} from '@/api/services/comment/quries'
 import { ProfileAvatar } from '@/components/Avatar/Avatar'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { format } from 'date-fns'
+import { ko } from 'date-fns/locale'
+import { useParams, usePathname } from 'next/navigation'
 import React, { useState } from 'react'
-
-interface Member {
-  id: number
-  name: string
-  imageUrl: string
-}
-
-interface User {
-  name: string
-  createdAt: string
-}
-
-interface Comment {
-  user: User
-  comment: string
-}
+import { toast } from 'sonner'
 
 interface CommentContainerProps {
   comment: Comment
   onEdit: (newComment: string) => void
   onDelete: () => void
 }
-
-type PostContainerProps = {
-  type: string
-  title: string
-  assignee: string
-  createdDate: string
-  status: string
-}
 const CommentContainer: React.FC<CommentContainerProps> = ({
   comment,
   onEdit,
   onDelete,
 }) => {
-  const members: Member[] = [
-    { id: 1, name: '홍길동', imageUrl: '' },
-    { id: 2, name: '홍길동', imageUrl: '' },
-    { id: 3, name: '홍길동', imageUrl: '' },
-  ]
   const [isEditing, setIsEditing] = useState(false)
-  const [editedContent, setEditedContent] = useState(comment.comment)
+  const [editedContent, setEditedContent] = useState('')
 
   const handleEditClick = () => {
     setIsEditing(true)
+    setEditedContent(comment.description)
   }
 
   const handleSaveClick = () => {
@@ -65,13 +50,15 @@ const CommentContainer: React.FC<CommentContainerProps> = ({
           <div className="flex items-center gap-[8px]">
             <ProfileAvatar
               size="32"
-              imageUrl={members[1].imageUrl}
-              name={members[1].name}
+              imageUrl={comment.user}
+              name={comment.user}
             />
-            <div className="author">{comment.user.name}</div>
+            <div className="author">{comment.user}</div>
           </div>
           <div className="flex items-end text-[12px]">
-            {comment.user.createdAt}
+            {format(comment.createdAt, 'yy.MM.dd HH:mm (EEE)', {
+              locale: ko,
+            })}
           </div>
         </div>
         <div className="flex gap-[12px]">
@@ -95,55 +82,46 @@ const CommentContainer: React.FC<CommentContainerProps> = ({
           )}
         </div>
       </div>
-      <hr className="border-t border-gray-300" />
-      {isEditing ? (
-        <textarea
-          value={editedContent}
-          onChange={handleChange}
-          className="w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      ) : (
-        <div className="flex">{comment.comment}</div>
-      )}
+      <div>
+        <hr className="border-t border-gray-300" />
+        {isEditing ? (
+          <textarea
+            value={editedContent}
+            onChange={handleChange}
+            className="w-full rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        ) : (
+          <div className="flex px-2 py-3">{comment.description}</div>
+        )}
+      </div>
     </div>
   )
 }
-
-const commentData: Comment = {
-  user: {
-    name: '홍길동',
-    createdAt: '2024.08.01 오후 4:00',
-  },
-  comment: 'asdsa',
-}
-
-const PostContainer: React.FC<PostContainerProps> = ({
-  type,
-  title,
-  assignee,
-  createdDate,
-  status,
-}) => {
+const PostContainer: React.FC<{
+  board: BoardDto
+  comments: Comment[] | []
+}> = ({ board, comments }) => {
   const [comment, setComment] = useState<string>('')
+  const queryClient = useQueryClient()
+
+  console.log(board)
+
+  if (!board) return <div>board가 없음</div>
+
+  const AddComment = useAddCommentMutation(board.id, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['board'] })
+      queryClient.invalidateQueries({ queryKey: ['commentList'] })
+      toast(`댓글 생성 성공`)
+    },
+    onError: () => toast(`댓글 생성 실패`),
+  })
 
   const handleDelete = () => {
     console.log('댓글이 삭제되었습니다.') // api 연동하기
   }
-  const [commentData, setCommentData] = useState<Comment>({
-    user: {
-      name: '홍길동',
-      createdAt: '2024.08.01 오후 4:00',
-    },
-    comment:
-      '댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다. 댓글 내용입니다.',
-  })
 
-  const handleEdit = (newComment: string) => {
-    setCommentData((prev) => ({
-      ...prev,
-      comment: newComment,
-    }))
-  }
+  const handleEdit = (newComment: string) => {}
 
   const handleCommentChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>,
@@ -153,7 +131,9 @@ const PostContainer: React.FC<PostContainerProps> = ({
 
   const handleCommentSubmit = () => {
     console.log(comment)
-    // api 연동하기.
+
+    AddComment.mutate({ description: comment })
+
     setComment('')
   }
 
@@ -164,11 +144,11 @@ const PostContainer: React.FC<PostContainerProps> = ({
           <div className="flex gap-[16px]">
             <div className="relative flex w-[75px] cursor-pointer items-center rounded-[15px] bg-red-200 px-[8px]">
               <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
-              <span className="w-full text-center">긴급</span>
+              <span className="w-full text-center">{board.progress}</span>
             </div>
-            <div className="text-h3">{title}</div>
+            <div className="text-h3">{board.title}</div>
             <div className="flex items-end font-pretendard text-[14px] font-semibold leading-[20px] text-gray-400">
-              {type}
+              {board.category}
             </div>
           </div>
           <div className="flex gap-[12px]">
@@ -177,30 +157,27 @@ const PostContainer: React.FC<PostContainerProps> = ({
           </div>
         </div>
         <div className="flex gap-[8px]">
-          <div className="image">{assignee}</div>
-          <div className="author">홍길동</div>
-          <div className="flex items-end text-[12px]">{createdDate}</div>
+          <div className="author">{board.userName}</div>
+          <div className="flex items-end text-[12px] text-gray-500">
+            {format(board.createdAt, 'yy.MM.dd (EEE)', { locale: ko })}
+          </div>
         </div>
         <hr className="border-t border-gray-300" />
-        <div className="flex text-blue-500">@홍길동</div>
-        <div className="flex">
-          게시글내용입니다. 게시글내용입니다. 게시글내용입니다.
-          게시글내용입니다. 게시글내용입니다. 게시글내용입니다.
-          게시글내용입니다. 게시글내용입니다. 게시글내용입니다.
-          게시글내용입니다. 게시글내용입니다. 게시글내용입니다.
-          게시글내용입니다. 게시글내용입니다. 게시글내용입니다.
-          게시글내용입니다.
+        <div className="flex text-blue-500">
+          {board.masters.map((user) => `@${user.name}`).join(' ')}
         </div>
+        <div className="flex">{board.content}</div>
       </div>
-      <div className="flex h-full flex-col justify-between">
-        <CommentContainer
-          comment={commentData}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-
+      <div className="flex h-[65vh] flex-col justify-between">
+        {comments?.map((comment) => (
+          <CommentContainer
+            comment={comment}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ))}
         <div className="flex flex-col gap-[10px] pb-[48px]">
-          <div className="font-inter text-sm font-medium leading-4 text-black">
+          <div className="font-inter mt-3 text-xl font-medium leading-4 text-black">
             댓글
           </div>
           <textarea
@@ -318,14 +295,22 @@ const SvgIcon: React.FC<{ name: 'edit' | 'delete'; onClick?: () => void }> = ({
 }
 
 const Page = () => {
+  const path = usePathname()
+  const boardId = path.split('/post/').pop() || null
+  const BoardResponse = useBoardQuery(boardId as string, {
+    enabled: !!boardId,
+  })
+  const CommentResponse = useCommentListQuery(boardId as string, {
+    enabled: !!boardId,
+  })
+  const board = BoardResponse.data?.result
+  const comments = CommentResponse.data?.result
+
   return (
     <div>
       <PostContainer
-        type="이슈"
-        title="긴급 배포 이슈"
-        assignee="CN +2"
-        createdDate="2024. 07. 19"
-        status="긴급"
+        board={board as BoardDto}
+        comments={comments as Comment[] | []}
       />
     </div>
   )

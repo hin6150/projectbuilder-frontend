@@ -1,7 +1,8 @@
 export interface Comment {
   id?: string
   description: string
-  createdAt?: string
+  user: string
+  createdAt: string
   masterId?: number[] | []
 }
 export interface CommentResponse<T> {

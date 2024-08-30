@@ -15,7 +15,7 @@ export const BoardOptions = {
     queryFn: () => BoardService.boardListInfo(client, uid),
   }),
   BoardInfo: (client: QueryClient, uid: string) => ({
-    queryKey: ['board', uid],
+    queryKey: ['board'],
     queryFn: () => BoardService.boardInfo(client, uid),
   }),
   AddBoard: (client: QueryClient, uid: string) => ({
