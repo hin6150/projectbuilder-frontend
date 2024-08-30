@@ -17,9 +17,9 @@ import {
 } from '@/components/InputForm'
 import { formSchemaUserEdit } from '@/hooks/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
-import { useQueries, useQueryClient } from '@tanstack/react-query'
 
 const profileEdit: React.FC = () => {
   const router = useRouter()

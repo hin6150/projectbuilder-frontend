@@ -1,21 +1,20 @@
 'use client'
 
-import { useState } from 'react'
 import {
   useNotificationListQuery,
   useNotificationPost,
 } from '@/api/services/notification/quries'
+import { useState } from 'react'
 
-import { useOneProjectInfoQuery } from '@/api/services/project/quries'
+import { ProjectInviteStatus } from '@/api'
 import {
   Notification,
   NotificationType,
 } from '@/api/services/notification/model'
-import { ProjectInfo, ProjectInviteStatus } from '@/api'
+import { useOneProjectInfoQuery } from '@/api/services/project/quries'
+import { useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { useQueryClient } from '@tanstack/react-query'
-import { ProfileAvatar } from '../Avatar/Avatar'
 
 const ProjectInviteModal: React.FC<{
   onClose: () => void
@@ -25,7 +24,7 @@ const ProjectInviteModal: React.FC<{
   const projectResponse = useOneProjectInfoQuery(notification.originId)
   const project = projectResponse.data?.result || null
 
-  const notificationPost = useNotificationPost(notification.id, {
+  const notificationPost = useNotificationPost(notification.id.toString(), {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notificationList'] })
       queryClient.invalidateQueries({ queryKey: ['projectList'] })
@@ -321,7 +320,7 @@ const MeetingReminderModal: React.FC<{ onClose: () => void }> = ({
           </div>
         </div>
 
-        <div className="mt-4">
+        {/* <div className="mt-4">
           {members.map((member) => (
             <div
               key={member.id}
@@ -348,7 +347,7 @@ const MeetingReminderModal: React.FC<{ onClose: () => void }> = ({
               </span>
             </div>
           ))}
-        </div>
+        </div> */}
 
         <p className="mt-4 text-sm text-gray-600">
           서버 배포 후 결제 관련 이슈가 발생해 닫아놓은 상태입니다.

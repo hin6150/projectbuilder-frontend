@@ -3,6 +3,7 @@ import './globals.css'
 
 import { MSWComponent } from '@/api/MSWComponent'
 import { InitialSetting } from '@/components/InitialSetting'
+import { CalendarProvider } from '@/hooks/useCalendar/calendarContext'
 import { ModalContextProvider } from '@/hooks/useModal/useModal'
 import { cn } from '@/lib/utils'
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
@@ -25,10 +26,12 @@ export default function RootLayout({
           <MSWComponent>
             <ReactQueryProvider>
               <ModalContextProvider>
-                <InitialSetting />
-                <div>{children}</div>
-                <div id="scheduleModal" />
-                <div id="modal" />
+                <CalendarProvider>
+                  <InitialSetting />
+                  <div>{children}</div>
+                  <div id="scheduleModal" />
+                  <div id="modal" />
+                </CalendarProvider>
               </ModalContextProvider>
             </ReactQueryProvider>
           </MSWComponent>

@@ -27,7 +27,7 @@ const Home = () => {
     openModal('dimed', ModalTypes.CREATE)
   }
 
-  if (isLoading) {
+  if (isLoading || data == null) {
     return null
   }
 
@@ -67,7 +67,7 @@ const Home = () => {
       </div>
 
       <div className="flex flex-wrap gap-5">
-        {data?.result.map((projectData) => (
+        {data?.result?.map((projectData) => (
           <Card
             key={projectData.id}
             data={projectData}

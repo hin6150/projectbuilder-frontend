@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import { useModal } from '@/hooks/useModal'
+import { useProjectInfoQuery, useScheduleListQuery } from '@/api'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -7,6 +6,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useModal } from '@/hooks/useModal'
+import { ModalTypes } from '@/hooks/useModal/useModal'
+import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
+import React, { useState } from 'react'
+import { Button } from '../ui/button'
 import {
   Select,
   SelectContent,
@@ -16,22 +20,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
-import { useProjectInfoQuery, useScheduleListQuery } from '@/api'
-import { ModalTypes } from '@/hooks/useModal/useModal'
-import { Button } from '../ui/button'
 
+import { useCalendarContext } from '@/hooks/useCalendar/calendarContext'
+import { format } from 'date-fns'
+import { Daily } from '../Calendar/Daily'
+import { List } from '../Calendar/List'
+import { Monthly } from '../Calendar/Monthly'
+import { Weekly } from '../Calendar/Weekly'
 import {
+  RepeatScheduleDeleteModal,
   ScheduleCreateModal,
   ScheduleRepeatModal,
-  RepeatScheduleDeleteModal,
 } from '../Modal/ScheduleModal'
-import { Daily } from '../Calendar/Daily'
-import { useCalendarContext } from '@/app/(afterLogin)/schedule/page'
-import { format } from 'date-fns'
-import { List } from '../Calendar/List'
-import { Weekly } from '../Calendar/Weekly'
-import { Monthly } from '../Calendar/Monthly'
 
 type ViewType = 'monthly' | 'weekly' | 'daily' | 'list'
 

@@ -54,7 +54,7 @@ const Card = ({
                 <ProfileAvatar
                   key={index}
                   size="32"
-                  imageUrl={member.avatar}
+                  // imageUrl={member.}
                   name={member.name}
                 />
               ))}

@@ -8,7 +8,7 @@ export const userHandlers = [
       result: {
         id: 'c57a1af5-ccde-4a16-86d0-ad202e1c91f0',
         email: 'HongGildong@gmail.com',
-        status: UserStatus.SocialLoginCompleted,
+        status: UserStatus.LOGIN,
         onboardingCompleted: false,
         name: '홍길동',
         phone: '010-1234-5678',

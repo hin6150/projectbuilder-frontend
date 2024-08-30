@@ -1,18 +1,18 @@
 'use client'
-import * as React from 'react'
-import { MiniCalendar } from '@/components/ui/calendar'
-import { useCalendar } from '@/hooks/useCalendar'
-import { usePathname } from 'next/navigation'
 import { useProjectInfoQuery } from '@/api'
-import { TextGradientGenerator } from '@/components/ui/color-picker'
 import { CalendarHeader } from '@/components/Header/CalendarHeader'
+import { MiniCalendar } from '@/components/ui/calendar'
+import { TextGradientGenerator } from '@/components/ui/color-picker'
+import { useCalendar } from '@/hooks/useCalendar'
 import { useQueryClient } from '@tanstack/react-query'
+import { usePathname } from 'next/navigation'
+import * as React from 'react'
 
 type ViewType = 'monthly' | 'weekly' | 'list'
 
 const CalendarContext = React.createContext<any>(null)
 
-export const useCalendarContext = () => {
+const useCalendarContext = () => {
   const context = React.useContext(CalendarContext)
   if (!context) {
     throw new Error('useCalendarContext must be used within a CalendarProvider')
@@ -20,7 +20,7 @@ export const useCalendarContext = () => {
   return context
 }
 
-const page = () => {
+const Page = () => {
   const queryClient = useQueryClient()
   const { state, handlePrev, handleNext, handleToday } = useCalendar()
   const pathname = usePathname()
@@ -157,4 +157,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

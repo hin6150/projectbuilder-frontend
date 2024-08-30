@@ -35,7 +35,7 @@ export interface UserInfoResponse {
     name: string
     contact: string
     location: string
-    tools: {}
+    tools: [{ toolName: string; email: string }]
     stackNames: string[]
     mbti: string
     imageUrl: string
@@ -54,7 +54,7 @@ export interface UserOptionalInfoDTO {
   tools: {}
   location: string
   stacks: string[]
-  mbit: string | null
+  mbti: string | null
 }
 
 export interface EditUserInfoDTO {

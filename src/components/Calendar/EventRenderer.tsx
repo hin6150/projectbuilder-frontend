@@ -1,7 +1,7 @@
 'use client'
-import * as React from 'react'
-import { getHours, getMinutes, isSameDay, addDays } from 'date-fns'
 import { ScheduleInfo, useProjectInfoQuery } from '@/api'
+import { addDays, getHours, getMinutes, isSameDay } from 'date-fns'
+import * as React from 'react'
 import { getBorderColor } from './style'
 
 const formatTime = (date: Date) => {
@@ -31,7 +31,7 @@ export const EventRenderer: React.FC<EventRendererProps> = ({
 
   const getProjectColor = (projectId: string) => {
     return (
-      projectsData?.result.find((project) => project.uid === projectId)
+      projectsData?.result?.find((project) => project.id === projectId)
         ?.color || '#ccc'
     )
   }
