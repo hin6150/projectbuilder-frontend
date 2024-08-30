@@ -7,10 +7,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { ScheduleInfo, useProjectInfoQuery } from '@/api'
-import { ModalTypes } from '@/hooks/useModal/useModal'
 import {
   Select,
   SelectContent,

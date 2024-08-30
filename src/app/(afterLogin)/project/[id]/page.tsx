@@ -32,7 +32,7 @@ const Page = () => {
 
   return (
     <>
-      {/* <ProjectContainer data={data.result} /> */}
+      <ProjectContainer data={data.result} />
 
       <div className="flex flex-col gap-3 p-[10px]">
         <p className="text-body">프로젝트 팀원</p>
