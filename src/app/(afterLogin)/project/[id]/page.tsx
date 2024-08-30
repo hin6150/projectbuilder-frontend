@@ -5,20 +5,13 @@ import { usePathname } from 'next/navigation'
 import { useProjectInfoQuery, ProjectInfo } from '@/api'
 import { useState, useEffect } from 'react'
 import { useOneProjectInfoQuery } from '@/api/services/project/quries'
-import { da } from 'date-fns/locale'
 
 const Page = () => {
   const path = usePathname()
-  // const { data, isLoading } = useProjectInfoQuery()
-  const id = path.split('/').pop()
-  const { data, isLoading } = useOneProjectInfoQuery(id)
-
-  // useEffect(() => {
-  //   if (data && id) {
-  //     const project = data.result.find((project) => project.id === id)
-  //     setSelectedProject(project || null)
-  //   }
-  // }, [data, id])
+  const id = path.split('/').pop() || null
+  const { data, isLoading } = useOneProjectInfoQuery(id as string, {
+    enabled: !!id,
+  })
 
   if (isLoading) {
     return null
@@ -34,7 +27,7 @@ const Page = () => {
 
   return (
     <div>
-      <ProjectContainer data={data.result} id={id} />
+      <ProjectContainer data={data.result} />
     </div>
   )
 }

@@ -19,9 +19,11 @@ import { formSchemaUserEdit } from '@/hooks/useVaild'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
+import { useQueries, useQueryClient } from '@tanstack/react-query'
 
 const profileEdit: React.FC = () => {
   const router = useRouter()
+  const queryClinet = useQueryClient()
   const [entries, setEntries] = React.useState<
     { tool: string; email: string }[]
   >([])
@@ -63,6 +65,7 @@ const profileEdit: React.FC = () => {
     },
     {
       onSuccess: () => {
+        queryClinet.invalidateQueries({ queryKey: ['projectList'] })
         router.push('/home')
       },
     },

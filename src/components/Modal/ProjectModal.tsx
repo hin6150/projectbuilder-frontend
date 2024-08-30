@@ -283,7 +283,7 @@ export const ProjectDeleteModal = ({ uid }: { uid: string }) => {
 }
 
 export const ProjectInviteModal = ({ uid }: { uid: string }) => {
-  const { data } = useTeamInfoQuery({}, uid)
+  const { data } = useTeamInfoQuery(uid)
   const [inviteEmailList, setInviteEmailList] = useState<TeamInfo[]>([])
   const queryClient = useQueryClient()
 
@@ -310,17 +310,22 @@ export const ProjectInviteModal = ({ uid }: { uid: string }) => {
     uid,
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['teamList', 'projectList'] })
+        queryClient.invalidateQueries({ queryKey: ['teamList'] })
+        queryClient.invalidateQueries({ queryKey: ['projectList'] })
       },
       onError: (e) => {
-        console.log(e)
+        if (e.message === '404') {
+          toast('없는 유저입니다.', { duration: 3000 })
+        }
+        form.reset()
       },
     },
   )
 
   const deleteTeamInfo = useDeleteTeamInfo(uid, {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teamList', 'projectList'] })
+      queryClient.invalidateQueries({ queryKey: ['teamList'] })
+      queryClient.invalidateQueries({ queryKey: ['projectList'] })
     },
     onError: (e) => {
       console.log(e)

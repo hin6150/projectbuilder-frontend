@@ -9,17 +9,23 @@ import { CustomQueryOptions } from '@/api/type'
 import { BoardService } from './service'
 import { BoardDto, BoardResponse, InputBoard } from './model'
 
-export const { BoardListInfo, BoardInfo, AddBoard } = {
+export const BoardOptions = {
   BoardListInfo: (client: QueryClient, uid: string) => ({
     queryKey: ['boardList'],
     queryFn: () => BoardService.boardListInfo(client, uid),
   }),
   BoardInfo: (client: QueryClient, uid: string) => ({
-    queryKey: ['board', uid],
+    queryKey: ['board'],
     queryFn: () => BoardService.boardInfo(client, uid),
   }),
   AddBoard: (client: QueryClient, uid: string) => ({
     mutationFn: (dto: InputBoard) => BoardService.addBoard(client, uid, dto),
+  }),
+  DeleteBoard: (client: QueryClient) => ({
+    mutationFn: (uid: string) => BoardService.deleteBoard(client, uid),
+  }),
+  UpdateBoard: (client: QueryClient) => ({
+    mutationFn: (dto: InputBoard) => BoardService.updateBoard(client, dto),
   }),
 }
 
@@ -30,7 +36,7 @@ export const useBoardListQuery = (
   const queryClient = useQueryClient()
 
   return useQuery<BoardResponse<BoardDto[]>>({
-    ...BoardListInfo(queryClient, uid),
+    ...BoardOptions.BoardListInfo(queryClient, uid),
     ...options,
   })
 }
@@ -41,18 +47,38 @@ export const useBoardQuery = (
   const queryClient = useQueryClient()
 
   return useQuery<BoardResponse<BoardDto>>({
-    ...BoardInfo(queryClient, uid),
+    ...BoardOptions.BoardInfo(queryClient, uid),
     ...options,
   })
 }
-export const useAddBoard = (
+export const useAddBoardMutation = (
   uid: string,
   options: MutationOptions<BoardResponse<string>, Error, InputBoard> = {},
 ) => {
   const queryClient = useQueryClient()
 
   return useMutation<BoardResponse<string>, Error, InputBoard>({
-    ...AddBoard(queryClient, uid),
+    ...BoardOptions.AddBoard(queryClient, uid),
+    ...options,
+  })
+}
+export const useDeleteBoardMutation = (
+  options: MutationOptions<BoardResponse<null>, Error, string> = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation<BoardResponse<null>, Error, string>({
+    ...BoardOptions.DeleteBoard(queryClient),
+    ...options,
+  })
+}
+export const useUpdateBoardMutation = (
+  options: MutationOptions<BoardResponse<null>, Error, InputBoard> = {},
+) => {
+  const queryClient = useQueryClient()
+
+  return useMutation<BoardResponse<null>, Error, InputBoard>({
+    ...BoardOptions.UpdateBoard(queryClient),
     ...options,
   })
 }
