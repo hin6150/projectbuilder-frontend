@@ -1,9 +1,8 @@
-export { useCalendar } from './useCalendar'
 export {
-  generateCalendar,
   daysInMonth,
-  getFirstDayofMonth,
-  getPreviousMonthDays,
   formatDate,
   formatDateTime,
+  generateCalendar,
+  getFirstDayofMonth,
+  getPreviousMonthDays,
 } from './useCalendarUtils'

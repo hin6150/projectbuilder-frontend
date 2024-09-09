@@ -1,19 +1,21 @@
 import { CalendarCheckIcon, LogOutIcon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React from 'react'
 import { ProfileAvatar } from '../Avatar/Avatar'
+import NotificationDropdown from '../Notification/Notification'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
-import NotificationDropdown from '../Notification/Notification'
 
 const Header: React.FC = () => {
   return (
     <header className="flex h-20 items-center justify-between py-4">
-      <div className="text-h3">오늘 회의</div>
+      <Link href="/home">
+        <div className="text-h3">오늘 회의</div>
+      </Link>
       <DropdownMenu>
         <div className="flex">
           <NotificationDropdown />

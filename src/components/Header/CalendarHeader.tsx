@@ -9,7 +9,7 @@ import {
 import { useModal } from '@/hooks/useModal'
 import { ModalTypes } from '@/hooks/useModal/useModal'
 import { ChevronLeft, ChevronRight, FilterIcon, PlusIcon } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Button } from '../ui/button'
 import {
   Select,
@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '../ui/select'
 
-import { useCalendarContext } from '@/hooks/useCalendar/calendarContext'
+import { CalendarContext } from '@/hooks/useCalendar/calendarContext'
 import { format } from 'date-fns'
 import { Daily } from '../Calendar/Daily'
 import { List } from '../Calendar/List'
@@ -59,7 +59,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onFilterChange,
 }) => {
   const { modals, openModal } = useModal()
-  const { state, selectedProject, myCalendar } = useCalendarContext()
+  const state = useContext(CalendarContext)
 
   const startDate = format(state.date, 'yyyy-MM-dd')
   const endDate = format(state.date, 'yyyy-MM-dd')
@@ -71,8 +71,8 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   const projects = projectResponse?.result
 
   const filteredSchedules = schedules?.filter((schedule) => {
-    const isProjectSelected = selectedProject[schedule.projectId || '']
-    return isProjectSelected || !schedule.projectId || myCalendar
+    const isProjectSelected = state.selectedProject[schedule.projectId || '']
+    return isProjectSelected || !schedule.projectId || state.myCalendar
   })
 
   // const [selectedProject, setSelectedProject] = useState<SelectedProjects>({})
@@ -138,14 +138,14 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
               {projects?.map((project) => (
                 <DropdownMenuCheckboxItem
                   key={project.id}
-                  checked={!!selectedProject[project.id]}
+                  checked={!!state.selectedProject[project.id]}
                   // onCheckedChange={() => handleCheckedChange(project.id)}
                 >
                   {project.title}
                 </DropdownMenuCheckboxItem>
               ))}
               <DropdownMenuCheckboxItem
-                checked={myCalendar}
+                checked={state.myCalendar}
                 // onCheckedChange={handleMyCalendarChange}
               >
                 내 캘린더

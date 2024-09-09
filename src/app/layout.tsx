@@ -38,10 +38,12 @@ export default function RootLayout({
         ) : (
           <ReactQueryProvider>
             <ModalContextProvider>
-              <InitialSetting />
-              <div>{children}</div>
-              <div id="scheduleModal" />
-              <div id="modal" />
+              <CalendarProvider>
+                <InitialSetting />
+                <div>{children}</div>
+                <div id="scheduleModal" />
+                <div id="modal" />
+              </CalendarProvider>
             </ModalContextProvider>
           </ReactQueryProvider>
         )}
