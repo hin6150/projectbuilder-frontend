@@ -53,7 +53,7 @@ export class Fetcher {
       }
 
       // const response = await fetch(`${this.baseUrl}${url}`, fetchOptions)
-      const response = await fetch(url, fetchOptions)
+      const response = await fetch(`/api${url}`, fetchOptions)
 
       if (response.ok) {
         data = (await response.json()) as Promise<ResponseType>
@@ -100,7 +100,7 @@ export class Fetcher {
       }
 
       // const response = await fetch(`${this.baseUrl}${url}`, fetchOptions)
-      const response = await fetch(url, fetchOptions)
+      const response = await fetch(`/api${url}`, fetchOptions)
 
       console.log(`Bearer ${client.getQueryData<string>(['access'])!}`)
 

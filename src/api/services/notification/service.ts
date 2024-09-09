@@ -1,10 +1,10 @@
 import { APIBuilder } from '@/api/lib/fetcher'
-import { notifyManager, QueryClient } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
 import { InputNotification, Notification, NotificationResponse } from './model'
 
 export const NotificationService = {
   async notificationListInfo(client: QueryClient) {
-    return APIBuilder.get(`/notice/`)
+    return APIBuilder.get('/notice/')
       .withCredentials(client)
       .build()
       .call<NotificationResponse<Notification[]>>()
